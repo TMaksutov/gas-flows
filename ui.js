@@ -100,6 +100,8 @@ let nodeIdCounter = 0; // Start numbering nodes from 0
 // Function to update the information panel with nodes and edges data.
 function updateInfo() {
   let totalVolume = 0;
+  let positiveInjection = 0;
+  let negativeInjection = 0;
   let nodeHTML = '<ul>';
   let edgeHTML = '<ul>';
 
@@ -108,6 +110,14 @@ function updateInfo() {
     let volume = parseFloat(node.data('volume') || 0);
     let pressure = parseFloat(node.data('pressure') || 0);
     totalVolume += volume;
+    
+    // Sum injections.
+    if (injection > 0) {
+      positiveInjection += injection;
+    } else {
+      negativeInjection += injection;
+    }
+    
     let geometry = 0;
     node.connectedEdges().forEach(edge => {
       let D = parseFloat(edge.data('diameter'));
@@ -118,14 +128,14 @@ function updateInfo() {
 
     let label = "P: " + pressure.toFixed(2);
     if (injection !== 0) {
-      label += " | I: " + injection.toFixed(2);
+      label += " | I: " + injection.toFixed(4);
     }
     node.data('label', label);
 
     nodeHTML += `<li>${node.id()}: Position (${Math.round(node.position('x'))}, ${Math.round(node.position('y'))}); 
     Volume: ${volume.toFixed(0)} m³, Pressure: ${pressure.toFixed(2)}, Geometry: ${geometry.toFixed(1)}`;
     if (injection !== 0) {
-      nodeHTML += `, Injection: ${injection}`;
+      nodeHTML += `, Injection: ${injection.toFixed(4)}`;
     }
     nodeHTML += `</li>`;
   });
@@ -144,14 +154,276 @@ function updateInfo() {
 
   let timeStr = `${hours}h ${minutes}m ${seconds}s`;
 
-  document.getElementById('totalVolume').textContent =
-    "Total Gas Volume: " + totalVolume.toFixed(0) + " m³ (Simulated Time: " + timeStr + ")";
+  // Update the info panel with gas volume, simulated time and injection summaries.
+  document.getElementById('totalVolume').innerHTML =
+    "Total Gas Volume: " + totalVolume.toFixed(0) + " m³ (Simulated Time: " + timeStr + ")<br>" +
+    "Total Positive Injection: " + positiveInjection.toFixed(4) + " m³/s, " +
+    "Total Negative Injection: " + negativeInjection.toFixed(4) + " m³/s";
 
   document.getElementById('nodeList').innerHTML = '<strong>Nodes:</strong>' + nodeHTML;
   document.getElementById('edgeList').innerHTML = '<strong>Edges:</strong>' + edgeHTML;
 }
 
+
 // (Placeholder for future generate graph functionality.)
+function generateBtn() {
+  // Clear the graph and reset time.
+  clearGraph();
+  simulatedSeconds = 0;
+  
+  // Allowed values.
+  const L_values = [];
+  for (let i = 10; i <= 200; i += 10) { 
+    L_values.push(i); 
+  }
+  const D_values = [];
+  for (let i = 200; i <= 1400; i += 100) { 
+    D_values.push(i); 
+  }
+  
+  // Helper functions.
+  function randChoice(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  // Scale: pixels per km.
+  const pixelPerKm = 5;
+  
+  // --- Step 1: Create Main Horizontal Line (Depth 1) ---
+  // Choose number of equal segments (3-5) for the main horizontal line.
+  const mainSegments = randInt(3, 5);
+  
+  // For the main line, select one L and one D.
+  // D must be 500 or higher.
+  const possibleMainD = D_values.filter(d => d >= 500);
+  const mainD = randChoice(possibleMainD);
+  // The main segment length must be between mainD/20 and mainD/10.
+  const allowedMainL = L_values.filter(l => l >= mainD / 20 && l <= mainD / 10);
+  const mainL = allowedMainL.length ? randChoice(allowedMainL) : Math.min(...L_values);
+  
+  // Set a fixed y position and initial x.
+  const startY = 150;
+  let startX = 50;
+  
+  // Create main line nodes.
+  const mainLineNodes = [];
+  // Create first node.
+  let nodeId = 'n' + nodeIdCounter;
+  nodeIdCounter++;
+  cy.add({
+    group: 'nodes',
+    data: { id: nodeId, branchD: mainD, branchL: mainL, injection: 0 },
+    position: { x: startX, y: startY }
+  });
+  mainLineNodes.push(nodeId);
+  
+  // Create subsequent nodes with equal segments.
+  for (let i = 0; i < mainSegments; i++) {
+    startX += mainL * pixelPerKm;
+    nodeId = 'n' + nodeIdCounter;
+    nodeIdCounter++;
+    cy.add({
+      group: 'nodes',
+      data: { id: nodeId, branchD: mainD, branchL: mainL, injection: 0 },
+      position: { x: startX, y: startY }
+    });
+    const prevNodeId = mainLineNodes[mainLineNodes.length - 1];
+    const edgeId = 'e' + prevNodeId + '_' + nodeId;
+    cy.add({
+      group: 'edges',
+      data: {
+        id: edgeId,
+        source: prevNodeId,
+        target: nodeId,
+        flow: 0,
+        length: mainL.toFixed(3),
+        diameter: mainD.toFixed(0),
+        label: "L: " + mainL + " km | D: " + mainD + " mm"
+      }
+    });
+    mainLineNodes.push(nodeId);
+  }
+  
+  // --- Step 2: Generate Second Layer Branches from Main Branch (Depth 2) ---
+  // Pick 2-4 distinct points from the main branch (excluding the first node) to attach vertical branches.
+  const numSecondLayerBranches = randInt(2, 4);
+  const mainBranchPoints = mainLineNodes.slice(1); // exclude the first node
+  const selectedNodes = [];
+  while (selectedNodes.length < numSecondLayerBranches && mainBranchPoints.length > 0) {
+    const idx = Math.floor(Math.random() * mainBranchPoints.length);
+    selectedNodes.push(mainBranchPoints.splice(idx, 1)[0]);
+  }
+  
+  // We'll store level 2 branches for potential level 3 attachments.
+  const depth2Branches = [];
+  
+  selectedNodes.forEach(attachNodeId => {
+    const attachNode = cy.getElementById(attachNodeId);
+    // Use parent's branch parameters (from the main branch).
+    const parentD = attachNode.data('branchD'); // equals mainD
+    const parentL = attachNode.data('branchL'); // equals mainL
+    
+    // Choose a branch diameter: must be lower than parent's diameter.
+    const allowedBranchD = D_values.filter(d => d < parentD);
+    if (allowedBranchD.length === 0) return; // skip if no lower D available
+    const branchD = randChoice(allowedBranchD);
+    
+    // Determine number of segments (2-4) for this branch.
+    const branchSegments = randInt(2, 4);
+    
+    // For each branch segment, the length must be between branchD/20 and branchD/10 and less than parent's L.
+    const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
+    if (allowedBranchL.length === 0) return;
+    // Use the same segment length for the entire branch.
+    const branchL = randChoice(allowedBranchL);
+    
+    // Decide vertical direction: up (-1) or down (+1)
+    const verticalSign = randChoice([1, -1]);
+    
+    // Starting position: same as the attachment node.
+    const branchX = attachNode.position('x');
+    let branchY = attachNode.position('y');
+    const branchNodes = [attachNodeId];
+    
+    for (let seg = 0; seg < branchSegments; seg++) {
+      branchY += verticalSign * branchL * pixelPerKm;
+      const newNodeId = 'n' + nodeIdCounter;
+      nodeIdCounter++;
+      cy.add({
+        group: 'nodes',
+        data: { id: newNodeId, branchD: branchD, branchL: branchL, injection: 0 },
+        position: { x: branchX, y: branchY }
+      });
+      const edgeId = 'e' + branchNodes[branchNodes.length - 1] + '_' + newNodeId;
+      cy.add({
+        group: 'edges',
+        data: {
+          id: edgeId,
+          source: branchNodes[branchNodes.length - 1],
+          target: newNodeId,
+          flow: 0,
+          length: branchL.toFixed(3),
+          diameter: branchD.toFixed(0),
+          label: "L: " + branchL + " km | D: " + branchD + " mm"
+        }
+      });
+      branchNodes.push(newNodeId);
+    }
+    
+    if (branchNodes.length > 1) {
+      depth2Branches.push(branchNodes);
+    }
+  });
+  
+  // --- Step 3: Generate Third Layer Branches from Level 2 (Horizontal) ---
+  // For each depth 2 branch, pick 1-3 points (excluding the first node) to attach horizontal branches.
+  depth2Branches.forEach(branch => {
+    const numThirdLayerBranches = randInt(1, 3);
+    // Create a copy of possible attachment nodes (exclude the first node).
+    const possibleAttachments = branch.slice(1);
+    const selectedAttachments = [];
+    while (selectedAttachments.length < numThirdLayerBranches && possibleAttachments.length > 0) {
+      const idx = Math.floor(Math.random() * possibleAttachments.length);
+      selectedAttachments.push(possibleAttachments.splice(idx, 1)[0]);
+    }
+    
+    selectedAttachments.forEach(attachNodeId => {
+      const attachNode = cy.getElementById(attachNodeId);
+      // Use parent's branch parameters from the depth 2 branch.
+      const parentD = attachNode.data('branchD'); // equals branchD from level 2
+      const parentL = attachNode.data('branchL'); // equals branchL from level 2
+      
+      // Choose a horizontal branch diameter: must be lower than parent's diameter.
+      const allowedBranchD = D_values.filter(d => d < parentD);
+      if (allowedBranchD.length === 0) return;
+      const branchD = randChoice(allowedBranchD);
+      
+      // Determine number of segments for this horizontal branch (1-2 segments).
+      const branchSegments = randInt(1, 2);
+      
+      // For each branch segment, length must be between branchD/20 and branchD/10 and less than parent's L.
+      const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
+      if (allowedBranchL.length === 0) return;
+      const branchL = randChoice(allowedBranchL);
+      
+      // Decide horizontal direction: left (-1) or right (+1)
+      const horizontalSign = randChoice([1, -1]);
+      
+      // Starting position: same as the attachment node.
+      let branchX = attachNode.position('x');
+      const branchY = attachNode.position('y'); // horizontal branch, so y stays constant.
+      const branchNodes = [attachNodeId];
+      
+      for (let seg = 0; seg < branchSegments; seg++) {
+        branchX += horizontalSign * branchL * pixelPerKm;
+        const newNodeId = 'n' + nodeIdCounter;
+        nodeIdCounter++;
+        cy.add({
+          group: 'nodes',
+          data: { id: newNodeId, injection: 0 },
+          position: { x: branchX, y: branchY }
+        });
+        const edgeId = 'e' + branchNodes[branchNodes.length - 1] + '_' + newNodeId;
+        cy.add({
+          group: 'edges',
+          data: {
+            id: edgeId,
+            source: branchNodes[branchNodes.length - 1],
+            target: newNodeId,
+            flow: 0,
+            length: branchL.toFixed(3),
+            diameter: branchD.toFixed(0),
+            label: "L: " + branchL + " km | D: " + branchD + " mm"
+          }
+        });
+        branchNodes.push(newNodeId);
+      }
+    });
+  });
+  
+  // --- Step 4: Add Injections ---
+  // Let X = Math.pow(mainD, 2.25) / 20000.
+  const X = Math.pow(mainD, 2.25) / 20000;
+  // Add +X to the first point of main branch.
+  const firstMainNode = cy.getElementById(mainLineNodes[0]);
+  firstMainNode.data('injection', (firstMainNode.data('injection') || 0) + X);
+  // Add -0.5 * X to the last point of main branch.
+  const lastMainNode = cy.getElementById(mainLineNodes[mainLineNodes.length - 1]);
+  lastMainNode.data('injection', (lastMainNode.data('injection') || 0) - 0.5 * X);
+  
+  // The remaining half (i.e. -0.5 * X) will be distributed among all endpoints.
+  // Endpoints are nodes with only one connected edge.
+  const endpoints = cy.nodes().filter(node => node.connectedEdges().length === 1);
+  
+  // Calculate total diameter of endpoints (use branchD if available, otherwise use the diameter of the single edge).
+  let totalEndpointDiameter = 0;
+  endpoints.forEach(node => {
+    let d = node.data('branchD');
+    if (!d) {
+      const edge = node.connectedEdges()[0];
+      d = parseFloat(edge.data('diameter'));
+    }
+    totalEndpointDiameter += d;
+  });
+  
+  // Distribute the extra negative injection (-0.5 * X) pro rata according to each endpoint's diameter.
+  endpoints.forEach(node => {
+    let d = node.data('branchD');
+    if (!d) {
+      const edge = node.connectedEdges()[0];
+      d = parseFloat(edge.data('diameter'));
+    }
+    const extraInjection = -0.5 * X * (d / totalEndpointDiameter);
+    node.data('injection', (node.data('injection') || 0) + extraInjection);
+  });
+  
+  updateInfo();
+}
+
 
 // Clear the graph and reset node numbering.
 function clearGraph() {
@@ -166,6 +438,7 @@ function clearGraph() {
 
 // Attach event listeners to the control buttons.
 document.getElementById('clearBtn').addEventListener('click', clearGraph);
+document.getElementById('generateBtn').addEventListener('click', generateBtn);
 document.getElementById('playBtn').addEventListener('click', function() {
   setSimulationMode("sec", cy, updateInfo);
 });
@@ -178,6 +451,7 @@ document.getElementById('playHourBtn').addEventListener('click', function() {
 document.getElementById('stopBtn').addEventListener('click', function() {
   setSimulationMode("stop", cy, updateInfo);
 });
+;
 
 // Tap event for creating nodes and edges.
 cy.on('tap', function(evt) {
