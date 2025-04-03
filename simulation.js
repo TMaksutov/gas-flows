@@ -1,41 +1,3 @@
-/*
- * Module: Gas Flow Simulation Framework
- *
- * This module defines the graph structure used to simulate gas flows in a pipeline network.
- * The network is represented using nodes (pipeline junctions, injection/extraction points) and edges (pipeline segments).
- *
- * Data Structures:
- *
- * 1. Nodes:
- *    - Represents a point in the gas network (e.g., junction, compressor station, injection or withdrawal point).
- *    - Attributes:
- *       • id: Unique identifier for the node (e.g., "n0", "n1", etc.).
- *       • injection: Gas injection/output value in m³/sec (positive for injection, negative for withdrawal).
- *       • volume: Current gas volume stored at the node (in m³).
- *       • geometry: A derived metric calculated from all connected edges using the formula:
- *                   geometry = Σ [ π * (D/1000)^2 * (L*1000) / 2 ]
- *                   where D is the diameter (in mm) and L is the length (in km) of each connected edge.
- *       • pressure: Calculated using the formula: pressure = volume * Zcp / geometry.
- *       • Position (x, y): Used for visualization and layout purposes.
- *
- * 2. Edges:
- *    - Represents a pipeline segment connecting two nodes.
- *    - Attributes:
- *       • id: Unique identifier, typically a combination of source and target node ids (e.g., "e0_1").
- *       • source: The id of the source node.
- *       • target: The id of the target node.
- *       • flow: The gas flow through the edge (in m³/s), calculated based on node pressures.
- *       • length: The length of the pipeline segment in km (new edges are fixed at 1 km).
- *       • diameter: The diameter of the pipeline in mm (new edges are fixed at 565 mm).
- *       • label: Display label for the edge, formatted in one line (e.g., "L: 1.000 km | D: 565.00 mm").
- *
- * Usage:
- * - This graph structure is used to calculate and simulate gas flows, pressures, and other related metrics.
- * - Node and edge properties are dynamically updated based on simulation steps.
- *
- * Note:
- * - Customize the formulas and parameters as needed for your specific gas flow calculations.
- */
 
 let simulationInterval = null;
 let simulationStartTime = Date.now();
@@ -60,24 +22,56 @@ function computeNodePressure(geometry, volume) {
   return volume * Zcp * Pc / (geometry);
 }
 
-function applyInjections(cy) {
-  cy.nodes().forEach(node => {
-    const injection = parseFloat(node.data('injection')) || 0;
-    let volume = parseFloat(node.data('volume')) || 0;
-    volume += injection;
-    if (volume < 0) volume = 0;
-    node.data('volume', volume);
-  });
+function computeNodeVolume(geometry, pressure) {
+  if (geometry <= 0) return 0;
+  const Zcp = 0.9;
+  const Pc = 0.101325; // MPa Standard conditions 
+  return (pressure * geometry) / (Zcp * Pc);
 }
+
 
 function updateAllNodePressures(cy) {
   cy.nodes().forEach(node => {
+    // Only update injection if pressure is NOT set.
+    if (!node.data('pressureSet')) {
     const geometry = parseFloat(node.data('geometry')) || 0;
     const volume = parseFloat(node.data('volume')) || 0;
     const pressure = computeNodePressure(geometry, volume);
     node.data('pressure', pressure);
+	}
   });
 }
+
+function updateAllNodeVolumes(cy) {
+  cy.nodes().forEach(node => {
+    // Only update volume if pressure flag is set.
+    if (node.data('pressureSet')) {
+      const geometry = parseFloat(node.data('geometry')) || 0;
+      const pressure = parseFloat(node.data('pressure')) || 0;
+      const volume = computeNodeVolume(geometry, pressure);
+      node.data('volume', volume);
+    }
+  });
+}
+
+
+
+function applyInjections(cy) {
+  cy.nodes().forEach(node => {
+    // Only update injection if pressure is NOT set.
+    if (!node.data('pressureSet')) {
+      const injection = parseFloat(node.data('injection')) || 0;
+      let volume = parseFloat(node.data('volume')) || 0;
+      volume += injection;
+      if (volume < 0) volume = 0;
+      node.data('volume', volume);
+    } else {
+		  node.data('injection', 0);
+			}
+  });
+}
+
+
 
 function computeFlows(cy) {
   cy.edges().forEach(edge => {
@@ -91,24 +85,43 @@ function computeFlows(cy) {
     edge.data('flow', flow);
 
     if (p1 > p2) {
+      // Flow from source (higher pressure) to target (lower pressure)
       const available = parseFloat(sourceNode.data('volume'));
-      const actualFlow = Math.min(flow, available);
-      sourceNode.data('volume', available - actualFlow);
+      let actualFlow;
+      if (!sourceNode.data('pressureSet')) {
+        // Pressure flag not set: move volume from source to target.
+        actualFlow = Math.min(flow, available);
+        sourceNode.data('volume', available - actualFlow);
+      } else {
+        // Pressure flag set: do not remove volume from source, just add new volume.
+        actualFlow = flow;
+      }
       targetNode.data('volume', (parseFloat(targetNode.data('volume')) || 0) + actualFlow);
     } else if (p2 > p1) {
+      // Flow from target (higher pressure) to source (lower pressure)
       const available = parseFloat(targetNode.data('volume'));
-      const actualFlow = Math.min(flow, available);
-      targetNode.data('volume', available - actualFlow);
+      let actualFlow;
+      if (!targetNode.data('pressureSet')) {
+        // Pressure flag not set: move volume from target to source.
+        actualFlow = Math.min(flow, available);
+        targetNode.data('volume', available - actualFlow);
+      } else {
+        // Pressure flag set: do not remove volume from target, just add new volume.
+        actualFlow = flow;
+      }
       sourceNode.data('volume', (parseFloat(sourceNode.data('volume')) || 0) + actualFlow);
     }
   });
 }
 
+
+
+
 function updateSimulation(cy, updateInfoCallback) {
   applyInjections(cy);
-  updateAllNodePressures(cy);
+  updateAllNodePressures(cy);  
   computeFlows(cy);
-  
+  updateAllNodeVolumes(cy);  
   // Each call represents 1 simulated second.
   simulatedSeconds += 1;
   

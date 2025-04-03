@@ -67,12 +67,10 @@ let cy = cytoscape({
     {
       selector: 'edge',
       style: {
-        // Edge width: 1px + round(D/200)
         'width': function(edge) {
           let d = parseFloat(edge.data('diameter')) || 0;
           return 1 + Math.round(d / 200);
         },
-        // Use getEdgeColor to determine dynamic line color.
         'line-color': function(edge) {
           return getEdgeColor(edge);
         },
@@ -90,12 +88,16 @@ let cy = cytoscape({
   layout: { name: 'preset' }
 });
 
-
-// Interaction variables.
-let tappedTimeout = null;
-const doubleTapThreshold = 300;
-let edgeCreationSource = null;
+// Global interaction variables.
 let nodeIdCounter = 0; // Start numbering nodes from 0
+let tappedTimeout = null;
+const doubleTapThreshold = 300; // milliseconds
+
+// Variables for the creation session.
+let creationActive = false;
+let firstNode = null;
+let tempNode = null;
+let tempEdge = null;
 
 // Function to update the information panel with nodes and edges data.
 function updateInfo() {
@@ -111,7 +113,6 @@ function updateInfo() {
     let pressure = parseFloat(node.data('pressure') || 0);
     totalVolume += volume;
     
-    // Sum injections.
     if (injection > 0) {
       positiveInjection += injection;
     } else {
@@ -154,7 +155,6 @@ function updateInfo() {
 
   let timeStr = `${hours}h ${minutes}m ${seconds}s`;
 
-  // Update the info panel with gas volume, simulated time and injection summaries.
   document.getElementById('totalVolume').innerHTML =
     "Total Gas Volume: " + totalVolume.toFixed(0) + " m³ (Simulated Time: " + timeStr + ")<br>" +
     "Total Positive Injection: " + positiveInjection.toFixed(4) + " m³/s, " +
@@ -164,14 +164,12 @@ function updateInfo() {
   document.getElementById('edgeList').innerHTML = '<strong>Edges:</strong>' + edgeHTML;
 }
 
-
 // (Placeholder for future generate graph functionality.)
 function generateBtn() {
   // Clear the graph and reset time.
   clearGraph();
   simulatedSeconds = 0;
   
-  // Allowed values.
   const L_values = [];
   for (let i = 10; i <= 200; i += 10) { 
     L_values.push(i); 
@@ -181,7 +179,6 @@ function generateBtn() {
     D_values.push(i); 
   }
   
-  // Helper functions.
   function randChoice(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -190,28 +187,17 @@ function generateBtn() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   
-  // Scale: pixels per km.
   const pixelPerKm = 5;
-  
-  // --- Step 1: Create Main Horizontal Line (Depth 1) ---
-  // Choose number of equal segments (3-5) for the main horizontal line.
   const mainSegments = randInt(3, 5);
-  
-  // For the main line, select one L and one D.
-  // D must be 500 or higher.
   const possibleMainD = D_values.filter(d => d >= 500);
   const mainD = randChoice(possibleMainD);
-  // The main segment length must be between mainD/20 and mainD/10.
   const allowedMainL = L_values.filter(l => l >= mainD / 20 && l <= mainD / 10);
   const mainL = allowedMainL.length ? randChoice(allowedMainL) : Math.min(...L_values);
   
-  // Set a fixed y position and initial x.
   const startY = 150;
   let startX = 50;
   
-  // Create main line nodes.
   const mainLineNodes = [];
-  // Create first node.
   let nodeId = 'n' + nodeIdCounter;
   nodeIdCounter++;
   cy.add({
@@ -221,7 +207,6 @@ function generateBtn() {
   });
   mainLineNodes.push(nodeId);
   
-  // Create subsequent nodes with equal segments.
   for (let i = 0; i < mainSegments; i++) {
     startX += mainL * pixelPerKm;
     nodeId = 'n' + nodeIdCounter;
@@ -248,43 +233,32 @@ function generateBtn() {
     mainLineNodes.push(nodeId);
   }
   
-  // --- Step 2: Generate Second Layer Branches from Main Branch (Depth 2) ---
-  // Pick 2-4 distinct points from the main branch (excluding the first node) to attach vertical branches.
   const numSecondLayerBranches = randInt(2, 4);
-  const mainBranchPoints = mainLineNodes.slice(1); // exclude the first node
+  const mainBranchPoints = mainLineNodes.slice(1);
   const selectedNodes = [];
   while (selectedNodes.length < numSecondLayerBranches && mainBranchPoints.length > 0) {
     const idx = Math.floor(Math.random() * mainBranchPoints.length);
     selectedNodes.push(mainBranchPoints.splice(idx, 1)[0]);
   }
   
-  // We'll store level 2 branches for potential level 3 attachments.
   const depth2Branches = [];
   
   selectedNodes.forEach(attachNodeId => {
     const attachNode = cy.getElementById(attachNodeId);
-    // Use parent's branch parameters (from the main branch).
-    const parentD = attachNode.data('branchD'); // equals mainD
-    const parentL = attachNode.data('branchL'); // equals mainL
+    const parentD = attachNode.data('branchD');
+    const parentL = attachNode.data('branchL');
     
-    // Choose a branch diameter: must be lower than parent's diameter.
     const allowedBranchD = D_values.filter(d => d < parentD);
-    if (allowedBranchD.length === 0) return; // skip if no lower D available
+    if (allowedBranchD.length === 0) return;
     const branchD = randChoice(allowedBranchD);
     
-    // Determine number of segments (2-4) for this branch.
     const branchSegments = randInt(2, 4);
-    
-    // For each branch segment, the length must be between branchD/20 and branchD/10 and less than parent's L.
     const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
     if (allowedBranchL.length === 0) return;
-    // Use the same segment length for the entire branch.
     const branchL = randChoice(allowedBranchL);
     
-    // Decide vertical direction: up (-1) or down (+1)
     const verticalSign = randChoice([1, -1]);
     
-    // Starting position: same as the attachment node.
     const branchX = attachNode.position('x');
     let branchY = attachNode.position('y');
     const branchNodes = [attachNodeId];
@@ -319,11 +293,8 @@ function generateBtn() {
     }
   });
   
-  // --- Step 3: Generate Third Layer Branches from Level 2 (Horizontal) ---
-  // For each depth 2 branch, pick 1-3 points (excluding the first node) to attach horizontal branches.
   depth2Branches.forEach(branch => {
     const numThirdLayerBranches = randInt(1, 3);
-    // Create a copy of possible attachment nodes (exclude the first node).
     const possibleAttachments = branch.slice(1);
     const selectedAttachments = [];
     while (selectedAttachments.length < numThirdLayerBranches && possibleAttachments.length > 0) {
@@ -333,29 +304,22 @@ function generateBtn() {
     
     selectedAttachments.forEach(attachNodeId => {
       const attachNode = cy.getElementById(attachNodeId);
-      // Use parent's branch parameters from the depth 2 branch.
-      const parentD = attachNode.data('branchD'); // equals branchD from level 2
-      const parentL = attachNode.data('branchL'); // equals branchL from level 2
+      const parentD = attachNode.data('branchD');
+      const parentL = attachNode.data('branchL');
       
-      // Choose a horizontal branch diameter: must be lower than parent's diameter.
       const allowedBranchD = D_values.filter(d => d < parentD);
       if (allowedBranchD.length === 0) return;
       const branchD = randChoice(allowedBranchD);
       
-      // Determine number of segments for this horizontal branch (1-2 segments).
       const branchSegments = randInt(1, 2);
-      
-      // For each branch segment, length must be between branchD/20 and branchD/10 and less than parent's L.
       const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
       if (allowedBranchL.length === 0) return;
       const branchL = randChoice(allowedBranchL);
       
-      // Decide horizontal direction: left (-1) or right (+1)
       const horizontalSign = randChoice([1, -1]);
       
-      // Starting position: same as the attachment node.
       let branchX = attachNode.position('x');
-      const branchY = attachNode.position('y'); // horizontal branch, so y stays constant.
+      const branchY = attachNode.position('y');
       const branchNodes = [attachNodeId];
       
       for (let seg = 0; seg < branchSegments; seg++) {
@@ -385,21 +349,13 @@ function generateBtn() {
     });
   });
   
-  // --- Step 4: Add Injections ---
-  // Let X = Math.pow(mainD, 2.25) / 20000.
   const X = Math.pow(mainD, 2.25) / 20000;
-  // Add +X to the first point of main branch.
   const firstMainNode = cy.getElementById(mainLineNodes[0]);
   firstMainNode.data('injection', (firstMainNode.data('injection') || 0) + X);
-  // Add -0.5 * X to the last point of main branch.
   const lastMainNode = cy.getElementById(mainLineNodes[mainLineNodes.length - 1]);
   lastMainNode.data('injection', (lastMainNode.data('injection') || 0) - 0.5 * X);
   
-  // The remaining half (i.e. -0.5 * X) will be distributed among all endpoints.
-  // Endpoints are nodes with only one connected edge.
   const endpoints = cy.nodes().filter(node => node.connectedEdges().length === 1);
-  
-  // Calculate total diameter of endpoints (use branchD if available, otherwise use the diameter of the single edge).
   let totalEndpointDiameter = 0;
   endpoints.forEach(node => {
     let d = node.data('branchD');
@@ -410,7 +366,6 @@ function generateBtn() {
     totalEndpointDiameter += d;
   });
   
-  // Distribute the extra negative injection (-0.5 * X) pro rata according to each endpoint's diameter.
   endpoints.forEach(node => {
     let d = node.data('branchD');
     if (!d) {
@@ -424,15 +379,9 @@ function generateBtn() {
   updateInfo();
 }
 
-
-// Clear the graph and reset node numbering.
 function clearGraph() {
   cy.elements().remove();
-  nodeIdCounter = 0; // Reset node numbering to 0
-  if (edgeCreationSource) {
-    edgeCreationSource.style('border-width', '0px');
-    edgeCreationSource = null;
-  }
+  nodeIdCounter = 0;
   updateInfo();
 }
 
@@ -451,112 +400,341 @@ document.getElementById('playHourBtn').addEventListener('click', function() {
 document.getElementById('stopBtn').addEventListener('click', function() {
   setSimulationMode("stop", cy, updateInfo);
 });
-;
 
-// Tap event for creating nodes and edges.
+
+
+// Global variable to keep track of the active popup
+let activePopup = null;
+
+// General function to show a custom pop-up with one or multiple input fields.
+// Now supports a "checkbox" field type.
+function showMultiInputPopup(fields, x, y) {
+  return new Promise(function(resolve) {
+    // Create popup container
+    const popup = document.createElement('div');
+    popup.style.position = 'absolute';
+    popup.style.top = y + 'px';
+    popup.style.left = x + 'px';
+    popup.style.padding = '10px';
+    popup.style.background = '#fff';
+    popup.style.border = '1px solid #ccc';
+    popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+    popup.style.zIndex = 1000;
+    
+    // Build inner HTML dynamically based on fields.
+    let innerHTML = '';
+    fields.forEach((field, index) => {
+      innerHTML += `<label>${field.label}</label><br>`;
+      if (field.type === "checkbox") {
+        innerHTML += `<input type="checkbox" id="popupInput_${index}" style="margin: 5px 0;" ${field.defaultValue ? "checked" : ""}/><br>`;
+      } else {
+        innerHTML += `<input type="text" id="popupInput_${index}" value="${field.defaultValue}" style="margin: 5px 0;"/><br>`;
+      }
+    });
+    innerHTML += `<button id="popupOk">OK</button>
+                  <button id="popupCancel">Cancel</button>`;
+    popup.innerHTML = innerHTML;
+    
+    // Append popup to the document and store it in the global variable.
+    document.body.appendChild(popup);
+    activePopup = popup;
+    
+    // Focus the first input field immediately if it's a text input.
+    const firstInput = popup.querySelector('input');
+    if (firstInput && firstInput.type !== "checkbox") {
+      firstInput.focus();
+      firstInput.select();
+    }
+    
+    // Listen for Enter key in the popup to trigger OK button.
+    popup.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        popup.querySelector('#popupOk').click();
+      }
+    });
+    
+    // OK button event handler.
+    popup.querySelector('#popupOk').addEventListener('click', function() {
+      let results = {};
+      fields.forEach((field, index) => {
+        let inputEl = popup.querySelector('#popupInput_' + index);
+        if (inputEl.type === "checkbox") {
+          results[field.key] = inputEl.checked;
+        } else {
+          results[field.key] = inputEl.value;
+        }
+      });
+      // Remove popup and clear global variable.
+      document.body.removeChild(popup);
+      activePopup = null;
+      resolve(results);
+    });
+    
+    // Cancel button event handler.
+    popup.querySelector('#popupCancel').addEventListener('click', function() {
+      document.body.removeChild(popup);
+      activePopup = null;
+      resolve(null);
+    });
+  });
+}
+
+// Function to close the active pop-up from other parts of your code.
+function closeActivePopup() {
+  if (activePopup) {
+    document.body.removeChild(activePopup);
+    activePopup = null;
+  }
+}
+
+// Update Cytoscape event to use the general pop-up on right-click.
+cy.on('cxttap', async function(evt) {
+  // If the user clicked on the background, close any active pop-up and do nothing else.
+  if (evt.target === cy) {
+    closeActivePopup();
+    return;
+  }
+  
+  // Get the click position.
+  const { x, y } = evt.renderedPosition;
+  
+  if (evt.target.isNode()) {
+    const node = evt.target;
+    const currentInjection = node.data('injection') || 0;
+    const currentPressure = node.data('pressure') || 0;
+    const currentPressureSet = node.data('pressureSet') || false;
+    // Call the general pop-up with three fields: one for injection, one for pressure, and a checkbox for pressure.
+    const result = await showMultiInputPopup(
+      [
+        { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
+        { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
+        { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
+      ],
+      x,
+      y
+    );
+    if (result !== null) {
+      const numInjection = parseFloat(result.injection);
+      if (!isNaN(numInjection)) {
+        node.data('injection', numInjection);
+      }
+      const numPressure = parseFloat(result.pressure);
+      if (!isNaN(numPressure)) {
+        node.data('pressure', numPressure);
+      }
+      node.data('pressureSet', result.pressureSet);
+      updateInfo();
+    }
+  } else if (evt.target.isEdge()) {
+    const edge = evt.target;
+    // Call the general pop-up with two fields for edge length and diameter.
+    const result = await showMultiInputPopup(
+      [
+        { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
+        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
+      ],
+      x,
+      y
+    );
+    if (result) {
+      const newLength = parseFloat(result.length);
+      const newDiameter = parseFloat(result.diameter);
+      if (!isNaN(newLength) && newLength > 0) {
+        edge.data('length', newLength.toFixed(3));
+      }
+      if (!isNaN(newDiameter) && newDiameter > 0) {
+        edge.data('diameter', newDiameter.toFixed(0));
+      }
+      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm");
+      updateInfo();
+    }
+  }
+});
+
+
+
+
+// Creation of new edges
 cy.on('tap', function(evt) {
+  closeActivePopup();
   if (tappedTimeout) {
+    // A tap was pending; treat this as a double-tap.
     clearTimeout(tappedTimeout);
     tappedTimeout = null;
-    if (evt.target === cy) {
-      let pos = evt.position;
-      let newId = 'n' + nodeIdCounter;
-      nodeIdCounter++;
-      cy.add({
-        group: 'nodes',
-        data: { id: newId, injection: 0, pressure: 0, volume: 0 },
-        position: { x: pos.x, y: pos.y }
-      });
-      updateInfo();
-    } else {
-      if (edgeCreationSource && edgeCreationSource.id() === evt.target.id()) {
-        edgeCreationSource = null;
-      }
+    if (evt.target !== cy) {
       evt.target.remove();
+      // Cancel any ongoing creation session.
+      if (firstNode) {
+        // Remove blue border if it was set.
+        firstNode.style({ 'border-color': '', 'border-width': '' });
+      }
+      creationActive = false;
+      firstNode = null;
       updateInfo();
     }
     return;
   } else {
     tappedTimeout = setTimeout(function() {
-      if (evt.target === cy) {
-        // Do nothing on background tap.
-      } else {
-        if (edgeCreationSource === null) {
-          edgeCreationSource = evt.target;
-          edgeCreationSource.style('border-color', 'red');
-          edgeCreationSource.style('border-width', '3px');
+      if (!creationActive) {
+        // FIRST TAP: start a creation session.
+        if (evt.target === cy) {
+          // Clicked on the canvas: create a new starting node.
+          firstNode = cy.add({
+            group: 'nodes',
+            data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, volume: 0 },
+            position: { x: evt.position.x, y: evt.position.y }
+          });
+          nodeIdCounter++;
         } else {
-          if (edgeCreationSource.id() !== evt.target.id()) {
-            let newEdgeId = 'e' + edgeCreationSource.id() + '_' + evt.target.id();
-            let exists = cy.edges().some(function(edge) {
-              return edge.id() === newEdgeId || edge.id() === ('e' + evt.target.id() + '_' + edgeCreationSource.id());
-            });
-            if (!exists) {
-              // Set fixed values for new edges.
-              let length = "1.000";
-              let diameter = "565.00";
+          // Clicked on an existing node: use it as the starting node.
+          firstNode = evt.target;
+        }
+        // Highlight the selected starting node with a blue border.
+        firstNode.style({
+          'border-color': 'blue',
+          'border-width': '1px'
+        });
+        creationActive = true;
+      } else {
+        // SECOND TAP: finish the creation session.
+        if (evt.target === cy) {
+          // Clicked on canvas: create a new node at click position.
+          let secondNode = cy.add({
+            group: 'nodes',
+            data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, volume: 0 },
+            position: { x: evt.position.x, y: evt.position.y }
+          });
+          nodeIdCounter++;
+          let newEdgeId = 'e' + firstNode.id() + '_' + secondNode.id();
+          cy.add({
+            group: 'edges',
+            data: {
+              id: newEdgeId,
+              source: firstNode.id(),
+              target: secondNode.id(),
+              flow: 0,
+              length: "1.000",
+              diameter: "565.00",
+              label: "L: 1.000 km | D: 565 mm"
+            }
+          });
+        } else {
+          // Clicked on an existing node: create an edge from the starting node to this node.
+          if (evt.target.id() !== firstNode.id()) {
+            let newEdgeId = 'e' + firstNode.id() + '_' + evt.target.id();
+            if (!cy.getElementById(newEdgeId).length) {
               cy.add({
                 group: 'edges',
                 data: {
                   id: newEdgeId,
-                  source: edgeCreationSource.id(),
+                  source: firstNode.id(),
                   target: evt.target.id(),
                   flow: 0,
-                  length: length,
-                  diameter: diameter,
-                  // Updated label: single line format.
-                  label: "L: " + length + " km | D: " + Math.round(diameter) + " mm"
+                  length: "1.000",
+                  diameter: "565.00",
+                  label: "L: 1.000 km | D: 565 mm"
                 }
               });
-              updateInfo();
             }
-            edgeCreationSource.style('border-width', '0px');
-            edgeCreationSource = null;
-          } else {
-            edgeCreationSource.style('border-width', '0px');
-            edgeCreationSource = null;
           }
         }
+        // Remove blue border from the starting node and end creation session.
+        firstNode.style({
+          'border-color': '',
+          'border-width': ''
+        });
+        creationActive = false;
+        firstNode = null;
+        updateInfo();
       }
       tappedTimeout = null;
     }, doubleTapThreshold);
   }
 });
 
-// Right-click (context tap) event for updating node/edge parameters.
-cy.on('cxttap', function(evt) {
-  if (evt.target === cy) return;
+// --- Added Code: Prevent pop-up from closing immediately after a long tap ---
+
+// Flag to ignore the next tap event that would close the popup.
+let ignoreNextClose = false;
+
+// Save the original closeActivePopup function.
+const originalCloseActivePopup = closeActivePopup;
+
+// Override closeActivePopup to skip closing when ignoreNextClose is true.
+closeActivePopup = function() {
+  if (ignoreNextClose) {
+    // Reset the flag and do nothing.
+    ignoreNextClose = false;
+    return;
+  }
+  // Otherwise, call the original function.
+  originalCloseActivePopup();
+};
+
+// Modified long tap (taphold) event handler that sets the flag.
+cy.on('taphold', async function(evt) {
+  // Set flag so that the subsequent tap event does not close the pop-up.
+  ignoreNextClose = true;
+  
+  // If the long tap is on the background, close any active pop-up.
+  if (evt.target === cy) {
+    closeActivePopup();
+    return;
+  }
+  
+  // Get the tap position.
+  const { x, y } = evt.renderedPosition;
+  
   if (evt.target.isNode()) {
-    let node = evt.target;
-    let currentInjection = node.data('injection') || 0;
-    let newInjection = prompt("Enter gas injection/output value in m³/sec (positive for input, negative for output):", currentInjection);
-    if (newInjection !== null) {
-      let numVal = parseFloat(newInjection);
-      if (!isNaN(numVal)) {
-        node.data('injection', numVal);
-        updateInfo();
+    // If a node is long-tapped, open the node pop-up.
+    const node = evt.target;
+    const currentInjection = node.data('injection') || 0;
+    const currentPressure = node.data('pressure') || 0;
+    const currentPressureSet = node.data('pressureSet') || false;
+    const result = await showMultiInputPopup(
+      [
+        { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
+        { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
+        { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
+      ],
+      x,
+      y
+    );
+    if (result !== null) {
+      const numInjection = parseFloat(result.injection);
+      if (!isNaN(numInjection)) {
+        node.data('injection', numInjection);
       }
+      const numPressure = parseFloat(result.pressure);
+      if (!isNaN(numPressure)) {
+        node.data('pressure', numPressure);
+      }
+      node.data('pressureSet', result.pressureSet);
+      updateInfo();
     }
   } else if (evt.target.isEdge()) {
-    let edge = evt.target;
-    let currentLength = edge.data('length');
-    let newLength = prompt("Enter new length for this edge in km:", currentLength);
-    if (newLength !== null) {
-      let numValLength = parseFloat(newLength);
-      if (!isNaN(numValLength) && numValLength > 0) {
-        edge.data('length', numValLength.toFixed(3));
+    // If an edge is long-tapped, open the edge pop-up.
+    const edge = evt.target;
+    const result = await showMultiInputPopup(
+      [
+        { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
+        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
+      ],
+      x,
+      y
+    );
+    if (result) {
+      const newLength = parseFloat(result.length);
+      const newDiameter = parseFloat(result.diameter);
+      if (!isNaN(newLength) && newLength > 0) {
+        edge.data('length', newLength.toFixed(3));
       }
-    }
-    let currentDiameter = edge.data('diameter');
-    let newDiameter = prompt("Enter new diameter for this edge in mm:", currentDiameter);
-    if (newDiameter !== null) {
-      let numValDiameter = parseFloat(newDiameter);
-      if (!isNaN(numValDiameter) && numValDiameter > 0) {
-        edge.data('diameter', numValDiameter.toFixed(0));
+      if (!isNaN(newDiameter) && newDiameter > 0) {
+        edge.data('diameter', newDiameter.toFixed(0));
       }
+      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm");
+      updateInfo();
     }
-    // Update the label in single-line format.
-    edge.data('label', "L: " + edge.data('length') + " km | D: " + Math.round(edge.data('diameter')) + " mm");
-    updateInfo();
   }
 });
