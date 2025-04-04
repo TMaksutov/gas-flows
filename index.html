@@ -1,89 +1,284 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-
-	  gtag('config', 'G-MYJRPRS3TW');
-	</script>
-  <meta charset="utf-8">
-  <title>Gas Pipelines Simulation.js</title>
-	<meta name="description" content="
-	  Interactive natural gas pipeline simulation and flow calculation tool.
-	  Visualize gas distribution, gas flow schemes, and pipeline networks in real-time.
-	">
-	<meta name="keywords" content="
-	  gas pipeline simulation,
-	  natural gas flow,
-	  methane distribution,
-	  pipeline calculation,
-	  gas flow visualization,
-	  Cytoscape.js simulation,
-	  energy network modeling,
-	  gas flow scheme,
-	  pipeline network graph,
-	  real-time gas simulation
-	">
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-	<link rel="manifest" href="/site.webmanifest">
+  <meta charset="UTF-8">
+  <meta name="description" content="Gas flow calculator for natural gas pipelines.">
+  <meta name="keywords" content="gas flow calculator, gas calculator, dispatching calculator,natural gas pipeline tool, gas pressure calculator, gas flow rate, pipeline simulation, energy transport calculator, pipeline gas calculator, natural gas calculator, gas volume calculator, gas velocity calculator, gas transport modeling, pipeline engineering tools, gas compression calculator, flow rate conversion, gas dispatching tool, online gas calculator, gas hydraulics calculator">
+  <title>Gas Flow Calculator</title>
   <style>
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
+      background-color: #f9f9f9;
+      padding: 20px;
     }
-    #controls {
-      padding: 10px;
+
+    .container {
+      max-width: 800px;
+      margin: auto;
       background-color: #fff;
-      border-bottom: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .controlButton {
-      margin-right: 10px;
-      padding: 8px 16px;
-      font-size: 14px;
+
+    h2 {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
     }
-    #cy {
-      width: 100%;
-      height: 600px;
-      display: block;
-      background-color: #fff;
-      border: 1px solid #ccc;
+
+    .field-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
     }
-    #info {
-      margin: 10px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      background-color: #fff;
+
+    .field-group label {
+      flex: 0.5;
+      min-width: 180px;
+      white-space: nowrap;
+    }
+
+    .field-group input {
+      flex: 0.5;
+      padding: 5px;
+    }
+
+    .field-group span {
+      flex: 2;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .results-container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .results-column {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .field-group span.result-value {
+      padding-left: 10px;
     }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.22.0/cytoscape.min.js"></script>
 </head>
 <body>
-  <div id="controls">
-    <button id="generateBtn" class="controlButton">Generate</button>
-    <button id="clearBtn" class="controlButton">Clear Everything</button>
-    <button id="playBtn" class="controlButton">Play (sec)</button>
-    <button id="playMinBtn" class="controlButton">Play (min)</button>
-    <button id="playHourBtn" class="controlButton">Play (hour)</button>
-    <button id="stopBtn" class="controlButton">Stop</button>
+	<div style="text-align: right; margin-bottom: 20px;">
+	  <a href="simulation.html">
+		<button style="padding: 10px 20px; font-size: 16px;">Switch to Simulation</button>
+	  </a>
+	</div>
+
+  <div class="container">
+    <h2>Gas Flow Calculator</h2>
+    <div id="inputs">
+
+      <div class="field-group">
+        <label for="K">K</label>
+        <input id="K" type="number" value="0.03">
+        <span>– Pipeline efficiency coefficient</span>
+      </div>
+      <div class="field-group">
+        <label for="D">D (mm)</label>
+        <input id="D" type="number" value="500">
+        <span>– Internal pipe diameter in millimeters</span>
+      </div>
+      <div class="field-group">
+        <label for="E">E</label>
+        <input id="E" type="number" value="0.95">
+        <span>– Flow efficiency factor</span>
+      </div>
+      <div class="field-group">
+        <label for="L">L (km)</label>
+        <input id="L" type="number" value="125">
+        <span>– Pipeline length in kilometers</span>
+      </div>
+      <div class="field-group">
+        <label for="T">Tavg (°C)</label>
+        <input id="T" type="number" value="15">
+        <span>– Average gas temperature in Celsius</span>
+      </div>
+      <div class="field-group">
+        <label for="Z">Zavg</label>
+        <input id="Z" type="number" value="0.9">
+        <span>– Average gas compressibility factor</span>
+      </div>
+      <div class="field-group">
+        <label for="ro">ro</label>
+        <input id="ro" type="number" value="0.6">
+        <span>– Gas relative density (air = 1)</span>
+      </div>
+
+      <!-- p1 Pressure Inputs -->
+      <div class="field-group">
+        <label for="p1kg">p1 (kg/mm²)</label>
+        <input id="p1kg" type="number" step="any" value="57.103">
+        <span>– Pressure in kilograms per square millimeter</span>
+      </div>
+      <div class="field-group">
+        <label for="p1">p1 (bar)</label>
+        <input id="p1" type="number" step="any" value="56">
+        <span>– Pressure in bar</span>
+      </div>
+      <div class="field-group">
+        <label for="p1mpa">p1 (MPa)</label>
+        <input id="p1mpa" type="number" step="any" value="5.6">
+        <span>– Pressure in megapascals</span>
+      </div>
+
+      <!-- p2 Pressure Inputs -->
+      <div class="field-group">
+        <label for="p2kg">p2 (kg/mm²)</label>
+        <input id="p2kg" type="number" step="any" value="3.749">
+        <span>– Pressure in kilograms per square millimeter</span>
+      </div>
+      <div class="field-group">
+        <label for="p2">p2 (bar)</label>
+        <input id="p2" type="number" step="any" value="38">
+        <span>– Pressure in bar</span>
+      </div>
+      <div class="field-group">
+        <label for="p2mpa">p2 (MPa)</label>
+        <input id="p2mpa" type="number" step="any" value="3.8">
+        <span>– Pressure in megapascals</span>
+      </div>
+    </div>
+
+    <h2>Results</h2>
+    <div id="results" class="results-container">
+      <div class="results-column">
+        <div class="field-group">
+          <label for="Pavg_mpa">Pavg (MPa)</label>
+          <span id="Pavg_mpa" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="Pavg_kg">Pavg (kg/mm²)</label>
+          <span id="Pavg_kg" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="lambda">λ (calculated)</label>
+          <span id="lambda" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="V1">V1 (m/s)</label>
+          <span id="V1" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="V2">V2 (m/s)</label>
+          <span id="V2" class="result-value"></span>
+        </div>
+      </div>
+      <div class="results-column">
+        <div class="field-group">
+          <label for="Qd">Qd (million m³/day)</label>
+          <span id="Qd" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="Qh">Qh (thousand m³/hour)</label>
+          <span id="Qh" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="Qm">Qm (thousand m³/min)</label>
+          <span id="Qm" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="Qs">Qs (m³/s)</label>
+          <span id="Qs" class="result-value"></span>
+        </div>
+        <div class="field-group">
+          <label for="Volume">Volume (million m³)</label>
+          <span id="Volume" class="result-value"></span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="cy"></div>
+  <script>
+    function updatePressureGroup(prefix, sourceId) {
+      const barEl = document.getElementById(prefix);
+      const mpaEl = document.getElementById(prefix + 'mpa');
+      const kgEl = document.getElementById(prefix + 'kg');
+      const source = document.getElementById(sourceId);
+      const value = parseFloat(source.value);
 
-  <div id="info">
-    <h3>Nodes and Edges</h3>
-    <div id="totalVolume"></div>
-    <div id="nodeList"></div>
-    <div id="edgeList"></div>
-  </div>
+      if (sourceId === prefix + 'mpa' && !isNaN(value)) {
+        barEl.value = (value / 0.1).toFixed(3);
+        kgEl.value = (value / 0.1 * 1.0197).toFixed(3);
+      } else if (sourceId === prefix + 'kg' && !isNaN(value)) {
+        barEl.value = (value / 1.0197).toFixed(3);
+        mpaEl.value = (value / 1.0197 * 0.1).toFixed(3);
+      } else if (!isNaN(value)) {
+        mpaEl.value = (value * 0.1).toFixed(3);
+        kgEl.value = (value * 1.0197).toFixed(3);
+      }
+    }
 
-  <script src="simulation.js"></script>
-  <script src="ui.js"></script>
+    function computeResults() {
+      const Dmm = parseFloat(document.getElementById('D').value);
+      const D = Dmm / 1000;
+      const p1mpa = parseFloat(document.getElementById('p1mpa').value);
+      const p2mpa = parseFloat(document.getElementById('p2mpa').value);
+      const L = parseFloat(document.getElementById('L').value);
+      const T = parseFloat(document.getElementById('T').value) + 273.15;
+      const Z = parseFloat(document.getElementById('Z').value);
+      const ro = parseFloat(document.getElementById('ro').value);
+      const K = parseFloat(document.getElementById('K').value);
+      const E = parseFloat(document.getElementById('E').value);
+	let Pavg;
+	if (p1mpa !== p2mpa) {
+	  Pavg = (2 / 3) * ((Math.pow(p1mpa, 3) - Math.pow(p2mpa, 3)) / (Math.pow(p1mpa, 2) - Math.pow(p2mpa, 2)));
+	} else {
+	  Pavg = p1mpa; // если давления равны, берём просто p1
+	}
+
+
+      const lambda = 0.067 * Math.pow((2 * K / Dmm), 0.2) / Math.pow(E, 2);
+      const numerator = E * 3.32e-6 * Math.pow(Dmm, 2.5) * Math.sqrt(Math.pow(p1mpa, 2) - Math.pow(p2mpa, 2));
+      const denominator = Math.sqrt(lambda * Z * T * ro * L);
+      const Qd = numerator / denominator;
+      const Qh = Qd * 1000 / 24;
+      const Qm = Qh / 60;
+      const Qs = Qm * 1000 / 60;
+      const area = Math.PI * Math.pow(D / 2, 2);
+      const V1 = Qs / area;
+      const V2 = Qs / area;
+      const Volume = 3.1415 * D * D * Pavg * 293.15 * L / (4 * 0.101325 * Z * T) / 1000;
+
+      document.getElementById('lambda').textContent = lambda.toFixed(6);
+      document.getElementById('Qd').textContent = Qd.toFixed(3);
+      document.getElementById('Qh').textContent = Qh.toFixed(1);
+      document.getElementById('Qm').textContent = Qm.toFixed(3);
+      document.getElementById('Qs').textContent = Qs.toFixed(1);
+      document.getElementById('V1').textContent = V1.toFixed(1);
+      document.getElementById('V2').textContent = V2.toFixed(1);
+      document.getElementById('Volume').textContent = Volume.toFixed(3);
+      document.getElementById('Pavg_mpa').textContent = Pavg.toFixed(3);
+      document.getElementById('Pavg_kg').textContent = (Pavg * 1.0197).toFixed(3);
+    }
+
+    ['p1', 'p1mpa', 'p1kg'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        updatePressureGroup('p1', id);
+        computeResults();
+      });
+    });
+
+    ['p2', 'p2mpa', 'p2kg'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        updatePressureGroup('p2', id);
+        computeResults();
+      });
+    });
+
+    document.querySelectorAll('#inputs input:not([id^=p1]):not([id^=p2])').forEach(input => {
+      input.addEventListener('input', computeResults);
+    });
+
+    computeResults();
+  </script>
 </body>
 </html>
