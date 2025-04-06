@@ -1,95 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
-	<script>
-	  window.dataLayer = window.dataLayer || [];
-	  function gtag(){dataLayer.push(arguments);}
-	  gtag('js', new Date());
-
-	  gtag('config', 'G-MYJRPRS3TW');
-	</script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
   <meta charset="utf-8">
   <title>Gas Flows Calculator</title>
   <meta name="description" content="Gas flow calculator for natural gas pipelines.">
-  <meta name="keywords" content="gas flow calculator, gas calculator, dispatching calculator,natural gas pipeline tool, gas pressure calculator, gas flow rate, pipeline simulation, energy transport calculator, pipeline gas calculator, natural gas calculator, gas volume calculator, gas velocity calculator, gas transport modeling, pipeline engineering tools, gas compression calculator, flow rate conversion, gas dispatching tool, online gas calculator, gas hydraulics calculator">
-	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-	<link rel="manifest" href="/site.webmanifest">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    h2 {
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 5px;
-    }
-
-    .field-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .field-group label {
-      flex: 0.5;
-      min-width: 180px;
-      white-space: nowrap;
-    }
-
-    .field-group input {
-      flex: 0.5;
-      padding: 5px;
-    }
-
-    .field-group span {
-      flex: 2;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .results-container {
-      display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-    }
-
-    .results-column {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .field-group span.result-value {
-      padding-left: 10px;
-    }
-  </style>
+  <meta name="keywords" content="gas flow calculator, gas calculator, dispatching calculator, natural gas pipeline tool, gas pressure calculator, gas flow rate, pipeline simulation, energy transport calculator, pipeline gas calculator, natural gas calculator, gas volume calculator, gas velocity calculator, gas transport modeling, pipeline engineering tools, gas compression calculator, flow rate conversion, gas dispatching tool, online gas calculator, gas hydraulics calculator">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="common.css">
 </head>
-<body>
-	<div style="text-align: right; margin-bottom: 20px;">
-	  <a href="simulation.html">
-		<button style="padding: 10px 20px; font-size: 16px;">Switch to Simulation</button>
-	  </a>
-	</div>
 
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html" class="active">Flow Calculator</a></li>
+      <li><a href="pressures.html">Pressure Converter</a></li>
+      <li><a href="simulator.html">Gas flow Simulator</a></li>
+    </ul>
+  </nav>
   <div class="container">
     <h2>Gas Flow Calculator</h2>
     <div id="inputs">
-
       <div class="field-group">
         <label for="K">K</label>
         <input id="K" type="number" value="0.03">
@@ -125,7 +66,6 @@
         <input id="ro" type="number" value="0.6">
         <span>– Gas relative density (air = 1)</span>
       </div>
-
       <!-- p1 Pressure Inputs -->
       <div class="field-group">
         <label for="p1kg">p1 (kg/mm²)</label>
@@ -142,7 +82,6 @@
         <input id="p1mpa" type="number" step="any" value="5.6">
         <span>– Pressure in megapascals</span>
       </div>
-
       <!-- p2 Pressure Inputs -->
       <div class="field-group">
         <label for="p2kg">p2 (kg/mm²)</label>
@@ -160,7 +99,6 @@
         <span>– Pressure in megapascals</span>
       </div>
     </div>
-
     <h2>Results</h2>
     <div id="results" class="results-container">
       <div class="results-column">
@@ -209,7 +147,6 @@
       </div>
     </div>
   </div>
-
   <script>
     function updatePressureGroup(prefix, sourceId) {
       const barEl = document.getElementById(prefix);
@@ -217,7 +154,6 @@
       const kgEl = document.getElementById(prefix + 'kg');
       const source = document.getElementById(sourceId);
       const value = parseFloat(source.value);
-
       if (sourceId === prefix + 'mpa' && !isNaN(value)) {
         barEl.value = (value / 0.1).toFixed(3);
         kgEl.value = (value / 0.1 * 1.0197).toFixed(3);
@@ -241,14 +177,12 @@
       const ro = parseFloat(document.getElementById('ro').value);
       const K = parseFloat(document.getElementById('K').value);
       const E = parseFloat(document.getElementById('E').value);
-	let Pavg;
-	if (p1mpa !== p2mpa) {
-	  Pavg = (2 / 3) * ((Math.pow(p1mpa, 3) - Math.pow(p2mpa, 3)) / (Math.pow(p1mpa, 2) - Math.pow(p2mpa, 2)));
-	} else {
-	  Pavg = p1mpa; // если давления равны, берём просто p1
-	}
-
-
+      let Pavg;
+      if (p1mpa !== p2mpa) {
+        Pavg = (2 / 3) * ((Math.pow(p1mpa, 3) - Math.pow(p2mpa, 3)) / (Math.pow(p1mpa, 2) - Math.pow(p2mpa, 2)));
+      } else {
+        Pavg = p1mpa; // if pressures are equal, simply use p1
+      }
       const lambda = 0.067 * Math.pow((2 * K / Dmm), 0.2) / Math.pow(E, 2);
       const numerator = E * 3.32e-6 * Math.pow(Dmm, 2.5) * Math.sqrt(Math.pow(p1mpa, 2) - Math.pow(p2mpa, 2));
       const denominator = Math.sqrt(lambda * Z * T * ro * L);
@@ -257,10 +191,15 @@
       const Qm = Qh / 60;
       const Qs = Qm * 1000 / 60;
       const area = Math.PI * Math.pow(D / 2, 2);
-      const V1 = Qs / area;
-      const V2 = Qs / area;
+      
+      // Adjust Qs from standard conditions to local conditions using standard pressure (0.101325 MPa)
+      const Q1 = Qs * (0.101325 / p1mpa);
+      const Q2 = Qs * (0.101325 / p2mpa);
+      const V1 = Q1 / area;
+      const V2 = Q2 / area;
+      
       const Volume = 3.1415 * D * D * Pavg * 293.15 * L / (4 * 0.101325 * Z * T) / 1000;
-
+      
       document.getElementById('lambda').textContent = lambda.toFixed(6);
       document.getElementById('Qd').textContent = Qd.toFixed(3);
       document.getElementById('Qh').textContent = Qh.toFixed(1);
@@ -270,7 +209,7 @@
       document.getElementById('V2').textContent = V2.toFixed(1);
       document.getElementById('Volume').textContent = Volume.toFixed(3);
       document.getElementById('Pavg_mpa').textContent = Pavg.toFixed(3);
-      document.getElementById('Pavg_kg').textContent = (Pavg * 1.0197).toFixed(3);
+      document.getElementById('Pavg_kg').textContent = (Pavg * 10.197).toFixed(3);
     }
 
     ['p1', 'p1mpa', 'p1kg'].forEach(id => {
@@ -294,4 +233,8 @@
     computeResults();
   </script>
 </body>
+  <footer  class="container" style="margin-top: 5px; padding: 20px; font-size: 0.9em;">
+    <p><strong>Disclaimer:</strong> This Gas Flow Calculator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
+  </footer>
+
 </html>
