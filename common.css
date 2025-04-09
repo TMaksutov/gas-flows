@@ -3,15 +3,20 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
-  padding: 20px;
+  padding: 10px;
 }
 
 /* Navigation menu styled to match a container of 800px width */
 nav {
   max-width: 800px;
-  margin: 0 auto 20px;
+  margin: 0 auto 10px;
   background-color: #fff;
   border-bottom: 1px solid #ddd;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 8px;
 }
 nav ul {
   list-style: none;
@@ -43,13 +48,15 @@ nav a:hover {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 /* Field groups (used in index.html and pressures.html) */
 .field-group {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   gap: 10px;
 }
 .field-group label {
@@ -82,16 +89,32 @@ nav a:hover {
 /* Controls area constrained to 800px and centered */
 #controls {
   max-width: 800px;
-  margin: 0 auto 20px;
-  padding: 10px;
+  margin: 0 auto 10px;
   background-color: #fff;
   border-bottom: 1px solid #ccc;
+  max-width: 800px;
+  margin: 0 auto 10px;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 8px;
 }
 .controlButton {
   margin-right: 10px;
   padding: 8px 16px;
   font-size: 14px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
 }
+
+.controlButton.active,
+.controlButton:hover {
+  background-color: #ddd;
+}
+
 
 /* Cytoscape container (canvas): full browser width */
 #cy {
@@ -103,11 +126,28 @@ nav a:hover {
   margin-bottom: 10px;
 }
 
-/* Info area for simulator page (800px wide and centered) */
-#info {
-  max-width: 800px;
-  margin: 0 auto 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+/* Make #info full width and nicely styled */
+.info-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* spacing between blocks */
+  justify-content: center;
 }
+
+.info-block {
+  min-width:415px; 
+  max-width:700px;  
+  min-height:0px;   
+  box-sizing: border-box;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+/* On screens narrower than 800px, stack the blocks */
+@media (max-width: 800px) {
+  .info-block {
+    flex: 1 1 100%;
+  }
+}
+

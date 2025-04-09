@@ -13,10 +13,7 @@ function interpolateColor(c1, c2, t) {
 
 // Function to compute the edge color based on flow and diameter
 function getEdgeColor(edge) {
-  let flow = parseFloat(edge.data('flow')) || 0;
-  let d = parseFloat(edge.data('diameter')) || 1; // avoid division by zero
-  let ratio = 400000000 * flow / Math.pow(d, 2.25);
-  
+  let ratio = parseFloat(edge.data('v2')) || 0;
   // Define anchor colors:
   // Ratio 0: Grey, 5: Blue, 10: Green, 20: Red
   const grey = [128, 128, 128];
@@ -104,9 +101,18 @@ function updateInfo() {
   let totalVolume = 0;
   let positiveInjection = 0;
   let negativeInjection = 0;
-  let nodeHTML = '<ul>';
-  let edgeHTML = '<ul>';
-
+  
+  // Build table header for nodes
+  let nodeHTML = `<table border="1" cellpadding="4" cellspacing="0">
+    <tr>
+      <th>ID</th>
+      <th>Position</th>
+      <th>Volume (m³)</th>
+      <th>Pressure (MPa)</th>
+      <th>Geometry</th>
+      <th>Injection (m³/s)</th>
+    </tr>`;
+  
   cy.nodes().forEach(node => {
     let injection = parseFloat(node.data('injection') || 0);
     let volume = parseFloat(node.data('volume') || 0);
@@ -123,46 +129,68 @@ function updateInfo() {
     node.connectedEdges().forEach(edge => {
       let D = parseFloat(edge.data('diameter'));
       let L = parseFloat(edge.data('length'));
-      geometry += 3.1415 * D / 1000 * D / 1000 * L / 2 * 1000 / 4;
+      geometry += 3.1415 * Math.pow(D / 1000, 2) * (L / 2) * (1000 / 4);
     });
     node.data('geometry', geometry);
-
+    
     let label = "P: " + pressure.toFixed(2);
     if (injection !== 0) {
       label += " | I: " + injection.toFixed(4);
     }
     node.data('label', label);
-
-    nodeHTML += `<li>${node.id()}: Position (${Math.round(node.position('x'))}, ${Math.round(node.position('y'))}); 
-    Volume: ${volume.toFixed(0)} m³, Pressure: ${pressure.toFixed(2)}, Geometry: ${geometry.toFixed(1)}`;
-    if (injection !== 0) {
-      nodeHTML += `, Injection: ${injection.toFixed(4)}`;
-    }
-    nodeHTML += `</li>`;
+    
+    nodeHTML += `<tr>
+      <td>${node.id()}</td>
+      <td>(${Math.round(node.position('x'))}, ${Math.round(node.position('y'))})</td>
+      <td>${volume.toFixed(0)}</td>
+      <td>${pressure.toFixed(2)}</td>
+      <td>${geometry.toFixed(1)}</td>
+      <td>${injection !== 0 ? injection.toFixed(4) : ''}</td>
+    </tr>`;
   });
-  nodeHTML += '</ul>';
-
+  nodeHTML += '</table>';
+  
+  // Build table header for edges with additional speed columns.
+  let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
+    <tr>
+      <th>ID</th>
+      <th>Source → Target</th>
+      <th>Flow (m³/s)</th>
+      <th>L (km)</th>
+      <th>D(mm)</th>
+      <th>v1 (m/s)</th>
+      <th>v2 (m/s)</th>
+    </tr>`;
+  
   cy.edges().forEach(edge => {
-    edgeHTML += `<li>${edge.id()}: ${edge.data('source')} → ${edge.data('target')}, 
-    Flow: ${parseFloat(edge.data('flow')).toFixed(2)} m³/s, 
-    Length: ${edge.data('length')} km, Diameter: ${edge.data('diameter')} mm</li>`;
+    edgeHTML += `<tr>
+      <td>${edge.id()}</td>
+      <td>${edge.data('source')} → ${edge.data('target')}</td>
+      <td>${parseFloat(edge.data('flow')).toFixed(2)}</td>
+      <td>${edge.data('length')}</td>
+      <td>${edge.data('diameter')}</td>
+      <td>${parseFloat(edge.data('v1') || 0).toFixed(1)}</td>
+      <td>${parseFloat(edge.data('v2') || 0).toFixed(1)}</td>
+    </tr>`;
   });
-  edgeHTML += '</ul>';
-
+  edgeHTML += '</table>';
+  
+  // Format simulated time
   let hours = Math.floor(simulatedSeconds / 3600);
   let minutes = Math.floor((simulatedSeconds % 3600) / 60);
   let seconds = simulatedSeconds % 60;
-
   let timeStr = `${hours}h ${minutes}m ${seconds}s`;
-
+  
   document.getElementById('totalVolume').innerHTML =
     "Total Gas Volume: " + totalVolume.toFixed(0) + " m³ (Simulated Time: " + timeStr + ")<br>" +
     "Total Positive Injection: " + positiveInjection.toFixed(4) + " m³/s, " +
     "Total Negative Injection: " + negativeInjection.toFixed(4) + " m³/s";
-
-  document.getElementById('nodeList').innerHTML = '<strong>Nodes:</strong>' + nodeHTML;
-  document.getElementById('edgeList').innerHTML = '<strong>Edges:</strong>' + edgeHTML;
+  
+  document.getElementById('info-nodes').innerHTML = nodeHTML;
+  document.getElementById('info-edges').innerHTML = edgeHTML;
 }
+
+
 
 // (Placeholder for future generate graph functionality.)
 function generateBtn() {
@@ -217,7 +245,7 @@ function generateBtn() {
       position: { x: startX, y: startY }
     });
     const prevNodeId = mainLineNodes[mainLineNodes.length - 1];
-    const edgeId = 'e' + prevNodeId + '_' + nodeId;
+    const edgeId = prevNodeId + '_' + nodeId;
     cy.add({
       group: 'edges',
       data: {
@@ -225,6 +253,8 @@ function generateBtn() {
         source: prevNodeId,
         target: nodeId,
         flow: 0,
+		v1: 0, 
+		v2: 0, 
         length: mainL.toFixed(3),
         diameter: mainD.toFixed(0),
         label: "L: " + mainL + " km | D: " + mainD + " mm"
@@ -272,7 +302,7 @@ function generateBtn() {
         data: { id: newNodeId, branchD: branchD, branchL: branchL, injection: 0 },
         position: { x: branchX, y: branchY }
       });
-      const edgeId = 'e' + branchNodes[branchNodes.length - 1] + '_' + newNodeId;
+      const edgeId = branchNodes[branchNodes.length - 1] + '_' + newNodeId;
       cy.add({
         group: 'edges',
         data: {
@@ -280,6 +310,8 @@ function generateBtn() {
           source: branchNodes[branchNodes.length - 1],
           target: newNodeId,
           flow: 0,
+		  v1: 0, 
+		  v2: 0, 
           length: branchL.toFixed(3),
           diameter: branchD.toFixed(0),
           label: "L: " + branchL + " km | D: " + branchD + " mm"
@@ -331,7 +363,7 @@ function generateBtn() {
           data: { id: newNodeId, injection: 0 },
           position: { x: branchX, y: branchY }
         });
-        const edgeId = 'e' + branchNodes[branchNodes.length - 1] + '_' + newNodeId;
+        const edgeId = branchNodes[branchNodes.length - 1] + '_' + newNodeId;
         cy.add({
           group: 'edges',
           data: {
@@ -339,6 +371,8 @@ function generateBtn() {
             source: branchNodes[branchNodes.length - 1],
             target: newNodeId,
             flow: 0,
+			v1: 0, 
+			v2: 0, 
             length: branchL.toFixed(3),
             diameter: branchD.toFixed(0),
             label: "L: " + branchL + " km | D: " + branchD + " mm"
@@ -400,8 +434,6 @@ document.getElementById('playHourBtn').addEventListener('click', function() {
 document.getElementById('stopBtn').addEventListener('click', function() {
   setSimulationMode("stop", cy, updateInfo);
 });
-
-
 
 // Global variable to keep track of the active popup
 let activePopup = null;
@@ -552,9 +584,6 @@ cy.on('cxttap', async function(evt) {
   }
 });
 
-
-
-
 // Creation of new edges
 cy.on('tap', function(evt) {
   closeActivePopup();
@@ -606,7 +635,7 @@ cy.on('tap', function(evt) {
             position: { x: evt.position.x, y: evt.position.y }
           });
           nodeIdCounter++;
-          let newEdgeId = 'e' + firstNode.id() + '_' + secondNode.id();
+          let newEdgeId = firstNode.id() + '_' + secondNode.id();
           cy.add({
             group: 'edges',
             data: {
@@ -614,6 +643,8 @@ cy.on('tap', function(evt) {
               source: firstNode.id(),
               target: secondNode.id(),
               flow: 0,
+			  	v1: 0, 
+				v2: 0, 
               length: "1.000",
               diameter: "565.00",
               label: "L: 1.000 km | D: 565 mm"
@@ -622,7 +653,7 @@ cy.on('tap', function(evt) {
         } else {
           // Clicked on an existing node: create an edge from the starting node to this node.
           if (evt.target.id() !== firstNode.id()) {
-            let newEdgeId = 'e' + firstNode.id() + '_' + evt.target.id();
+            let newEdgeId = firstNode.id() + '_' + evt.target.id();
             if (!cy.getElementById(newEdgeId).length) {
               cy.add({
                 group: 'edges',
@@ -631,6 +662,8 @@ cy.on('tap', function(evt) {
                   source: firstNode.id(),
                   target: evt.target.id(),
                   flow: 0,
+					v1: 0, 
+					v2: 0, 
                   length: "1.000",
                   diameter: "565.00",
                   label: "L: 1.000 km | D: 565 mm"
@@ -738,3 +771,29 @@ cy.on('taphold', async function(evt) {
     }
   }
 });
+
+// Store the graph in memory
+function saveGraphToLocalStorage() {
+  const elements = cy.json().elements;
+  const state = {
+    elements,
+    simulatedSeconds
+  };
+  localStorage.setItem("graphState", JSON.stringify(state));
+}
+
+function loadGraphFromLocalStorage() {
+  const savedState = localStorage.getItem("graphState");
+  if (savedState) {
+    const { elements, simulatedSeconds: savedTime } = JSON.parse(savedState);
+    cy.elements().remove();
+    cy.add(elements);
+    simulatedSeconds = savedTime || 0;
+    updateInfo(); // refresh tables and display
+  }
+}
+
+// Call loadGraphFromLocalStorage on page load
+window.addEventListener("load", loadGraphFromLocalStorage);
+// Save graph to localStorage when the page is about to unload
+window.addEventListener("beforeunload", saveGraphToLocalStorage);

@@ -114,6 +114,26 @@ function computeFlows(cy) {
   });
 }
 
+function computeSpeeds(cy) {
+  cy.edges().forEach(edge => {
+    const src = edge.source(), tgt = edge.target();
+    const p1 = parseFloat(src.data('pressure')) || 0;
+    const p2 = parseFloat(tgt.data('pressure')) || 0;
+    const D = parseFloat(edge.data('diameter')) || 0;
+    const flow = parseFloat(edge.data('flow')) || 0;
+      const area = Math.PI * (D/1000)*(D/1000)/ 4;
+      
+      // Adjust Qs from standard conditions to local conditions using standard pressure (0.101325 MPa)
+      const Q1 = flow * (0.101325 / p1);
+      const Q2 = flow * (0.101325 / p2);
+      const V1 = Q1 / area;
+      const V2 = Q2 / area;
+	  
+    edge.data('v1', V1);
+    edge.data('v2', V2);
+  });
+} 
+
 
 
 
@@ -121,6 +141,7 @@ function updateSimulation(cy, updateInfoCallback) {
   applyInjections(cy);
   updateAllNodePressures(cy);  
   computeFlows(cy);
+  computeSpeeds(cy);
   updateAllNodeVolumes(cy);  
   // Each call represents 1 simulated second.
   simulatedSeconds += 1;
