@@ -1,10 +1,23 @@
 /* common.css */
-body {
+/* Hide scrollbars on the whole page but keep scrolling enabled */
+html, body {
   margin: 0;
+  padding: 10px;
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
-  padding: 10px;
+
+  overflow: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE and Edge */
+  height: 100%;
 }
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari */
+}
+
+
 
 /* Navigation menu styled to match a container of 800px width */
 nav {
@@ -46,6 +59,7 @@ nav a:hover {
   margin: auto;
   background-color: #fff;
   padding: 20px;
+  padding-top: 10px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
   margin-bottom: 10px;
@@ -55,17 +69,19 @@ nav a:hover {
 /* Field groups (used in index.html and pressures.html) */
 .field-group {
   display: flex;
+  align: center;
   align-items: center;
   margin-bottom: 8px;
   gap: 10px;
 }
 .field-group label {
   flex: 0.5;
-  min-width: 250px;
+  min-width: 100;
   white-space: nowrap;
 }
 .field-group input {
   flex: 0.5;
+  min-width: 80px;
   padding: 5px;
 }
 .field-group span {
@@ -150,4 +166,3 @@ nav a:hover {
     flex: 1 1 100%;
   }
 }
-
