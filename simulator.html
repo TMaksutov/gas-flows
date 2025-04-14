@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
@@ -11,6 +11,7 @@
   </script>
   <meta charset="utf-8">
   <title>Gas Flows Simulator</title>
+<link rel="canonical" href="https://gas-flows.com/simulator.html">
   <meta name="description" content="
     Gas flows simulation. Interactive natural gas pipeline simulation and flow calculation tool.
     Visualize gas distribution, gas flow schemes, and pipeline networks in real-time.
@@ -47,8 +48,7 @@
   
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
-    <button id="generateBtn" class="controlButton">Generate</button>
-    <button id="clearBtn" class="controlButton">Clear Everything</button>
+    <button id="clearBtn" class="controlButton">Clear</button>
     <button id="playBtn" class="controlButton">Play (sec)</button>
     <button id="playMinBtn" class="controlButton">Play (min)</button>
     <button id="playHourBtn" class="controlButton">Play (hour)</button>
@@ -59,12 +59,14 @@
   <div id="cy"></div>
   
 <!-- Info area: full screen width -->
-<div class="info-wrapper">
-  <div id="info-nodes" class="info-block">
-    <!-- Nodes table will be injected here -->
-  </div>
-  <div id="info-edges" class="info-block">
+<div class="container">
+  <div id="info-edges">
     <!-- Edges table will be injected here -->
+  </div>
+</div>
+<div class="container">
+  <div id="info-nodes">
+    <!-- Nodes table will be injected here -->
   </div>
 </div>
 

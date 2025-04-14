@@ -6,19 +6,15 @@
   </url>
 
   <url>
-    <loc>https://gas-flows.com/contacts.html</loc>
-  </url>
-
-  <url>
     <loc>https://gas-flows.com/pressures.html</loc>
   </url>
 
   <url>
-    <loc>https://gas-flows.com/simulation.html</loc>
+    <loc>https://gas-flows.com/simulator.html</loc>
   </url>
 
   <url>
-    <loc>https://gas-flows.com/simulator.html</loc>
+    <loc>https://gas-flows.com/contacts.html</loc>
   </url>
 
 </urlset>

@@ -1,41 +1,17 @@
+// Set number of segments
+const SEGMENT_COUNT = 5;
+
+// Global variables.
+let nodeIdCounter = 0;
+let tappedTimeout = null;
+let creationActive = false;
+let firstNode = null;
+let doubleTapThreshold = 250; // in milliseconds
+
 // Disable the default context menu.
 document.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 });
-
-// Helper function: Interpolate between two colors
-function interpolateColor(c1, c2, t) {
-  let r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
-  let g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
-  let b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
-  return "rgb(" + r + "," + g + "," + b + ")";
-}
-
-// Function to compute the edge color based on flow and diameter
-function getEdgeColor(edge) {
-  let ratio = parseFloat(edge.data('v2')) || 0;
-  // Define anchor colors:
-  // Ratio 0: Grey, 5: Blue, 10: Green, 20: Red
-  const grey = [128, 128, 128];
-  const blue = [0, 0, 255];
-  const green = [0, 255, 0];
-  const red = [255, 0, 0];
-  
-  if (ratio <= 0) {
-    return "rgb(" + grey.join(",") + ")";
-  } else if (ratio <= 5) {
-    let t = ratio / 5;
-    return interpolateColor(grey, blue, t);
-  } else if (ratio <= 10) {
-    let t = (ratio - 5) / 5;
-    return interpolateColor(blue, green, t);
-  } else if (ratio <= 20) {
-    let t = (ratio - 10) / 10;
-    return interpolateColor(green, red, t);
-  } else {
-    return "rgb(" + red.join(",") + ")";
-  }
-}
 
 // Initialize Cytoscape with node and edge styling.
 let cy = cytoscape({
@@ -47,16 +23,14 @@ let cy = cytoscape({
       style: {
         'background-color': '#999',
         'label': 'data(label)',
-        'text-margin-x': 10,
-        'text-halign': 'left',
+        'text-halign': 'center',       // center label horizontally
+        'text-valign': 'center',         // center label vertically
         'color': 'black',
-        'text-background-color': 'white',
-        'text-background-opacity': 0.8,
         'text-border-color': 'black',
         'text-border-width': 1,
         'font-size': 10,
-        'width': 30,
-        'height': 30,
+        'width': 10,
+        'height': 10,
         'text-wrap': 'wrap',
         'text-max-width': '200px'
       }
@@ -68,63 +42,68 @@ let cy = cytoscape({
           let d = parseFloat(edge.data('diameter')) || 0;
           return 1 + Math.round(d / 200);
         },
-        'line-color': function(edge) {
-          return getEdgeColor(edge);
-        },
+        'line-color': '#999',
         'curve-style': 'bezier',
         'target-arrow-shape': 'triangle',
         'label': 'data(label)',
         'font-size': 10,
+        'text-halign': 'center',      // center label horizontally
+        'text-valign': 'center',      // center label vertically
         'text-rotation': 'autorotate',
         'text-wrap': 'wrap',
-        'text-max-width': '200px',
-        'text-margin-y': -15
+        'text-max-width': '200px'
       }
     }
   ],
   layout: { name: 'preset' }
 });
 
-// Global interaction variables.
-let nodeIdCounter = 0; // Start numbering nodes from 0
-let tappedTimeout = null;
-const doubleTapThreshold = 300; // milliseconds
+function createEdgeData(sourceId, targetId, length, diameter) {
+  const volumes = Array(SEGMENT_COUNT).fill(0);
+  const flows = Array(SEGMENT_COUNT - 1).fill(0);
+  const pressures = Array(SEGMENT_COUNT).fill(0); // Added segment pressures.
+  return {
+    id: `${sourceId}_${targetId}`,
+    source: sourceId,
+    target: targetId,
+    flow: 0,
+    v1: 0,
+    v2: 0,
+    length: length.toFixed(3),
+    diameter: diameter.toFixed(0),
+    name: ".", // default edge name is "."
+    volumeSegments: volumes,
+    flowSegments: flows,
+    pressureSegments: pressures, // New pressure segments array.
+    // Label: first row shows length/diameter, second row shows name.
+    label: `L: ${length} km | D: ${diameter} mm\n.`
+  };
+}
 
-// Variables for the creation session.
-let creationActive = false;
-let firstNode = null;
-let tempNode = null;
-let tempEdge = null;
-
-// Function to update the information panel with nodes and edges data.
 function updateInfo() {
   let totalVolume = 0;
   let positiveInjection = 0;
   let negativeInjection = 0;
-  
-  // Build table header for nodes
+
   let nodeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr>
       <th>ID</th>
+      <th>Name</th>
       <th>Position</th>
-      <th>Volume (m³)</th>
       <th>Pressure (MPa)</th>
       <th>Geometry</th>
       <th>Injection (m³/s)</th>
     </tr>`;
-  
+
+  // Update node labels (first row: pressure/injection, second row: name)
   cy.nodes().forEach(node => {
     let injection = parseFloat(node.data('injection') || 0);
-    let volume = parseFloat(node.data('volume') || 0);
     let pressure = parseFloat(node.data('pressure') || 0);
-    totalVolume += volume;
-    
-    if (injection > 0) {
-      positiveInjection += injection;
-    } else {
-      negativeInjection += injection;
-    }
-    
+
+    if (injection > 0) positiveInjection += injection;
+    else negativeInjection += injection;
+
+    // Calculate geometry based on connected edges.
     let geometry = 0;
     node.connectedEdges().forEach(edge => {
       let D = parseFloat(edge.data('diameter'));
@@ -132,308 +111,77 @@ function updateInfo() {
       geometry += 3.1415 * Math.pow(D / 1000, 2) * (L / 2) * (1000 / 4);
     });
     node.data('geometry', geometry);
-    
-    let label = "P: " + pressure.toFixed(2);
-    if (injection !== 0) {
-      label += " | I: " + injection.toFixed(4);
-    }
-    node.data('label', label);
-    
+
+    let base = `P: ${pressure.toFixed(2)}`;
+    if (injection !== 0) base += ` | I: ${injection.toFixed(0)}`;
+    node.data('label', base + "\n" + "\n"+ (node.data('name') || "."));
+
     nodeHTML += `<tr>
       <td>${node.id()}</td>
+      <td>${node.data('name')}</td>
       <td>(${Math.round(node.position('x'))}, ${Math.round(node.position('y'))})</td>
-      <td>${volume.toFixed(0)}</td>
       <td>${pressure.toFixed(2)}</td>
       <td>${geometry.toFixed(1)}</td>
-      <td>${injection !== 0 ? injection.toFixed(4) : ''}</td>
+      <td>${injection !== 0 ? injection.toFixed(0) : ''}</td>
     </tr>`;
   });
   nodeHTML += '</table>';
-  
-  // Build table header for edges with additional speed columns.
+
   let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr>
       <th>ID</th>
+      <th>Name</th>
       <th>Source → Target</th>
-      <th>Flow (m³/s)</th>
-      <th>L (km)</th>
-      <th>D(mm)</th>
-      <th>v1 (m/s)</th>
-      <th>v2 (m/s)</th>
+      <th>L, km</th>
+      <th>D, mm</th>
+      <th>v1, m/s</th>
+      <th>v2, m/2</th>
+      <th>Volumes, m3</th>
+      <th>Flows, m3/s</th>
+      <th>Pressures, MPa</th>
     </tr>`;
-  
+
+  // Update edge labels (first row: L and D, second row: name).
   cy.edges().forEach(edge => {
+    let vols = (edge.data('volumeSegments') || []).map(v => v.toFixed(0)).join(', ');
+    let flows = (edge.data('flowSegments') || []).map(f => f.toFixed(2)).join(', ');
+    let pressures = (edge.data('pressureSegments') || []).map(p => p.toFixed(2)).join(', ');
+    totalVolume += (edge.data('volumeSegments') || []).reduce((sum, v) => sum + v, 0);
+
+    // Update the visible label.
+    edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm" + "\n" + "\n"+ (edge.data('name') || "."));
+
     edgeHTML += `<tr>
       <td>${edge.id()}</td>
+      <td>${edge.data('name')}</td>
       <td>${edge.data('source')} → ${edge.data('target')}</td>
-      <td>${parseFloat(edge.data('flow')).toFixed(2)}</td>
       <td>${edge.data('length')}</td>
       <td>${edge.data('diameter')}</td>
       <td>${parseFloat(edge.data('v1') || 0).toFixed(1)}</td>
       <td>${parseFloat(edge.data('v2') || 0).toFixed(1)}</td>
+      <td>${vols}</td>
+      <td>${flows}</td>
+      <td>${pressures}</td>
     </tr>`;
   });
   edgeHTML += '</table>';
-  
-  // Format simulated time
-  let hours = Math.floor(simulatedSeconds / 3600);
-  let minutes = Math.floor((simulatedSeconds % 3600) / 60);
-  let seconds = simulatedSeconds % 60;
-  let timeStr = `${hours}h ${minutes}m ${seconds}s`;
-  
+
   document.getElementById('totalVolume').innerHTML =
-    "Total Gas Volume: " + totalVolume.toFixed(0) + " m³ (Simulated Time: " + timeStr + ")<br>" +
-    "Total Positive Injection: " + positiveInjection.toFixed(4) + " m³/s, " +
-    "Total Negative Injection: " + negativeInjection.toFixed(4) + " m³/s";
-  
+    `Total Gas Volume: ${totalVolume.toFixed(0)} m³ (Simulated Time: ${Math.floor(simulatedSeconds / 3600)}h ${Math.floor((simulatedSeconds % 3600) / 60)}m ${simulatedSeconds % 60}s)<br>` +
+    `Total Positive Injection: ${positiveInjection.toFixed(0)} m³/s, ` +
+    `Total Negative Injection: ${negativeInjection.toFixed(0)} m³/s`;
+
   document.getElementById('info-nodes').innerHTML = nodeHTML;
   document.getElementById('info-edges').innerHTML = edgeHTML;
-}
-
-
-
-// (Placeholder for future generate graph functionality.)
-function generateBtn() {
-  // Clear the graph and reset time.
-  clearGraph();
-  simulatedSeconds = 0;
-  
-  const L_values = [];
-  for (let i = 10; i <= 200; i += 10) { 
-    L_values.push(i); 
-  }
-  const D_values = [];
-  for (let i = 200; i <= 1400; i += 100) { 
-    D_values.push(i); 
-  }
-  
-  function randChoice(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-  
-  function randInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  
-  const pixelPerKm = 5;
-  const mainSegments = randInt(3, 5);
-  const possibleMainD = D_values.filter(d => d >= 500);
-  const mainD = randChoice(possibleMainD);
-  const allowedMainL = L_values.filter(l => l >= mainD / 20 && l <= mainD / 10);
-  const mainL = allowedMainL.length ? randChoice(allowedMainL) : Math.min(...L_values);
-  
-  const startY = 150;
-  let startX = 50;
-  
-  const mainLineNodes = [];
-  let nodeId = 'n' + nodeIdCounter;
-  nodeIdCounter++;
-  cy.add({
-    group: 'nodes',
-    data: { id: nodeId, branchD: mainD, branchL: mainL, injection: 0 },
-    position: { x: startX, y: startY }
-  });
-  mainLineNodes.push(nodeId);
-  
-  for (let i = 0; i < mainSegments; i++) {
-    startX += mainL * pixelPerKm;
-    nodeId = 'n' + nodeIdCounter;
-    nodeIdCounter++;
-    cy.add({
-      group: 'nodes',
-      data: { id: nodeId, branchD: mainD, branchL: mainL, injection: 0 },
-      position: { x: startX, y: startY }
-    });
-    const prevNodeId = mainLineNodes[mainLineNodes.length - 1];
-    const edgeId = prevNodeId + '_' + nodeId;
-    cy.add({
-      group: 'edges',
-      data: {
-        id: edgeId,
-        source: prevNodeId,
-        target: nodeId,
-        flow: 0,
-		v1: 0, 
-		v2: 0, 
-        length: mainL.toFixed(3),
-        diameter: mainD.toFixed(0),
-        label: "L: " + mainL + " km | D: " + mainD + " mm"
-      }
-    });
-    mainLineNodes.push(nodeId);
-  }
-  
-  const numSecondLayerBranches = randInt(2, 4);
-  const mainBranchPoints = mainLineNodes.slice(1);
-  const selectedNodes = [];
-  while (selectedNodes.length < numSecondLayerBranches && mainBranchPoints.length > 0) {
-    const idx = Math.floor(Math.random() * mainBranchPoints.length);
-    selectedNodes.push(mainBranchPoints.splice(idx, 1)[0]);
-  }
-  
-  const depth2Branches = [];
-  
-  selectedNodes.forEach(attachNodeId => {
-    const attachNode = cy.getElementById(attachNodeId);
-    const parentD = attachNode.data('branchD');
-    const parentL = attachNode.data('branchL');
-    
-    const allowedBranchD = D_values.filter(d => d < parentD);
-    if (allowedBranchD.length === 0) return;
-    const branchD = randChoice(allowedBranchD);
-    
-    const branchSegments = randInt(2, 4);
-    const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
-    if (allowedBranchL.length === 0) return;
-    const branchL = randChoice(allowedBranchL);
-    
-    const verticalSign = randChoice([1, -1]);
-    
-    const branchX = attachNode.position('x');
-    let branchY = attachNode.position('y');
-    const branchNodes = [attachNodeId];
-    
-    for (let seg = 0; seg < branchSegments; seg++) {
-      branchY += verticalSign * branchL * pixelPerKm;
-      const newNodeId = 'n' + nodeIdCounter;
-      nodeIdCounter++;
-      cy.add({
-        group: 'nodes',
-        data: { id: newNodeId, branchD: branchD, branchL: branchL, injection: 0 },
-        position: { x: branchX, y: branchY }
-      });
-      const edgeId = branchNodes[branchNodes.length - 1] + '_' + newNodeId;
-      cy.add({
-        group: 'edges',
-        data: {
-          id: edgeId,
-          source: branchNodes[branchNodes.length - 1],
-          target: newNodeId,
-          flow: 0,
-		  v1: 0, 
-		  v2: 0, 
-          length: branchL.toFixed(3),
-          diameter: branchD.toFixed(0),
-          label: "L: " + branchL + " km | D: " + branchD + " mm"
-        }
-      });
-      branchNodes.push(newNodeId);
-    }
-    
-    if (branchNodes.length > 1) {
-      depth2Branches.push(branchNodes);
-    }
-  });
-  
-  depth2Branches.forEach(branch => {
-    const numThirdLayerBranches = randInt(1, 3);
-    const possibleAttachments = branch.slice(1);
-    const selectedAttachments = [];
-    while (selectedAttachments.length < numThirdLayerBranches && possibleAttachments.length > 0) {
-      const idx = Math.floor(Math.random() * possibleAttachments.length);
-      selectedAttachments.push(possibleAttachments.splice(idx, 1)[0]);
-    }
-    
-    selectedAttachments.forEach(attachNodeId => {
-      const attachNode = cy.getElementById(attachNodeId);
-      const parentD = attachNode.data('branchD');
-      const parentL = attachNode.data('branchL');
-      
-      const allowedBranchD = D_values.filter(d => d < parentD);
-      if (allowedBranchD.length === 0) return;
-      const branchD = randChoice(allowedBranchD);
-      
-      const branchSegments = randInt(1, 2);
-      const allowedBranchL = L_values.filter(l => l >= branchD / 20 && l <= Math.min(branchD / 10, parentL));
-      if (allowedBranchL.length === 0) return;
-      const branchL = randChoice(allowedBranchL);
-      
-      const horizontalSign = randChoice([1, -1]);
-      
-      let branchX = attachNode.position('x');
-      const branchY = attachNode.position('y');
-      const branchNodes = [attachNodeId];
-      
-      for (let seg = 0; seg < branchSegments; seg++) {
-        branchX += horizontalSign * branchL * pixelPerKm;
-        const newNodeId = 'n' + nodeIdCounter;
-        nodeIdCounter++;
-        cy.add({
-          group: 'nodes',
-          data: { id: newNodeId, injection: 0 },
-          position: { x: branchX, y: branchY }
-        });
-        const edgeId = branchNodes[branchNodes.length - 1] + '_' + newNodeId;
-        cy.add({
-          group: 'edges',
-          data: {
-            id: edgeId,
-            source: branchNodes[branchNodes.length - 1],
-            target: newNodeId,
-            flow: 0,
-			v1: 0, 
-			v2: 0, 
-            length: branchL.toFixed(3),
-            diameter: branchD.toFixed(0),
-            label: "L: " + branchL + " km | D: " + branchD + " mm"
-          }
-        });
-        branchNodes.push(newNodeId);
-      }
-    });
-  });
-  
-  const X = Math.pow(mainD, 2.25) / 20000;
-  const firstMainNode = cy.getElementById(mainLineNodes[0]);
-  firstMainNode.data('injection', (firstMainNode.data('injection') || 0) + X);
-  const lastMainNode = cy.getElementById(mainLineNodes[mainLineNodes.length - 1]);
-  lastMainNode.data('injection', (lastMainNode.data('injection') || 0) - 0.5 * X);
-  
-  const endpoints = cy.nodes().filter(node => node.connectedEdges().length === 1);
-  let totalEndpointDiameter = 0;
-  endpoints.forEach(node => {
-    let d = node.data('branchD');
-    if (!d) {
-      const edge = node.connectedEdges()[0];
-      d = parseFloat(edge.data('diameter'));
-    }
-    totalEndpointDiameter += d;
-  });
-  
-  endpoints.forEach(node => {
-    let d = node.data('branchD');
-    if (!d) {
-      const edge = node.connectedEdges()[0];
-      d = parseFloat(edge.data('diameter'));
-    }
-    const extraInjection = -0.5 * X * (d / totalEndpointDiameter);
-    node.data('injection', (node.data('injection') || 0) + extraInjection);
-  });
-  
-  updateInfo();
 }
 
 function clearGraph() {
   cy.elements().remove();
   nodeIdCounter = 0;
   updateInfo();
+  simulatedSeconds = 0;
 }
-
-// Attach event listeners to the control buttons.
 document.getElementById('clearBtn').addEventListener('click', clearGraph);
-document.getElementById('generateBtn').addEventListener('click', generateBtn);
-document.getElementById('playBtn').addEventListener('click', function() {
-  setSimulationMode("sec", cy, updateInfo);
-});
-document.getElementById('playMinBtn').addEventListener('click', function() {
-  setSimulationMode("min", cy, updateInfo);
-});
-document.getElementById('playHourBtn').addEventListener('click', function() {
-  setSimulationMode("hour", cy, updateInfo);
-});
-document.getElementById('stopBtn').addEventListener('click', function() {
-  setSimulationMode("stop", cy, updateInfo);
-});
 
 // Global variable to keep track of the active popup
 let activePopup = null;
@@ -536,9 +284,10 @@ cy.on('cxttap', async function(evt) {
     const currentInjection = node.data('injection') || 0;
     const currentPressure = node.data('pressure') || 0;
     const currentPressureSet = node.data('pressureSet') || false;
-    // Call the general pop-up with three fields: one for injection, one for pressure, and a checkbox for pressure.
+    // Include the name field in the node popup.
     const result = await showMultiInputPopup(
       [
+        { key: 'name', label: "Name:", defaultValue: node.data('name') || "." },
         { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
         { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
         { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
@@ -547,6 +296,8 @@ cy.on('cxttap', async function(evt) {
       y
     );
     if (result !== null) {
+      // Update the node name and other data.
+      node.data('name', result.name);
       const numInjection = parseFloat(result.injection);
       if (!isNaN(numInjection)) {
         node.data('injection', numInjection);
@@ -560,9 +311,10 @@ cy.on('cxttap', async function(evt) {
     }
   } else if (evt.target.isEdge()) {
     const edge = evt.target;
-    // Call the general pop-up with two fields for edge length and diameter.
+    // Include the name field in the edge popup.
     const result = await showMultiInputPopup(
       [
+        { key: 'name', label: "Name:", defaultValue: edge.data('name') || "." },
         { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
         { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
       ],
@@ -570,6 +322,8 @@ cy.on('cxttap', async function(evt) {
       y
     );
     if (result) {
+      // Update the edge name and other data.
+      edge.data('name', result.name);
       const newLength = parseFloat(result.length);
       const newDiameter = parseFloat(result.diameter);
       if (!isNaN(newLength) && newLength > 0) {
@@ -578,13 +332,13 @@ cy.on('cxttap', async function(evt) {
       if (!isNaN(newDiameter) && newDiameter > 0) {
         edge.data('diameter', newDiameter.toFixed(0));
       }
-      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm");
+      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm" + "\n" + "\n"+ (edge.data('name') || "."));
       updateInfo();
     }
   }
 });
 
-// Creation of new edges
+// Creation of new edges (and nodes) using tap events.
 cy.on('tap', function(evt) {
   closeActivePopup();
   if (tappedTimeout) {
@@ -611,9 +365,17 @@ cy.on('tap', function(evt) {
           // Clicked on the canvas: create a new starting node.
           firstNode = cy.add({
             group: 'nodes',
-            data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, volume: 0 },
+            data: { 
+              id: 'n' + nodeIdCounter,
+              injection: 0,
+              pressure: 0,
+              name: '.', // default name is "."
+              label: '', // will be updated in updateInfo
+              volumeSegments: Array(SEGMENT_COUNT).fill(0)
+            },
             position: { x: evt.position.x, y: evt.position.y }
           });
+
           nodeIdCounter++;
         } else {
           // Clicked on an existing node: use it as the starting node.
@@ -631,9 +393,17 @@ cy.on('tap', function(evt) {
           // Clicked on canvas: create a new node at click position.
           let secondNode = cy.add({
             group: 'nodes',
-            data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, volume: 0 },
+            data: { 
+              id: 'n' + nodeIdCounter,
+              injection: 0,
+              pressure: 0,
+              name: '.', // default name is "."
+              label: '', // will be updated in updateInfo
+              volumeSegments: Array(SEGMENT_COUNT).fill(0)
+            },
             position: { x: evt.position.x, y: evt.position.y }
           });
+
           nodeIdCounter++;
           let newEdgeId = firstNode.id() + '_' + secondNode.id();
           cy.add({
@@ -643,11 +413,15 @@ cy.on('tap', function(evt) {
               source: firstNode.id(),
               target: secondNode.id(),
               flow: 0,
-			  	v1: 0, 
-				v2: 0, 
+              v1: 0,
+              v2: 0,
               length: "1.000",
               diameter: "565.00",
-              label: "L: 1.000 km | D: 565 mm"
+              name: ".", // default edge name is "."
+              label: "L: 1.000 km | D: 565 mm\n.",
+              volumeSegments: Array(SEGMENT_COUNT).fill(0),
+              flowSegments: Array(SEGMENT_COUNT - 1).fill(0),
+              pressureSegments: Array(SEGMENT_COUNT).fill(0) // Added segment pressures.
             }
           });
         } else {
@@ -662,11 +436,15 @@ cy.on('tap', function(evt) {
                   source: firstNode.id(),
                   target: evt.target.id(),
                   flow: 0,
-					v1: 0, 
-					v2: 0, 
+                  v1: 0,
+                  v2: 0,
                   length: "1.000",
                   diameter: "565.00",
-                  label: "L: 1.000 km | D: 565 mm"
+                  name: ".", // default name for edge
+                  label: "L: 1.000 km | D: 565 mm\n.",
+                  volumeSegments: Array(SEGMENT_COUNT).fill(0),
+                  flowSegments: Array(SEGMENT_COUNT - 1).fill(0),
+                  pressureSegments: Array(SEGMENT_COUNT).fill(0) // Added segment pressures.
                 }
               });
             }
@@ -727,6 +505,7 @@ cy.on('taphold', async function(evt) {
     const currentPressureSet = node.data('pressureSet') || false;
     const result = await showMultiInputPopup(
       [
+        { key: 'name', label: "Name:", defaultValue: node.data('name') || "." },
         { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
         { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
         { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
@@ -735,6 +514,7 @@ cy.on('taphold', async function(evt) {
       y
     );
     if (result !== null) {
+      node.data('name', result.name);
       const numInjection = parseFloat(result.injection);
       if (!isNaN(numInjection)) {
         node.data('injection', numInjection);
@@ -751,6 +531,7 @@ cy.on('taphold', async function(evt) {
     const edge = evt.target;
     const result = await showMultiInputPopup(
       [
+        { key: 'name', label: "Name:", defaultValue: edge.data('name') || "." },
         { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
         { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
       ],
@@ -758,6 +539,7 @@ cy.on('taphold', async function(evt) {
       y
     );
     if (result) {
+      edge.data('name', result.name);
       const newLength = parseFloat(result.length);
       const newDiameter = parseFloat(result.diameter);
       if (!isNaN(newLength) && newLength > 0) {
@@ -766,13 +548,23 @@ cy.on('taphold', async function(evt) {
       if (!isNaN(newDiameter) && newDiameter > 0) {
         edge.data('diameter', newDiameter.toFixed(0));
       }
-      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm");
+      edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm" + "\n"+ "\n" + (edge.data('name') || "."));
       updateInfo();
     }
   }
 });
 
-// Store the graph in memory
+// Snap to grid while moving node.
+cy.on('dragfree', 'node', function(evt) {
+  const node = evt.target;
+  const pos = node.position();
+  node.position({
+    x: Math.round(pos.x / 10) * 10,
+    y: Math.round(pos.y / 10) * 10
+  });
+});
+
+// Store the graph in memory.
 function saveGraphToLocalStorage() {
   const elements = cy.json().elements;
   const state = {
@@ -793,7 +585,7 @@ function loadGraphFromLocalStorage() {
   }
 }
 
-// Call loadGraphFromLocalStorage on page load
+// Call loadGraphFromLocalStorage on page load.
 window.addEventListener("load", loadGraphFromLocalStorage);
-// Save graph to localStorage when the page is about to unload
+// Save graph to localStorage when the page is about to unload.
 window.addEventListener("beforeunload", saveGraphToLocalStorage);

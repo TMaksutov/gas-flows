@@ -142,24 +142,6 @@ nav a:hover {
   margin-bottom: 10px;
 }
 
-/* Make #info full width and nicely styled */
-.info-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px; /* spacing between blocks */
-  justify-content: center;
-}
-
-.info-block {
-  min-width:415px; 
-  max-width:700px;  
-  min-height:0px;   
-  box-sizing: border-box;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 8px;
-}
-
 /* On screens narrower than 800px, stack the blocks */
 @media (max-width: 800px) {
   .info-block {
