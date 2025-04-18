@@ -29,8 +29,8 @@ let cy = cytoscape({
         'text-border-color': 'black',
         'text-border-width': 1,
         'font-size': 10,
-        'width': 10,
-        'height': 10,
+        'width': 12,
+        'height': 12,
         'text-wrap': 'wrap',
         'text-max-width': '200px'
       }
@@ -135,7 +135,7 @@ function updateInfo() {
       <th>L, km</th>
       <th>D, mm</th>
       <th>v1, m/s</th>
-      <th>v2, m/2</th>
+      <th>v2, m/s</th>
       <th>Volumes, m3</th>
       <th>Flows, m3/s</th>
       <th>Pressures, MPa</th>
@@ -200,58 +200,93 @@ function showMultiInputPopup(fields, x, y) {
     popup.style.border = '1px solid #ccc';
     popup.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
     popup.style.zIndex = 1000;
-    
-    // Build inner HTML dynamically based on fields.
-    let innerHTML = '';
+    // Add flex‑row styles
+    popup.innerHTML = `
+      <style>
+        .popup-row {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+        .popup-row label {
+          flex: 0 0 auto;
+          margin-right: 8px;
+          width: 140px;          /* or adjust as needed */
+        }
+        .popup-row input {
+          flex: 1 1 auto;
+        }
+        .popup-buttons {
+          text-align: right;
+          margin-top: 8px;
+        }
+        .popup-buttons button {
+          margin-left: 4px;
+        }
+      </style>
+    `;
+
+    // Build each row
     fields.forEach((field, index) => {
-      innerHTML += `<label>${field.label}</label><br>`;
-      if (field.type === "checkbox") {
-        innerHTML += `<input type="checkbox" id="popupInput_${index}" style="margin: 5px 0;" ${field.defaultValue ? "checked" : ""}/><br>`;
-      } else {
-        innerHTML += `<input type="text" id="popupInput_${index}" value="${field.defaultValue}" style="margin: 5px 0;"/><br>`;
-      }
+      const type = field.type === "checkbox" ? "checkbox" : "text";
+      const checked = field.type === "checkbox" && field.defaultValue ? "checked" : "";
+      const valueAttr = field.type !== "checkbox" ? `value="${field.defaultValue}"` : "";
+      popup.innerHTML += `
+        <div class="popup-row">
+          <label for="popupInput_${index}">${field.label}</label>
+          <input
+            type="${type}"
+            id="popupInput_${index}"
+            ${valueAttr}
+            ${checked}
+			style="width: 60px; padding: 4px;"
+          />
+        </div>
+      `;
     });
-    innerHTML += `<button id="popupOk">OK</button>
-                  <button id="popupCancel">Cancel</button>`;
-    popup.innerHTML = innerHTML;
-    
-    // Append popup to the document and store it in the global variable.
+
+    // Add buttons
+    popup.innerHTML += `
+	<div class="popup-buttons">
+	  <button id="popupOk" style="width: 110px;">OK</button>
+	  <button id="popupCancel" style="width: 110px;">Cancel</button>
+	</div>
+
+    `;
+
     document.body.appendChild(popup);
     activePopup = popup;
-    
-    // Focus the first input field immediately if it's a text input.
-    const firstInput = popup.querySelector('input');
-    if (firstInput && firstInput.type !== "checkbox") {
+
+    // Focus first text input
+    const firstInput = popup.querySelector('input[type="text"]');
+    if (firstInput) {
       firstInput.focus();
       firstInput.select();
     }
-    
-    // Listen for Enter key in the popup to trigger OK button.
+
+    // Handle Enter key
     popup.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
         popup.querySelector('#popupOk').click();
       }
     });
-    
-    // OK button event handler.
+
+    // OK handler
     popup.querySelector('#popupOk').addEventListener('click', function() {
-      let results = {};
+      const results = {};
       fields.forEach((field, index) => {
-        let inputEl = popup.querySelector('#popupInput_' + index);
-        if (inputEl.type === "checkbox") {
-          results[field.key] = inputEl.checked;
-        } else {
-          results[field.key] = inputEl.value;
-        }
+        const inputEl = popup.querySelector('#popupInput_' + index);
+        results[field.key] = inputEl.type === "checkbox"
+          ? inputEl.checked
+          : inputEl.value;
       });
-      // Remove popup and clear global variable.
       document.body.removeChild(popup);
       activePopup = null;
       resolve(results);
     });
-    
-    // Cancel button event handler.
+
+    // Cancel handler
     popup.querySelector('#popupCancel').addEventListener('click', function() {
       document.body.removeChild(popup);
       activePopup = null;
@@ -259,6 +294,7 @@ function showMultiInputPopup(fields, x, y) {
     });
   });
 }
+
 
 // Function to close the active pop-up from other parts of your code.
 function closeActivePopup() {
@@ -288,7 +324,7 @@ cy.on('cxttap', async function(evt) {
     const result = await showMultiInputPopup(
       [
         { key: 'name', label: "Name:", defaultValue: node.data('name') || "." },
-        { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
+        { key: 'injection', label: "Gas in/out, m³/s:", defaultValue: currentInjection },
         { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
         { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
       ],
@@ -316,7 +352,10 @@ cy.on('cxttap', async function(evt) {
       [
         { key: 'name', label: "Name:", defaultValue: edge.data('name') || "." },
         { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
-        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
+        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') },
+        { key: 'E', label: "E", defaultValue: edge.data('E') },
+        { key: 'Z', label: "Z", defaultValue: edge.data('Z') },
+        { key: 'T', label: "T", defaultValue: edge.data('T') }
       ],
       x,
       y
@@ -326,11 +365,23 @@ cy.on('cxttap', async function(evt) {
       edge.data('name', result.name);
       const newLength = parseFloat(result.length);
       const newDiameter = parseFloat(result.diameter);
+      const newE = parseFloat(result.E);
+      const newZ = parseFloat(result.Z);
+      const newT = parseFloat(result.T);
       if (!isNaN(newLength) && newLength > 0) {
         edge.data('length', newLength.toFixed(3));
       }
       if (!isNaN(newDiameter) && newDiameter > 0) {
         edge.data('diameter', newDiameter.toFixed(0));
+      }
+      if (!isNaN(newE) && newE > 0.5 && newE <= 1) {
+        edge.data('E', newE.toFixed(2));
+      }
+      if (!isNaN(newZ) && newZ > 0.5 && newZ <= 1) {
+        edge.data('Z', newZ.toFixed(2));
+      }
+      if (!isNaN(newT) && newT > -30 && newT <= 100) {
+        edge.data('T', newT.toFixed(1));
       }
       edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm" + "\n" + "\n"+ (edge.data('name') || "."));
       updateInfo();
@@ -415,10 +466,13 @@ cy.on('tap', function(evt) {
               flow: 0,
               v1: 0,
               v2: 0,
-              length: "1.000",
+              length: "10",
               diameter: "565.00",
+              E: "0.95",
+              Z: "0.81",
+              T: "15",
               name: ".", // default edge name is "."
-              label: "L: 1.000 km | D: 565 mm\n.",
+              label: "L: 10.000 km | D: 565 mm\n.",
               volumeSegments: Array(SEGMENT_COUNT).fill(0),
               flowSegments: Array(SEGMENT_COUNT - 1).fill(0),
               pressureSegments: Array(SEGMENT_COUNT).fill(0) // Added segment pressures.
@@ -438,10 +492,13 @@ cy.on('tap', function(evt) {
                   flow: 0,
                   v1: 0,
                   v2: 0,
-                  length: "1.000",
+                  length: "10",
                   diameter: "565.00",
+				  E: "0.95",
+				  Z: "0.81",
+				  T: "15",
                   name: ".", // default name for edge
-                  label: "L: 1.000 km | D: 565 mm\n.",
+                  label: "L: 10.000 km | D: 565 mm\n.",
                   volumeSegments: Array(SEGMENT_COUNT).fill(0),
                   flowSegments: Array(SEGMENT_COUNT - 1).fill(0),
                   pressureSegments: Array(SEGMENT_COUNT).fill(0) // Added segment pressures.
@@ -506,7 +563,7 @@ cy.on('taphold', async function(evt) {
     const result = await showMultiInputPopup(
       [
         { key: 'name', label: "Name:", defaultValue: node.data('name') || "." },
-        { key: 'injection', label: "Gas input/output, m³/sec:", defaultValue: currentInjection },
+        { key: 'injection', label: "Gas input/output, m³/s:", defaultValue: currentInjection },
         { key: 'pressure', label: "Pressure, MPa:", defaultValue: currentPressure },
         { key: 'pressureSet', label: "Set pressure", type: "checkbox", defaultValue: currentPressureSet }
       ],
@@ -533,7 +590,10 @@ cy.on('taphold', async function(evt) {
       [
         { key: 'name', label: "Name:", defaultValue: edge.data('name') || "." },
         { key: 'length', label: "Length, km:", defaultValue: edge.data('length') },
-        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') }
+        { key: 'diameter', label: "Diameter, mm:", defaultValue: edge.data('diameter') },
+        { key: 'E', label: "E:", defaultValue: edge.data('E') },
+        { key: 'Z', label: "Z", defaultValue: edge.data('Z') },
+        { key: 'T', label: "T", defaultValue: edge.data('T') }
       ],
       x,
       y
@@ -542,11 +602,23 @@ cy.on('taphold', async function(evt) {
       edge.data('name', result.name);
       const newLength = parseFloat(result.length);
       const newDiameter = parseFloat(result.diameter);
+      const newE = parseFloat(result.E);
+      const newZ = parseFloat(result.Z);
+      const newT = parseFloat(result.T);
       if (!isNaN(newLength) && newLength > 0) {
         edge.data('length', newLength.toFixed(3));
       }
       if (!isNaN(newDiameter) && newDiameter > 0) {
         edge.data('diameter', newDiameter.toFixed(0));
+      }
+      if (!isNaN(newE) && newE > 0.5 && newE <= 1) {
+        edge.data('E', newE.toFixed(2));
+      }
+      if (!isNaN(newZ) && newZ > 0.5 && newZ <= 1) {
+        edge.data('Z', newZ.toFixed(2));
+      }
+      if (!isNaN(newT) && newT > -30 && newT <= 100) {
+        edge.data('T', newT.toFixed(1));
       }
       edge.data('label', "L: " + edge.data('length') + " km | D: " + edge.data('diameter') + " mm" + "\n"+ "\n" + (edge.data('name') || "."));
       updateInfo();

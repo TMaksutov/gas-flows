@@ -4,18 +4,20 @@ let simulationMode = "sec"; // "sec", "min", "hour"
 let simulatedSeconds = 0;
 
 
-function computeNodePressure(geometry, volume) {
+function computeNodeVolume(geometry, pressure, T, Z) {
   if (geometry <= 0) return 0;
-  const Zcp = 0.9;
-  const Pc = 0.101325; // MPa Standard conditions 
-  return volume * Zcp * Pc / geometry;
+  const P_base = 0.101325;
+  const T_base = 293.15;
+  const T_k = T + 273.15;
+  return geometry * (pressure / P_base) * (T_base / T_k) / Z;
 }
 
-function computeNodeVolume(geometry, pressure) {
+function computeNodePressure(geometry, volume, T, Z) {
   if (geometry <= 0) return 0;
-  const Zcp = 0.9;
-  const Pc = 0.101325; // MPa Standard conditions 
-  return (pressure * geometry) / (Zcp * Pc);
+  const P_base = 0.101325;
+  const T_base = 293.15;
+  const T_k = T + 273.15;
+  return volume * (P_base / geometry) * (T_k / T_base) * Z;
 }
 
 
@@ -76,160 +78,132 @@ function getSegmentLength(i, n, L) {
 // --- Update node segments ---
 function updateNodeSegments(cy) {
   cy.nodes().forEach(node => {
-    let totalEdgeGeometry = 0;       // Sum of the geometries of the connected segments.
-    let connectedEdgeSegments = [];  // Array to store each connected segment’s info.
-    let existingTotalVolume = 0;     // Sum of currently stored volumes from connected segments.
+    let totalEdgeGeometry = 0;
+    let connectedEdgeSegments = [];
+    let existingTotalVolume = 0;
 
-    // Process every edge connected to this node.
     node.connectedEdges().forEach(edge => {
       let edgeVolSegs = edge.data('volumeSegments') || [];
       const numEdgeSegs = edgeVolSegs.length;
       let D = parseFloat(edge.data('diameter')) || 0;
       let L = parseFloat(edge.data('length')) || 0;
-      
+      let Z_edge = parseFloat(edge.data('Z')) || 0;
+      let T_edge = parseFloat(edge.data('T')) || 0;
+
       if (numEdgeSegs > 0) {
-        // Determine which segment index corresponds to this node.
-        // For a source node, use index 0; for a target node, use the last segment.
-        let segIdx = 0;
-        if (edge.target().id() === node.id()) {
-          segIdx = numEdgeSegs - 1;
-        }
-        
-        // Compute the actual length of that specific segment.
+        let segIdx = edge.target().id() === node.id()
+          ? numEdgeSegs - 1
+          : 0;
         let segLength = getSegmentLength(segIdx, numEdgeSegs, L);
-        // Compute the geometry for this segment.
-        let segGeometry = 3.1415 * Math.pow(D / 1000, 2) * segLength * (1000 / 4);
-        
-        // Sum the existing volume from this connected segment.
+        let segGeometry = 3.1415 * Math.pow(D/1000,2) * segLength * (1000/4);
         let vol = parseFloat(edgeVolSegs[segIdx]) || 0;
         existingTotalVolume += vol;
-        
-        // Save this segment’s information for later volume redistribution.
-        connectedEdgeSegments.push({ 
-          edge: edge, 
-          index: segIdx, 
-          geometry: segGeometry 
+        connectedEdgeSegments.push({
+          edge, index: segIdx, geometry: segGeometry,
+          Z: Z_edge, T: T_edge
         });
-        
-        // Accumulate total geometry for the node.
         totalEdgeGeometry += segGeometry;
       }
     });
-    
-    // Get the node’s injection (if any)
+
     let injection = parseFloat(node.data('injection')) || 0;
-    let totalVolume;  // Effective volume at the node.
-    let newPressure;  // Final pressure to use for updating volumes.
-    
+    let totalVolume, newPressure;
+
     if (node.data('pressureSet')) {
-      // If the user sets the pressure, use that pressure...
       newPressure = parseFloat(node.data('pressure')) || 0;
-      // ...and recompute the volumes on the connected segments using the user–set pressure.
       let computedVolume = 0;
       connectedEdgeSegments.forEach(seg => {
-        computedVolume += computeNodeVolume(seg.geometry, newPressure);
+        computedVolume += computeNodeVolume(
+          seg.geometry,
+          newPressure,
+          seg.T,
+          seg.Z
+        );
       });
-      // Effective node volume is computed from connected segments plus injection.
       totalVolume = computedVolume + injection;
     } else {
-      // Otherwise, use the currently stored volumes plus injection.
       totalVolume = existingTotalVolume + injection;
-      // Compute the node pressure from the total geometry and effective volume.
-      newPressure = computeNodePressure(totalEdgeGeometry, totalVolume);
-      // Save the computed pressure to the node.
+      // use the T and Z of the first connected segment as-is
+      let { T, Z } = connectedEdgeSegments[0] || { T: 0, Z: 1 };
+      newPressure = computeNodePressure(
+        totalEdgeGeometry,
+        totalVolume,
+        T,
+        Z
+      );
       node.data('pressure', newPressure);
     }
-    
-    // Clamp totalVolume to a minimum of 0 to avoid negative volume issues.
+
     totalVolume = Math.max(totalVolume, 0);
-    
-    // Redistribute volumes on each connected edge segment using the (user–set or computed) pressure.
+
     connectedEdgeSegments.forEach(seg => {
-      let newVol = computeNodeVolume(seg.geometry, newPressure);
-      // Ensure volume does not go below 0.
+      let newVol = computeNodeVolume(
+        seg.geometry,
+        newPressure,
+        seg.T,
+        seg.Z
+      );
       newVol = Math.max(newVol, 0);
-      let edge = seg.edge;
-      let edgeVolSegs = edge.data('volumeSegments') || [];
-      edgeVolSegs[seg.index] = newVol;
-      edge.data('volumeSegments', edgeVolSegs);
+      let vs = seg.edge.data('volumeSegments') || [];
+      vs[seg.index] = newVol;
+      seg.edge.data('volumeSegments', vs);
     });
-    
-    // Optionally update the node’s own display volumeSegments (evenly distributing totalVolume among them)
+
     let nodeSegs = node.data('volumeSegments') || [];
-    const numNodeSegs = nodeSegs.length;
-    if (numNodeSegs > 0) {
-      let newNodeVolumePerSeg = totalVolume / numNodeSegs;
-      let newNodeSegs = new Array(numNodeSegs).fill(newNodeVolumePerSeg);
-      node.data('volumeSegments', newNodeSegs);
+    const n = nodeSegs.length;
+    if (n > 0) {
+      node.data('volumeSegments', Array(n).fill(totalVolume / n));
     }
   });
 }
 
 
-
-
-
 // --- Update edge segments ---
 function updateEdgeSegments(cy) {
   cy.edges().forEach(edge => {
-    // Retrieve or initialize the edge's volume and pressure segments.
     let edgeVolSegs = edge.data('volumeSegments') || Array(SEGMENT_COUNT).fill(0);
     let edgePressSegs = edge.data('pressureSegments') || Array(SEGMENT_COUNT).fill(0);
     const numSegs = SEGMENT_COUNT;
 
     let edgeLength = parseFloat(edge.data('length')) || 0;
     let D = parseFloat(edge.data('diameter')) || 0;
+    let E = parseFloat(edge.data('E')) || 0;
+    let Z = parseFloat(edge.data('Z')) || 0;
+    let T = parseFloat(edge.data('T')) || 0;
 
-    // 1) Compute pressure for each segment using the proper segment length.
     let segPressures = [];
     for (let i = 0; i < numSegs; i++) {
       let volVal = parseFloat(edgeVolSegs[i]) || 0;
-      // Actual segment length: half for first/last segments, full-length for middle segments.
       let segLen = getSegmentLength(i, numSegs, edgeLength);
-      // Geometry = π * (D/1000)^2 * segLen * (1000/4)
-      let segGeometry = 3.1415 * Math.pow(D / 1000, 2) * segLen * (1000 / 4);
-      let p = computeNodePressure(segGeometry, volVal);
+      let segGeometry = 3.1415 * Math.pow(D/1000,2) * segLen * (1000/4);
+      let p = computeNodePressure(
+        segGeometry,
+        volVal,
+        T,
+        Z
+      );
       segPressures.push(p);
     }
-    // Update the edge's pressure segments.
     edge.data('pressureSegments', segPressures);
 
-    // 2) Compute flows between adjacent segments.
-    // Each gap is treated as a full segment length of L/(numSegs - 1).
     let flowSegments = [];
-    let flowLen = (numSegs > 1) ? (edgeLength / (numSegs - 1)) : edgeLength;
+    let flowLen = numSegs > 1 ? edgeLength/(numSegs-1) : edgeLength;
 
     for (let i = 0; i < numSegs - 1; i++) {
-      let p1 = segPressures[i];
-      let p2 = segPressures[i + 1];
-
-      // Calculate flow via the weymouth function which returns negative values for backflow.
+      let p1 = segPressures[i], p2 = segPressures[i+1];
       let flow = weymouth({
-        E: 0.95,
-        Tb: 20,
-        Pb: 0.101325,
-        P1: p1,
-        P2: p2,
-        G: 0.61,
-        Tf: 15,
-        L: flowLen,
-        D: D,
-        Z: 0.91,
-        H1: 0,
-        H2: 0
+        E, Tb: 20, Pb: 0.101325,
+        P1: p1, P2: p2, G: 0.60,
+        Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
       });
       flowSegments.push(flow);
 
-      // 3) Transfer volume:
-      // Subtract flow from segment i and add it to segment i+1.
-      // Clamp both results to a minimum of 0.
-      let vol_i = (parseFloat(edgeVolSegs[i]) || 0) - flow;
-      let vol_next = (parseFloat(edgeVolSegs[i + 1]) || 0) + flow;
-      edgeVolSegs[i] = Math.max(vol_i, 0);
-      edgeVolSegs[i + 1] = Math.max(vol_next, 0);
+      let vi = Math.max((edgeVolSegs[i]||0) - flow, 0);
+      let vj = Math.max((edgeVolSegs[i+1]||0) + flow, 0);
+      edgeVolSegs[i]   = vi;
+      edgeVolSegs[i+1] = vj;
     }
 
-    // Save updated flows and volumes back to the edge.
     edge.data('flowSegments', flowSegments);
     edge.data('volumeSegments', edgeVolSegs);
   });

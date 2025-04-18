@@ -66,6 +66,23 @@ nav a:hover {
   margin-top: 10px;
 }
 
+/* Container for pages with content (index.html & pressures.html) */
+.wide-container {
+  max-width: 100%;
+  margin: auto;
+  background-color: #fff;
+  padding: 20px;
+  padding-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.wide-container table {
+  margin: 0 auto;
+}
+
+
 /* Field groups (used in index.html and pressures.html) */
 .field-group {
   display: flex;
