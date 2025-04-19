@@ -1,3 +1,5 @@
+
+
 // Dynamic segment count based on pipeline length:
 function getSegmentCount(lengthKm) {
   if (lengthKm <= 30) return 2;
