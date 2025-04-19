@@ -152,7 +152,7 @@ nav a:hover {
 /* Cytoscape container (canvas): full browser width */
 #cy {
   width: 100%;
-  height: 600px;
+  height: 500px;
   display: block;
   background-color: #fff;
   border: 1px solid #ccc;

@@ -54,6 +54,13 @@ function weymouth({ E, Tb, Pb, P1, P2, G, Tf, L, D, Z, H1, H2 }) {
   return sign * Q;
 }
 
+function getSegmentCount(lengthKm) {
+  if (lengthKm <= 30) return 2;
+  if (lengthKm > 300) return 30;
+  const extra = Math.ceil((lengthKm - 30) / 10);
+  return Math.min(2 + extra, 30);
+}
+
 
 /**
  * Returns the length of segment i (0-based) for a total of n segments.
@@ -82,7 +89,9 @@ function updateNodeSegments(cy) {
     let connectedEdgeSegments = [];
     let existingTotalVolume = 0;
 
-    node.connectedEdges().forEach(edge => {
+	node.connectedEdges().forEach(edge => {
+	  if (edge.data('disable')) return; // skip disabled edges
+
       let edgeVolSegs = edge.data('volumeSegments') || [];
       const numEdgeSegs = edgeVolSegs.length;
       let D = parseFloat(edge.data('diameter')) || 0;
@@ -161,11 +170,11 @@ function updateNodeSegments(cy) {
 // --- Update edge segments ---
 function updateEdgeSegments(cy) {
   cy.edges().forEach(edge => {
-    let edgeVolSegs = edge.data('volumeSegments') || Array(SEGMENT_COUNT).fill(0);
-    let edgePressSegs = edge.data('pressureSegments') || Array(SEGMENT_COUNT).fill(0);
-    const numSegs = SEGMENT_COUNT;
+	const edgeLength = parseFloat(edge.data('length')) || 0;
+	const numSegs    = getSegmentCount(edgeLength);
+	let edgeVolSegs   = edge.data('volumeSegments') || Array(numSegs).fill(0);
+	let edgePressSegs = edge.data('pressureSegments') || Array(numSegs).fill(0);
 
-    let edgeLength = parseFloat(edge.data('length')) || 0;
     let D = parseFloat(edge.data('diameter')) || 0;
     let E = parseFloat(edge.data('E')) || 0;
     let Z = parseFloat(edge.data('Z')) || 0;
@@ -188,21 +197,35 @@ function updateEdgeSegments(cy) {
 
     let flowSegments = [];
     let flowLen = numSegs > 1 ? edgeLength/(numSegs-1) : edgeLength;
+	// calcualte flows and move volumes
+	for (let i = 0; i < numSegs - 1; i++) {
+	  let p1 = segPressures[i], p2 = segPressures[i + 1];
 
-    for (let i = 0; i < numSegs - 1; i++) {
-      let p1 = segPressures[i], p2 = segPressures[i+1];
-      let flow = weymouth({
-        E, Tb: 20, Pb: 0.101325,
-        P1: p1, P2: p2, G: 0.60,
-        Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
-      });
-      flowSegments.push(flow);
+	  // Calculate potential flow
+	  let flow = weymouth({
+		E, Tb: 20, Pb: 0.101325,
+		P1: p1, P2: p2, G: 0.60,
+		Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
+	  });
 
-      let vi = Math.max((edgeVolSegs[i]||0) - flow, 0);
-      let vj = Math.max((edgeVolSegs[i+1]||0) + flow, 0);
-      edgeVolSegs[i]   = vi;
-      edgeVolSegs[i+1] = vj;
-    }
+	  // Flow direction: + means i → i+1, - means i+1 → i
+	  let vi = edgeVolSegs[i] || 0;
+	  let vj = edgeVolSegs[i + 1] || 0;
+
+	  // Determine actual allowed flow (no negative volume)
+	  if (flow >= 0) {
+		let actualFlow = Math.min(flow, vi);
+		edgeVolSegs[i]     = vi - actualFlow;
+		edgeVolSegs[i + 1] = vj + actualFlow;
+		flowSegments.push(actualFlow);
+	  } else {
+		let actualFlow = Math.min(-flow, vj);
+		edgeVolSegs[i]     = vi + actualFlow;
+		edgeVolSegs[i + 1] = vj - actualFlow;
+		flowSegments.push(-actualFlow);
+	  }
+	}
+
 
     edge.data('flowSegments', flowSegments);
     edge.data('volumeSegments', edgeVolSegs);
@@ -210,7 +233,31 @@ function updateEdgeSegments(cy) {
 }
 
 
+function updateEdgeVelocities(cy) {
+  const P_base = 0.101325; // MPa
 
+  cy.edges().forEach(edge => {
+    const flowSegments = edge.data('flowSegments') || [];
+    const pressureSegments = edge.data('pressureSegments') || [];
+    const D_mm = parseFloat(edge.data('diameter')) || 0;
+    const D_m = D_mm / 1000;
+    const area = Math.PI * Math.pow(D_m, 2) / 4;
+
+    let v1 = 0, v2 = 0;
+
+    if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1) {
+      const Q = flowSegments[0]; // flow in m³/s
+      const P1 = pressureSegments[0]; 
+      const P2 = pressureSegments[pressureSegments.length - 1]; 
+
+      v1 = (Q * (P_base / P1)) / area;
+      v2 = (Q * (P_base / P2)) / area;
+    }
+
+    edge.data('v1', v1);
+    edge.data('v2', v2);
+  });
+}
 
 
 
@@ -222,6 +269,7 @@ function updateEdgeSegments(cy) {
 function updateSimulation(cy, updateInfoCallback) {
   updateNodeSegments(cy);
   updateEdgeSegments(cy);
+  updateEdgeVelocities(cy);
   simulatedSeconds += 1;
   if (updateInfoCallback) updateInfoCallback();
 }
