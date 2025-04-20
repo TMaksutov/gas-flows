@@ -170,67 +170,67 @@ function updateNodeSegments(cy) {
 // --- Update edge segments ---
 function updateEdgeSegments(cy) {
   cy.edges().forEach(edge => {
-	const edgeLength = parseFloat(edge.data('length')) || 0;
-	const numSegs    = getSegmentCount(edgeLength);
-	let edgeVolSegs   = edge.data('volumeSegments') || Array(numSegs).fill(0);
-	let edgePressSegs = edge.data('pressureSegments') || Array(numSegs).fill(0);
+    const edgeLength = parseFloat(edge.data('length')) || 0;
+    const numSegs = getSegmentCount(edgeLength);
+    let edgeVolSegs = edge.data('volumeSegments') || Array(numSegs).fill(0);
+    let edgePressSegs = edge.data('pressureSegments') || Array(numSegs).fill(0);
+    let prevFlows = edge.data('flowSegments') || Array(numSegs - 1).fill(0);
 
-    let D = parseFloat(edge.data('diameter')) || 0;
-    let E = parseFloat(edge.data('E')) || 0;
-    let Z = parseFloat(edge.data('Z')) || 0;
-    let T = parseFloat(edge.data('T')) || 0;
+    const D = parseFloat(edge.data('diameter')) || 0;
+    const E = parseFloat(edge.data('E')) || 0;
+    const Z = parseFloat(edge.data('Z')) || 0;
+    const T = parseFloat(edge.data('T')) || 0;
 
     let segPressures = [];
     for (let i = 0; i < numSegs; i++) {
       let volVal = parseFloat(edgeVolSegs[i]) || 0;
       let segLen = getSegmentLength(i, numSegs, edgeLength);
-      let segGeometry = 3.1415 * Math.pow(D/1000,2) * segLen * (1000/4);
-      let p = computeNodePressure(
-        segGeometry,
-        volVal,
-        T,
-        Z
-      );
+      let segGeometry = 3.1415 * Math.pow(D / 1000, 2) * segLen * (1000 / 4);
+      let p = computeNodePressure(segGeometry, volVal, T, Z);
       segPressures.push(p);
     }
     edge.data('pressureSegments', segPressures);
 
-    let flowSegments = [];
-    let flowLen = numSegs > 1 ? edgeLength/(numSegs-1) : edgeLength;
-	// calcualte flows and move volumes
-	for (let i = 0; i < numSegs - 1; i++) {
-	  let p1 = segPressures[i], p2 = segPressures[i + 1];
+    let newFlowSegments = [];
+    let flowLen = numSegs > 1 ? edgeLength / (numSegs - 1) : edgeLength;
 
-	  // Calculate potential flow
-	  let flow = weymouth({
-		E, Tb: 20, Pb: 0.101325,
-		P1: p1, P2: p2, G: 0.60,
-		Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
-	  });
+    for (let i = 0; i < numSegs - 1; i++) {
+      const p1 = segPressures[i], p2 = segPressures[i + 1];
 
-	  // Flow direction: + means i → i+1, - means i+1 → i
-	  let vi = edgeVolSegs[i] || 0;
-	  let vj = edgeVolSegs[i + 1] || 0;
+      let flow = weymouth({
+        E, Tb: 20, Pb: 0.101325,
+        P1: p1, P2: p2, G: 0.60,
+        Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
+      });
 
-	  // Determine actual allowed flow (no negative volume)
-	  if (flow >= 0) {
-		let actualFlow = Math.min(flow, vi);
-		edgeVolSegs[i]     = vi - actualFlow;
-		edgeVolSegs[i + 1] = vj + actualFlow;
-		flowSegments.push(actualFlow);
-	  } else {
-		let actualFlow = Math.min(-flow, vj);
-		edgeVolSegs[i]     = vi + actualFlow;
-		edgeVolSegs[i + 1] = vj - actualFlow;
-		flowSegments.push(-actualFlow);
-	  }
-	}
+      const prevFlow = prevFlows[i] || 0;
+      const avgFlow = flow*0.2 + prevFlow*0.8;
 
+      // Use avgFlow to move volumes
+      let vi = edgeVolSegs[i] || 0;
+      let vj = edgeVolSegs[i + 1] || 0;
 
-    edge.data('flowSegments', flowSegments);
+      let actualFlow;
+      if (avgFlow >= 0) {
+        actualFlow = Math.min(avgFlow, vi);
+        edgeVolSegs[i] = vi - actualFlow;
+        edgeVolSegs[i + 1] = vj + actualFlow;
+      } else {
+        actualFlow = Math.min(-avgFlow, vj);
+        edgeVolSegs[i] = vi + actualFlow;
+        edgeVolSegs[i + 1] = vj - actualFlow;
+        actualFlow = -actualFlow;
+      }
+
+      newFlowSegments.push(actualFlow); // Store the used averaged flow
+    }
+
+    edge.data('flowSegments', newFlowSegments);
     edge.data('volumeSegments', edgeVolSegs);
   });
 }
+
+
 
 
 function updateEdgeVelocities(cy) {

@@ -35,11 +35,13 @@ let cy = cytoscape({
     {
       selector: 'node',
       style: {
-    'background-color': ele => ele.data('injection') > 0
-                             ? 'green'
-                             : ele.data('injection') < 0
-                               ? 'red'
-                               : '#999',
+      'background-color': ele => ele.data('pressureSet') === true
+                               ? 'blue'
+                               : ele.data('injection') > 0
+                                 ? 'green'
+                                 : ele.data('injection') < 0
+                                   ? 'red'
+                                   : '#999',
         'label': 'data(label)',
         'text-halign': 'center',
         'text-valign': 'center',
