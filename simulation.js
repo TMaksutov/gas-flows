@@ -3,7 +3,7 @@ let simulationStartTime = Date.now();
 let simulationMode = "sec"; // "sec", "min", "hour"
 let simulatedSeconds = 0;
 const MIN_FLOW_THRESHOLD = 0.01;
-const PRESSURE_CHANGE_THRESHOLD = 0.01;
+const PRESSURE_CHANGE_THRESHOLD = 0.001;
 //cehck no changes in flows
 let previousPressures = [];
 let stableStepCount = 0;
