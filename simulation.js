@@ -2,6 +2,12 @@ let simulationInterval = null;
 let simulationStartTime = Date.now();
 let simulationMode = "sec"; // "sec", "min", "hour"
 let simulatedSeconds = 0;
+const MIN_FLOW_THRESHOLD = 0.01;
+const PRESSURE_CHANGE_THRESHOLD = 0.01;
+//cehck no changes in flows
+let previousPressures = [];
+let stableStepCount = 0;
+
 
 
 function computeNodeVolume(geometry, pressure, T, Z) {
@@ -211,16 +217,13 @@ function updateEdgeSegments(cy) {
       let vj = edgeVolSegs[i + 1] || 0;
 
       let actualFlow;
-      if (avgFlow >= 0) {
-        actualFlow = Math.min(avgFlow, vi);
-        edgeVolSegs[i] = vi - actualFlow;
-        edgeVolSegs[i + 1] = vj + actualFlow;
-      } else {
-        actualFlow = Math.min(-avgFlow, vj);
-        edgeVolSegs[i] = vi + actualFlow;
-        edgeVolSegs[i + 1] = vj - actualFlow;
-        actualFlow = -actualFlow;
-      }
+
+		if (avgFlow >= 0) {actualFlow = Math.min(avgFlow, vi);} 
+		else {actualFlow = -Math.min(-avgFlow, vj);}
+		if (Math.abs(actualFlow) < MIN_FLOW_THRESHOLD) actualFlow = 0;
+		edgeVolSegs[i]     -= actualFlow;
+		edgeVolSegs[i + 1] += actualFlow;
+
 
       newFlowSegments.push(actualFlow); // Store the used averaged flow
     }
@@ -246,18 +249,44 @@ function updateEdgeVelocities(cy) {
     let v1 = 0, v2 = 0;
 
     if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1) {
-      const Q = flowSegments[0]; // flow in m³/s
+      const Q1 = flowSegments[0];
+      const Q2 = flowSegments[flowSegments.length - 1];
       const P1 = pressureSegments[0]; 
       const P2 = pressureSegments[pressureSegments.length - 1]; 
 
-      v1 = (Q * (P_base / P1)) / area;
-      v2 = (Q * (P_base / P2)) / area;
+      v1 = (Q1 * (P_base / P1)) / area;
+      v2 = (Q2 * (P_base / P2)) / area;
     }
 
     edge.data('v1', v1);
     edge.data('v2', v2);
   });
 }
+
+
+
+
+function checkSystemStability(cy) {
+  const curr = [];
+  cy.nodes().forEach(n => curr.push(n.data('pressure') || 0));
+  cy.edges().forEach(e => (e.data('pressureSegments') || []).forEach(p => curr.push(p || 0)));
+
+  if (curr.length === previousPressures.length &&
+      curr.every((p, i) => Math.abs(p - previousPressures[i]) < PRESSURE_CHANGE_THRESHOLD )) {
+    stableStepCount++;
+    if (stableStepCount >= 3600) {
+      alert("Simulation finished: Pressures are stable for 1 hour.");
+      previousPressures = [];
+      stableStepCount = 0;
+      simulationMode = "stop"; // ✅ reflect stopped mode
+      stopSimulation();
+    }
+  } else {
+    stableStepCount = 0;
+    previousPressures = curr;
+  }
+}
+
 
 
 
@@ -272,6 +301,7 @@ function updateSimulation(cy, updateInfoCallback) {
   updateEdgeVelocities(cy);
   simulatedSeconds += 1;
   if (updateInfoCallback) updateInfoCallback();
+  checkSystemStability(cy);
 }
 
 // --- Simulation control functions ---
@@ -295,7 +325,9 @@ function stopSimulation() {
     clearInterval(simulationInterval);
     simulationInterval = null;
   }
+  simulationMode = "stop"; 
 }
+
 
 function setSimulationMode(mode, cy, updateInfoCallback) {
   // Mode should be "sec", "min", "hour", or "stop".
