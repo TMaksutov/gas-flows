@@ -3,7 +3,7 @@ let simulationStartTime = Date.now();
 let simulationMode = "sec"; // "sec", "min", "hour"
 let simulatedSeconds = 0;
 const MIN_FLOW_THRESHOLD = 0.01;
-const PRESSURE_CHANGE_THRESHOLD = 0.001;
+const PRESSURE_CHANGE_THRESHOLD = 0.01;
 //cehck no changes in flows
 let previousPressures = [];
 let stableStepCount = 0;
@@ -237,8 +237,6 @@ function updateEdgeSegments(cy) {
 
 
 function updateEdgeVelocities(cy) {
-  const P_base = 0.101325; // MPa
-
   cy.edges().forEach(edge => {
     const flowSegments = edge.data('flowSegments') || [];
     const pressureSegments = edge.data('pressureSegments') || [];
@@ -246,22 +244,55 @@ function updateEdgeVelocities(cy) {
     const D_m = D_mm / 1000;
     const area = Math.PI * Math.pow(D_m, 2) / 4;
 
+    const Z = parseFloat(edge.data('Z')) || 1; // Compressibility
+    const T = parseFloat(edge.data('T')) || 15; // Temperature [°C]
+    const T_K = T + 273.15;
+
+    const P_base = 101.325; // [kPa]
+    const T_base = 293.15;  // [K]
+    const R = 8.314;        // [J/(mol·K)]
+    const M = 0.01604;      // [kg/mol]
+
     let v1 = 0, v2 = 0;
 
     if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1) {
-      const Q1 = flowSegments[0];
-      const Q2 = flowSegments[flowSegments.length - 1];
-      const P1 = pressureSegments[0]; 
-      const P2 = pressureSegments[pressureSegments.length - 1]; 
+      const Q1_std = flowSegments[0]; // standard m³/s
+      const Q2_std = flowSegments[flowSegments.length - 1];
 
-      v1 = (Q1 * (P_base / P1)) / area;
-      v2 = (Q2 * (P_base / P2)) / area;
+      let P1 = pressureSegments[0]; 
+      let P2 = pressureSegments[pressureSegments.length - 1];
+
+      // 🔥 Fix units: MPa → kPa
+      const P1_kPa = P1 * 1000;
+      const P2_kPa = P2 * 1000;
+
+      // Standard density [kg/m³]
+      const rho_std = (P_base * M) / (R * T_base);
+
+      // Mass flows [kg/s]
+      const mass_flow_1 = Q1_std * rho_std;
+      const mass_flow_2 = Q2_std * rho_std;
+
+      // Actual density at inlet and outlet
+      const rho1_actual = (P1_kPa * M) / (Z * R * T_K);
+      const rho2_actual = (P2_kPa * M) / (Z * R * T_K);
+
+      // Actual volumetric flows (m³/s)
+      const Q1_actual = mass_flow_1 / rho1_actual;
+      const Q2_actual = mass_flow_2 / rho2_actual;
+
+      // Velocities (m/s)
+      v1 = Q1_actual / area;
+      v2 = Q2_actual / area;
     }
 
+    // Save velocities
     edge.data('v1', v1);
     edge.data('v2', v2);
   });
 }
+
+
 
 
 

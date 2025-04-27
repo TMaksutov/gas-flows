@@ -86,7 +86,7 @@ function createEdgeData(sourceId, targetId, length, diameter) {
     flow: 0,
     v1: 0,
     v2: 0,
-    length: length.toFixed(3),
+    length: length.toFixed(1),
     diameter: diameter.toFixed(0),
     E: "0.95",
     Z: "0.81",
@@ -96,7 +96,7 @@ function createEdgeData(sourceId, targetId, length, diameter) {
     volumeSegments:    Array(segCount).fill(0),
     flowSegments:      Array(segCount - 1).fill(0),
     pressureSegments:  Array(segCount).fill(0),
-    label: `L: ${length.toFixed(3)} km | D: ${diameter.toFixed(0)} mm\n.`
+    label: `L: ${length.toFixed(1)} km | D: ${diameter.toFixed(0)} mm\n.`
   };
 }
 
@@ -134,8 +134,8 @@ function updateInfo() {
 
   let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr><th>ID</th><th>Name</th><th>Src→Tgt</th>
-        <th>L</th><th>D</th><th>v1</th><th>v2</th>
-        <th>Volumes</th><th>Flows</th><th>Pressures</th></tr>`;
+        <th>L, km</th><th>D, mm</th><th>v1, m/s</th><th>v2, m/s</th>
+        <th>Volumes, m3</th><th>Flows</th><th>Pressures, MPa </th></tr>`;
   cy.edges().forEach(edge => {
     const vs = (edge.data('volumeSegments')||[]).map(v=>v.toFixed(0)).join(', ');
     const fs = (edge.data('flowSegments')  ||[]).map(f=>f.toFixed(2)).join(', ');
@@ -149,25 +149,46 @@ function updateInfo() {
       <td>${edge.id()}</td>
       <td>${edge.data('name')}</td>
       <td>${edge.data('source')}→${edge.data('target')}</td>
-      <td>${edge.data('length')}</td>
+      <td>${parseFloat(edge.data('length')).toFixed(1)}</td>
       <td>${edge.data('diameter')}</td>
       <td>${parseFloat(edge.data('v1')||0).toFixed(1)}</td>
       <td>${parseFloat(edge.data('v2')||0).toFixed(1)}</td>
-      <td>${vs}</td>
+		<td>${
+		  vs
+		} (Total: ${
+		  (() => {
+			const sum = (edge.data('volumeSegments') || []).reduce((s, v) => s + v, 0);
+			if (sum >= 1_000_000) return (sum / 1_000_000).toFixed(2) + ' Million m³';
+			if (sum >= 1_000)     return (sum / 1_000).toFixed(1) + ' Thousand m³';
+			return sum.toFixed(0) + ' m³';
+		  })()
+		})</td>
+
+
+
       <td>${fs}</td>
       <td>${ps}</td>
     </tr>`;
   });
   edgeHTML += `</table>`;
 
-  document.getElementById('totalVolume').innerHTML =
-    `Total Gas Volume: ${totalVol.toFixed(0)} m³ `+
-    `(Time: ${Math.floor(simulatedSeconds/3600)}h `+
-    `${Math.floor((simulatedSeconds%3600)/60)}m ${simulatedSeconds%60}s)<br>`+
-    `+Inj: ${posInj.toFixed(0)} m³/s, -Inj: ${negInj.toFixed(0)} m³/s`;
 
-  document.getElementById('info-nodes').innerHTML = nodeHTML;
-  document.getElementById('info-edges').innerHTML = edgeHTML;
+document.getElementById('info-nodes').innerHTML = nodeHTML;
+
+document.getElementById('info-edges').innerHTML =
+  `<div style="margin: 10px 0; font-weight: bold; text-align: center;">
+    Total Gas Volume: ${
+      (() => {
+        if (totalVol >= 1_000_000) return (totalVol / 1_000_000).toFixed(2) + ' Million m³';
+        if (totalVol >= 1_000)     return (totalVol / 1_000).toFixed(1) + ' Thousand m³';
+        return totalVol.toFixed(0) + ' m³';
+      })()
+    }      |      Inputs: ${posInj.toFixed(0)} m³/s, Outputs: ${negInj.toFixed(0)} m³/s
+         |      Simulation: ${Math.floor(simulatedSeconds/3600)} h ${Math.floor((simulatedSeconds%3600)/60)} m ${simulatedSeconds%60} s
+  </div>` +
+  edgeHTML;
+
+
 }
 
 // Reset everything
@@ -281,13 +302,13 @@ async function handleEdgePopup(edge, x, y) {
 
   if (lengthChanged || diameterChanged) {
     const sc = getSegmentCount(newL);
-    edge.data('length', newL.toFixed(3));
+    edge.data('length', newL.toFixed(1));
     edge.data('diameter', newD.toFixed(0));
     edge.data('volumeSegments',    Array(sc).fill(0));
     edge.data('flowSegments',      Array(sc - 1).fill(0));
     edge.data('pressureSegments',  Array(sc).fill(0));
   } else {
-    if (!isNaN(newL) && newL > 0) edge.data('length', newL.toFixed(3));
+    if (!isNaN(newL) && newL > 0) edge.data('length', newL.toFixed(1));
     if (!isNaN(newD) && newD > 0) edge.data('diameter', newD.toFixed(0));
   }
 
