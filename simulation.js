@@ -337,6 +337,12 @@ function updateSimulation(cy, updateInfoCallback) {
 
 // --- Simulation control functions ---
 function runSimulation(cy, updateInfoCallback) {
+	if (window.firstNode) {
+	  try { window.firstNode.style({ 'border-color': '', 'border-width': '' }); } catch(e) {}
+	  window.creationActive = false;
+	  window.firstNode = null;
+	}
+
   if (simulationInterval) return;
   simulationInterval = setInterval(() => {
     let iterations = 1;

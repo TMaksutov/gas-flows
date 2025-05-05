@@ -25,11 +25,15 @@
   Weymouth equation, Weymouth formula, Weymouth equation in SI units,
   gas flow online, Gas flow calculator free, gas flow calculator free online
   ">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" href="common.css">
+<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="android-icon-48x48.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="common.css">
+
 </head>
 
 <body>
@@ -38,6 +42,7 @@
     <ul>
       <li><a href="index.html" class="active">Flow Calculator</a></li>
       <li><a href="pressures.html">Pressure Converter</a></li>
+      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
       <li><a href="simulator.html">Gas flow Simulator</a></li>
       <li><a href="contacts.html">Contacts</a></li>
     </ul>
@@ -169,6 +174,7 @@
     <tr><td>\( Q_\text{base} \)</td><td>= Volumetric flow rate at base conditions, m³/s</td></tr>
     <tr><td>\( \rho \)</td><td>= Gas density at flowing conditions, kg/m³</td></tr>
     <tr><td>\( \rho_\text{base} \)</td><td>= Gas density at base conditions, kg/m³</td></tr>
+    <tr><td>\( A \)</td><td>= Pipe cross-sectional area, m²</td></tr>
     <tr><td>\( P_\text{base} \)</td><td>= Base pressure, kPa</td></tr>
     <tr><td>\( P \)</td><td>= Flowing pressure, kPa</td></tr>
     <tr><td>\( T_\text{base} \)</td><td>= Base temperature, K</td></tr>
@@ -179,6 +185,7 @@
 </div>
 
 
+
 <div class="container">
   <p>Average pressure and gas volume inside the pipeline (base conditions):</p>
 
@@ -187,8 +194,8 @@
     P_\text{avg} = \frac{2}{3} \times \frac{P_1^3 - P_2^3}{P_1^2 - P_2^2}
     \qquad
     V_\text{base} = \left( \frac{\pi D^2}{4} \right) 
-    \times L_\text{pipe}
-    \times \frac{P_\text{avg} \times T_\text{base}}{P_\text{base} \times T  \times Z}
+    \times L
+    \times \frac{P_\text{avg} \times T_\text{base}}{P_\text{base} \times T \times Z}
     $$
   </p>
 
@@ -198,13 +205,16 @@
     <tr><td>\( V_\text{base} \)</td><td>= Gas volume at base conditions, m³</td></tr>
     <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
     <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-    <tr><td>\( L_\text{pipe} \)</td><td>= Pipe length, m</td></tr>
+    <tr><td>\( L \)</td><td>= Pipe length, m</td></tr>
     <tr><td>\( D \)</td><td>= Pipe inside diameter, m</td></tr>
     <tr><td>\( P_\text{base} \)</td><td>= Base pressure, kPa</td></tr>
     <tr><td>\( T_\text{base} \)</td><td>= Base temperature, K</td></tr>
     <tr><td>\( T \)</td><td>= Flowing gas temperature, K</td></tr>
     <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
+    <tr><td>\( \pi \)</td><td>= Pi constant (≈ 3.1416)</td></tr>
   </table>
+</div>
+
 </div>
 
 

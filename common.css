@@ -45,7 +45,7 @@ nav a {
   display: block;
   text-decoration: none;
   color: #333;
-  font-size: 16px;
+  font-size: 14px;
   padding: 10px 15px;
 }
 nav a.active,
@@ -159,9 +159,3 @@ nav a:hover {
   margin-bottom: 10px;
 }
 
-/* On screens narrower than 800px, stack the blocks */
-@media (max-width: 800px) {
-  .info-block {
-    flex: 1 1 100%;
-  }
-}
