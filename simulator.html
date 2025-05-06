@@ -47,7 +47,8 @@
     <button id="playBtn" class="controlButton">Play (sec)</button>
     <button id="playMinBtn" class="controlButton">Play (min)</button>
     <button id="playHourBtn" class="controlButton">Play (hour)</button>
-    <button id="stopBtn" class="controlButton">Stop</button>
+    <button id="stopBtn" class="controlButton">Pause</button>
+	<button id="resetButton" class="controlButton">Reset</button>
   </div>
   
   <!-- Cytoscape container: full browser width -->
@@ -65,6 +66,37 @@
 		<!-- Nodes table will be injected here -->
 	  </div>
 	</div>
+	
+<!-- Scenario script UI (drop into simulator.html) -->
+<div id="script-container" class="container">
+  <h3 style="margin:4px 0;">Scenario script</h3>
+  <div style="display: flex; gap: 10px;">
+<textarea id="scriptInput" rows="8" style="width:50%; font-family:monospace;"
+  placeholder="HH:MM:SS or condition , action
+00:01:00, n0.injection = 100
+n0.pressure > 0.1, n0.injection = 200
+n0.pressure > 1, n0.injection = 500
+n1.pressure > 2, n0.injection = 0
+n1.pressure > 10, n1_n3.disable = true
+00:00:00, n0.pressure = 22
+00:00:01, n0.pressureSet = true
+00:00:02, n1.pressure = 12
+00:00:03, n1.pressureSet = true
+00:00:45, n2.pressure = 7.5
+00:00:46, n2.pressureSet = true
+n3.flow < -5, n3_n0.reverse = true
+00:01:00, n4.injection = 0
+n0_n2.flow > 12, n0_n2.disable = true"></textarea>
+
+
+    <pre id="scriptStatus"
+      style="width:50%; margin:0; font-family:monospace; white-space:pre-wrap; border:1px solid #ccc; padding:4px; background:#f9f9f9;"></pre>
+  </div>
+</div>
+
+
+<!-- add after ui.js -->
+<script src="script_engine.js"></script>
 
 
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">

@@ -327,6 +327,7 @@ function checkSystemStability(cy) {
 // • Update node segments (rebalancing pressures and volumes at junctions),
 // • Update edge segments (computing flows between adjacent segments).
 function updateSimulation(cy, updateInfoCallback) {
+if (window.evaluateScripts) evaluateScripts(simulatedSeconds);
   updateNodeSegments(cy);
   updateEdgeSegments(cy);
   updateEdgeVelocities(cy);
@@ -377,6 +378,40 @@ function setSimulationMode(mode, cy, updateInfoCallback) {
     }
   }
 }
+function resetSimulation() {
+  stopSimulation();  // Stop timer
+
+  simulatedSeconds = 0;
+  // updateTimeDisplay?.(0);  // Removed – no such function
+
+  // Reset node data
+  cy.nodes().forEach(node => {
+    node.data('pressure', 0);
+    node.data('pressureSet', null);
+    node.data('injection', 0);
+    node.data('fixed', false);
+    node.data('volumeSegments', Array((node.data('volumeSegments') || []).length).fill(0));
+  });
+
+  // Reset edge data
+  cy.edges().forEach(edge => {
+    edge.data('flow', 0);
+    edge.data('disabled', false);
+    edge.data('reverse', false);
+    const n = edge.data('volumeSegments')?.length || 2;
+    edge.data('volumeSegments', Array(n).fill(0));
+    edge.data('flowSegments', Array(n - 1).fill(0));
+    edge.data('pressureSegments', Array(n).fill(0));
+  });
+
+  if (window.resetScriptEngine) window.resetScriptEngine();
+
+updateInfo?.(); // or updateSidebar(), or similar
+
+}
+
+
+
 
 // --- Event listeners to control the simulation ---
 document.getElementById('playBtn').addEventListener('click', function() {
@@ -391,3 +426,6 @@ document.getElementById('playHourBtn').addEventListener('click', function() {
 document.getElementById('stopBtn').addEventListener('click', function() {
   setSimulationMode("stop", cy, updateInfo);
 });
+
+document.getElementById('resetButton').addEventListener('click', resetSimulation);
+
