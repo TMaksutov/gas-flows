@@ -23,12 +23,12 @@
   Weymouth equation, Weymouth formula, Weymouth equation in SI units,
   gas flow online, Gas flow calculator free, gas flow calculator free online
   ">
-<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="36x36" href="android-icon-36x36.png">
-<link rel="icon" type="image/png" sizes="48x48" href="android-icon-48x48.png">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="common.css">
 
@@ -39,10 +39,10 @@
   <nav>
     <ul>
       <li><a href="index.html" class="active">Flow Calculator</a></li>
-      <li><a href="pressures.html">Pressure Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="simulator.html">Gas flow Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
+      <li><a href="pages/pressures.html">Pressure Converter</a></li>
+      <li><a href="pages/aga8.html">AGA8 Z-Factor</a></li>
+      <li><a href="pages/simulator.html">Gas flow Simulator</a></li>
+      <li><a href="pages/contacts.html">Contacts</a></li>
     </ul>
   </nav>
 
@@ -233,7 +233,9 @@
   </footer>
 
   <!-- JS Logic -->
-  <script src="formulas.js"></script>
+  <script src="js/constants.js"></script>
+  <script src="js/formulas.js"></script>
+  <script src="js/ui.js"></script>
   <script>
     const inputs = document.querySelectorAll('#inputs input');
     inputs.forEach(input => input.addEventListener('input', updateResults));

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
+  <title>Feedback</title>
+<link rel="canonical" href="https://gas-flows.com/contacts.html">
+  <meta name="description" content="Leave your feedback about Gas flows online simulator.">
+<link rel="apple-touch-icon" sizes="57x57" href="../icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="../icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="../icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../icons/android-icon-48x48.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="stylesheet" href="../common.css">
+
+</head>
+<body>
+<!-- Menu -->
+  <nav>
+    <ul>
+      <li><a href="../index.html">Flow Calculator</a></li>
+      <li><a href="pressures.html">Pressure Converter</a></li>
+      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
+      <li><a href="simulator.html">Gas flow Simulator</a></li>
+      <li><a href="contacts.html" class="active">Contacts</a></li>
+    </ul>
+  </nav>
+  
+<!-- Feedback Form -->
+<section class="container" style="margin-top: 40px; border-top: 1px solid #ccc;">
+  <h3>Send Us Feedback / Join the team / Request the feature</h3>
+  <form action="https://formspree.io/f/xeoapazr" method="POST">
+    <label style="display: block; margin-bottom: 10px;">
+      Your email address:
+      <input type="email" name="email" style="display: block; width: 95%; " placeholder="you@example.com">
+    </label>
+    <label style="display: block; margin-bottom: 10px;">
+      Your message:
+      <textarea name="message" rows="5" style="display: block; width: 95%;" placeholder="Type your message here..."></textarea>
+    </label>
+    <button type="submit" style="padding: 10px 20px;">Send</button>
+  </form>
+</section>
+
+<div class="container">
+	<p><strong>v0.20:</strong> 13.05.2025</p>
+	<ul>
+	  <li>AGA8 all 21 components</li>
+	</ul>
+	<p><strong>v0.19:</strong> 06.05.2025</p>
+	<ul>
+	  <li>Scripting simulator scenarious</li>
+	</ul>
+
+	<p><strong>v0.18:</strong> 05.05.2025</p>
+	<ul>
+	  <li>AGA8 Z-factor calculator</li>
+	</ul>
+
+	<p><strong>v0.17:</strong> 02.05.2025</p>
+	<ul>
+	  <li>Flow animations</li>
+	</ul>
+
+	<p><strong>v0.16:</strong> 27.04.2025</p>
+	<ul>
+	  <li>Improved velocity calculation using the Z-factor and base conditions.</li>
+	  <li>Updated explanations in the flow calculator.</li>
+	  <li>Added total volumes for each pipeine.</li>
+	</ul>
+	
+	<p><strong>v.0.15:</strong> 22.04.2025</p>
+	<ul>
+		<li>Fixed bug in v2 calculation.</li>
+		<li>Simulation stops when the system remains stable for 1 hour.</li>
+	</ul>
+	
+	<p><strong>v.0.14:</strong> 20.04.2025</p>
+	<ul>
+		<li>Flows are averaged with k = 0.2 every second.</li>
+		<li>Nodes with fixed pressure are blue.</li>
+	</ul>
+	
+	<p><strong>v.0.13:</strong> 19.04.2025</p>
+	<ul>
+		<li>Adaptive number of segments.</li>
+		<li>Fixed graph drawing bugs.</li>
+		<li>Fixed flow info speed display.</li>
+		<li>Enable/disable individual edges.</li>
+	</ul>
+
+	<p><strong>v.0.12:</strong> 18.04.2025</p>
+	<ul>
+		<li>E, T, and Z can be defined by the user.</li>
+	</ul>
+	
+	<p><strong>v.0.11:</strong> 14.04.2025</p>
+	<ul>
+		<li>Show per-segment edge pressures, flows, and volumes.</li>
+		<li>Auto-save and restore network and time from browser memory.</li>
+	</ul>
+	
+	<p><strong>v.0.10:</strong> 11.04.2025</p>
+	<ul>
+		<li>Lines split into segments for simulation.</li>
+	</ul>
+
+	<p><strong>v.0.9:</strong> 09.04.2025</p>
+	<ul>
+		<li>Implemented long-press (taphold) to prevent immediate pop-up closure.</li>
+		<li>Validated and applied user inputs (injection, pressure, length, diameter) live.</li>
+	</ul>
+
+	<p><strong>v.0.8:</strong> 06.04.2025</p>
+	<ul>
+		<li>Initial Cytoscape-based editor: disabled context menu, tap to create/connect/delete nodes and edges.</li>
+		<li>Core simulation engine: pressure and volume updates.</li>
+		<li>Interactive play controls.</li>
+	</ul>
+</div>
+
+
+<div class="container">
+  <p><strong>Backlog:</strong></p>
+  <ul>
+    <li>Fix short less than 100m lines.</li>
+    <li>Add automatic calculations of Z.</li>
+    <li>Graph import/export (JSON, CSV) for sharing and backup.</li>
+    <li>Simulation data records export.</li>
+    <li>Support multiple unit systems.</li>
+    <li>Compression stations in simulator.</li>
+    <li>Add localization support for different languages.</li>
+    <li>Redesign UI for mobile‑friendly responsiveness.</li>
+    <li>Simulation and construction modes.</li>
+    <li>Help and instructions.</li>
+    <li>Undo action.</li>
+    <li>Nice design.</li>
+  </ul>
+</div>
+  
+</body>
+</html>

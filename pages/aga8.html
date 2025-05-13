@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
+  <title>AGA8-92DC Z-Factor Calculator | Natural Gas Compressibility</title>
+  <link rel="canonical" href="https://gas-flows.com/aga8.html">
+  <meta name="description" content="Calculate Z-factors and gas density for natural gas mixtures using the AGA8-92DC equation. Online compressibility factor calculator.">
+  <meta name="keywords" content="
+	AGA8, AGA8-92DC, z-factor calculator, compressibility factor, gas density, molar density, mass density,
+	specific density, natural gas, gas flow calculator, natural gas compressibility,
+	gas z-factor online, AGA8 calculator free, natural gas properties, gas mixture calculation
+	">
+<link rel="apple-touch-icon" sizes="57x57" href="../icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="../icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="../icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../icons/android-icon-48x48.png">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <nav>
+    <ul>
+      <li><a href="/">Flow Calculator</a></li>
+      <li><a href="pressures.html">Pressure Converter</a></li>
+      <li><a href="aga8.html" class="active">AGA8 Z-Factor</a></li>
+      <li><a href="simulator.html">Gas flow Simulator</a></li>
+      <li><a href="contacts.html">Contacts</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h2>AGA8-92DC Compressibility Factor Calculator</h2>
+
+    <div class="field-group">
+      <label for="temperature">Temperature (°C):</label>
+      <input type="number" id="temperature" value="7" step="1">
+      <span>– Gas temperature</span>
+    </div>
+
+    <div class="field-group">
+      <label for="pressure">Pressure (bar):</label>
+      <input type="number" id="pressure" value="120" step="1">
+      <span>– Operating pressure</span>
+    </div>
+
+    <!-- Mole fractions: indexed 0..20, Russian order -->
+<div class="field-group">
+  <label for="mol_0">Methane</label>
+  <input id="mol_0" type="number" step="1e-5" value="0.9659">
+  <span>– Methane (CH₄)</span>
+</div>
+<div class="field-group">
+  <label for="mol_1">Ethane</label>
+  <input id="mol_1" type="number" step="1e-5" value="0.02751">
+  <span>– Ethane (C₂H₆)</span>
+</div>
+<div class="field-group">
+  <label for="mol_2">Propane</label>
+  <input id="mol_2" type="number" step="1e-5" value="0.00046">
+  <span>– Propane (C₃H₈)</span>
+</div>
+<div class="field-group">
+  <label for="mol_3">Isobutane</label>
+  <input id="mol_3" type="number" step="1e-5" value="0.00046">
+  <span>– Isobutane (i-C₄H₁₀)</span>
+</div>
+<div class="field-group">
+  <label for="mol_4">n-Butane</label>
+  <input id="mol_4" type="number" step="1e-5" value="0.00010">
+  <span>– n-Butane (n-C₄H₁₀)</span>
+</div>
+<div class="field-group">
+  <label for="mol_5">Isopentane</label>
+  <input id="mol_5" type="number" step="1e-5" value="0.00004">
+  <span>– Isopentane (i-C₅H₁₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_6">n-Pentane</label>
+  <input id="mol_6" type="number" step="1e-5" value="0.00002">
+  <span>– n-Pentane (n-C₅H₁₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_7">n-Hexane</label>
+  <input id="mol_7" type="number" step="1e-5" value="0.00002">
+  <span>– n-Hexane (n-C₆H₁₄)</span>
+</div>
+<div class="field-group">
+  <label for="mol_8">n-Heptane</label>
+  <input id="mol_8" type="number" step="1e-5" value="0.0">
+  <span>– n-Heptane (n-C₇H₁₆)</span>
+</div>
+<div class="field-group">
+  <label for="mol_9">n-Octane</label>
+  <input id="mol_9" type="number" step="1e-5" value="0.0">
+  <span>– n-Octane (n-C₈H₁₈)</span>
+</div>
+<div class="field-group">
+  <label for="mol_10">n-Nonane</label>
+  <input id="mol_10" type="number" step="1e-5" value="0.0">
+  <span>– n-Nonane (n-C₉H₂₀)</span>
+</div>
+<div class="field-group">
+  <label for="mol_11">n-Decane</label>
+  <input id="mol_11" type="number" step="1e-5" value="0.0">
+  <span>– n-Decane (n-C₁₀H₂₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_12">Helium</label>
+  <input id="mol_12" type="number" step="1e-5" value="0.0">
+  <span>– Helium (He)</span>
+</div>
+<div class="field-group">
+  <label for="mol_13">Argon</label>
+  <input id="mol_13" type="number" step="1e-5" value="0.0">
+  <span>– Argon (Ar)</span>
+</div>
+<div class="field-group">
+  <label for="mol_14">Nitrogen</label>
+  <input id="mol_14" type="number" step="1e-5" value="0.002">
+  <span>– Nitrogen (N₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_15">Oxygen</label>
+  <input id="mol_15" type="number" step="1e-5" value="0.0">
+  <span>– Oxygen (O₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_16">Carbon Monoxide</label>
+  <input id="mol_16" type="number" step="1e-5" value="0.0">
+  <span>– Carbon Monoxide (CO)</span>
+</div>
+<div class="field-group">
+  <label for="mol_17">Carbon Dioxide</label>
+  <input id="mol_17" type="number" step="1e-5" value="0.00349">
+  <span>– Carbon Dioxide (CO₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_18">Hydrogen</label>
+  <input id="mol_18" type="number" step="1e-5" value="0.0">
+  <span>– Hydrogen (H₂)</span>
+</div>
+<div class="field-group">
+  <label for="mol_19">Water</label>
+  <input id="mol_19" type="number" step="1e-5" value="0.0">
+  <span>– Water (H₂O)</span>
+</div>
+<div class="field-group">
+  <label for="mol_20">Hydrogen Sulfide</label>
+  <input id="mol_20" type="number" step="1e-5" value="0.0">
+  <span>– Hydrogen Sulfide (H₂S)</span>
+</div>
+
+    <h2>Results</h2>
+	
+<div class="field-group">
+  <label for="sumResult">Sum Components:</label>
+  <input type="text" id="sumResult" readonly>
+  <span>– Sum of all component mole fractions</span>
+</div>
+
+<div class="field-group">
+  <label for="densityResult">Molar density:</label>
+  <input type="text" id="densityResult" readonly>
+  <span>– Molar density (mol/m³)</span>
+</div>
+
+<div class="field-group">
+  <label for="relativeResult">Relative Density:</label>
+  <input type="text" id="relativeResult" readonly>
+  <span>– Air-relative molecular weight (air ≈ 28.9647 g/mol)</span>
+</div>
+
+<div class="field-group">
+  <label for="massDensityResult">Mass Density:</label>
+  <input type="text" id="massDensityResult" readonly>
+  <span>– Mass density (kg/m³)</span>
+</div>
+
+<div class="field-group">
+  <label for="massDensityBaseResult">Base Density:</label>
+  <input type="text" id="massDensityBaseResult" readonly>
+  <span>– Standart condition  density (kg · m⁻³) (@ 20 °C, 101.325 kPa)</span>
+</div>
+
+<div class="field-group">
+  <label for="zResult">Z-Factor:</label>
+  <input type="text" id="zResult" readonly>
+  <span>– Calculated compressibility</span>
+</div>
+
+  </div>
+  <div class="container">
+	<div class="field-group">
+	  <canvas id="zChart" width="600" height="300"></canvas>
+	</div>
+</div>
+
+ <div class="container">
+
+  <label>Validation Results:</label>
+  <pre id="validationResults" style="background:#f9f9f9;padding:10px;border:1px solid #ccc;max-height:120px;overflow:auto;"></pre>
+
+</div>
+
+    <!-- Load the AGA8 library as a regular script -->
+<script src="../js/constants.js"></script>
+<script src="../js/aga8.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Your calculation logic -->
+<!-- Only the bottom part is changed; top remains unchanged -->
+<!-- Main calculation logic -->
+<script>
+/* ------------------------------------------------------------------
+   AGA8‑92DC front‑end helper
+   – collects 14 user mole‑fraction inputs,
+   – builds the 21‑component XJ vector in ISO order,
+   – calls compressibilityFactor(xj, T [K], P [MPa]) from aga8.js,
+   – displays Z, molar & mass density, and rel. density to air,
+     plus a quick Z‑vs‑P chart (0‑250 bar).
+------------------------------------------------------------------ */
+// input in html form:
+//  0: Methane
+//  1: Ethane
+//  2: Propane
+//  3: Isobutane
+//  4: n-Butane
+//  5: Isopentane
+//  6: n-Pentane
+//  7: n-Hexane
+//  8: n-Heptane
+//  9: n-Octane
+// 10: n-Nonane
+// 11: n-Decane
+// 12: Helium
+// 13: Argon
+// 14: Nitrogen
+// 15: Oxygen
+// 16: Carbon Monoxide
+// 17: Carbon Dioxide
+// 18: Hydrogen
+// 19: Water
+// 20: Hydrogen Sulfide
+
+
+function calculateZ () {
+    const tol          = 1e-6;
+    const molInputs    = [];
+    let   moleSum      = 0;
+
+    // gather 21 user mole‑fraction inputs
+    for (let i = 0; i <= 20; i++) {
+      let input = document.getElementById('mol_' + i);
+      let v = parseFloat(input.value);
+      if (isNaN(v) || v < 0) {
+        v = 0;
+        input.value = "0.0";
+      } else if (v > 1) {
+        v = 1;
+        input.value = "0.0";
+      }
+      molInputs.push(v);
+      moleSum += v;
+    }
+
+    // result fields
+    const zField       = document.getElementById('zResult');
+    const densityField = document.getElementById('densityResult');
+    const massField    = document.getElementById('massDensityResult');
+    const relField     = document.getElementById('relativeResult');
+    const baseField    = document.getElementById('massDensityBaseResult');
+    const sumField     = document.getElementById('sumResult');
+
+    // display sum of mole fractions
+    if (Math.abs(moleSum - 1) > tol) {
+      sumField.value = moleSum.toFixed(6) + ' ❌';
+    } else {
+      sumField.value = moleSum.toFixed(6);
+    }
+
+    // temperature & pressure (operating)
+    const T_C  = parseFloat(document.getElementById('temperature').value);
+    const T    = T_C + 273.15;                // K
+    const Pbar = parseFloat(document.getElementById('pressure').value);
+    const P    = Pbar * 0.1;                  // MPa  (1 bar = 0.1 MPa)
+
+    if (Math.abs(moleSum - 1) > tol) {
+      zField.value = '';
+      densityField.value = massField.value = relField.value = baseField.value = '';
+      if (window.zChart instanceof Chart) window.zChart.destroy();
+      return;
+    }
+
+    // use the 21-component vector directly
+    const xj = molInputs;
+
+    try {
+      /* ── operating conditions ─────────────────────────────────────── */
+      const { Z, D } = compressibilityFactor(xj, T, P); // D → kmol·m⁻³
+      zField.value       = Z.toFixed(3);
+      densityField.value = D.toFixed(4);
+
+      const M_mix = calculateMolarMass(xj);            // g·mol⁻¹
+      const rho   = D * M_mix;                         // kg·m⁻³ (D kmol/m³ × g/mol × 1 kg/1000 g × 1000 mol/kmol)
+      massField.value = rho.toFixed(3);
+
+      relField.value = (M_mix / 28.9647).toFixed(3);
+
+      /* ── base‑condition density (20 °C & 101.325 kPa) ─────────────── */
+      const Tbase = 293.15;          // 20 °C in K
+      const Pbase = 0.101325;        // 101.325 kPa = 0.101325 MPa
+      const { D: Dbase } = compressibilityFactor(xj, Tbase, Pbase);
+      const rhoBase = Dbase * M_mix; // kg·m⁻³
+      baseField.value = rhoBase.toFixed(3);
+
+      updateZChart(xj, T);
+    } catch (err) {
+      zField.value = `Error: ${err.message} ❌`;
+      densityField.value = massField.value = relField.value = baseField.value = '';
+      if (window.zChart instanceof Chart) window.zChart.destroy();
+    }
+  }
+
+  function calculateMolarMass (xj) {
+    return xj.reduce((sum, x, i) => sum + x * MW[i], 0);
+  }
+
+/* ─── Helpers ──────────────────────────────────────────────────── */
+
+function updateZChart(xj, T) {
+  const pressures = [];
+  const zValues   = [];
+
+  for (let pb = 0; pb <= 250; pb += 5) {
+    const MPa = pb * 0.1;
+    try {
+      const { Z } = compressibilityFactor(xj, T, MPa);
+      pressures.push(pb);
+      zValues.push(Z);
+    } catch {
+      pressures.push(pb);
+      zValues.push(null);   // missing point if solver fails (rare)
+    }
+  }
+
+  const ctx = document.getElementById('zChart').getContext('2d');
+  if (window.zChart instanceof Chart) window.zChart.destroy();
+
+  window.zChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: pressures,
+      datasets: [{
+        label: 'Z‑Factor vs Pressure (bar)',
+        data: zValues,
+        borderWidth: 2,
+        borderColor: 'blue',
+        fill: false,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      scales: {
+        x: { title: { display: true, text: 'Pressure (bar)' } },
+        y: { title: { display: true, text: 'Z‑Factor' }, beginAtZero: false }
+      },
+      plugins: { legend: { display: true } }
+    }
+  });
+}
+
+/* ─── Initialise ───────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  calculateZ();  // auto‑calculate on page load
+  document.querySelectorAll(
+    '#temperature, #pressure, input[id^="mol_"]'
+  ).forEach(el => el.addEventListener('input', calculateZ));
+});
+
+/* --- ISO Annex F – six reference mixtures ----------------------------- */
+/* order inside each array:                                             */
+/*  CO2, N2, H2, CO, CH4, C2H6, C3H8, i‑C4, n‑C4, i‑C5, n‑C5, C6, C7, C8 */
+
+const gasCompositions = [
+  // [Methane, Ethane, Propane, Isobutane, n-Butane, Isopentane, n-Pentane, n-Hexane, n-Heptane, n-Octane, n-Nonane, n-Decane,
+  //  Helium, Argon, Nitrogen, Oxygen, Carbon Monoxide, Carbon Dioxide, Hydrogen, Water, Hydrogen Sulfide]
+  [0.965, 0.0180, 0.0045, 0.0010, 0.0010, 0.0005, 0.0003, 0.0007, 0.0000, 0.0000, 0, 0, 0, 0, 0.003, 0, 0.0000, 0.006, 0.000, 0, 0],
+  [0.907, 0.0450, 0.0084, 0.0010, 0.0015, 0.0003, 0.0004, 0.0004, 0.0000, 0.0000, 0, 0, 0, 0, 0.031, 0, 0.0000, 0.005, 0.000, 0, 0],
+  [0.859, 0.0850, 0.0230, 0.0035, 0.0035, 0.0005, 0.0005, 0.0002, 0.0000, 0.0000, 0, 0, 0, 0, 0.010, 0, 0.0000, 0.015, 0.000, 0, 0],
+  [0.735, 0.0330, 0.0074, 0.0012, 0.0012, 0.0004, 0.0004, 0.0002, 0.0001, 0.0001, 0, 0, 0, 0, 0.100, 0, 0.010, 0.016, 0.095, 0, 0],
+  [0.812, 0.0430, 0.0090, 0.0015, 0.0015, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0, 0, 0, 0, 0.057, 0, 0.0000, 0.076, 0.000, 0, 0],
+  [0.826, 0.0350, 0.0075, 0.0012, 0.0012, 0.0004, 0.0004, 0.0002, 0.0001, 0.0000, 0, 0, 0, 0, 0.117, 0, 0.0000, 0.011, 0.000, 0, 0]
+];
+
+const testCases = [
+  { pBar: 60,  tC: -3.15, expected: [0.84053,0.83348,0.79380,0.88550,0.82609,0.85380] },
+  { pBar: 60,  tC: 6.85,  expected: [0.86199,0.85596,0.82206,0.90144,0.84969,0.87370] },
+  { pBar: 60,  tC: 36.85, expected: [0.90867,0.90466,0.88183,0.93674,0.90052,0.91723] },
+  { pBar: 60,  tC: 56.85, expected: [0.93011,0.92696,0.90868,0.95318,0.92368,0.93730] },
+  { pBar: 120, tC: -3.15, expected: [0.72133,0.71044,0.64145,0.81020,0.69540,0.75074] },
+  { pBar: 120, tC: 6.85,  expected: [0.76025,0.75061,0.68971,0.83762,0.73780,0.78586] },
+  { pBar: 120, tC: 16.85, expected: [0.79317,0.78475,0.73123,0.86137,0.77369,0.81569] },
+  { pBar: 120, tC: 36.85, expected: [0.84515,0.83863,0.79697,0.89913,0.83022,0.86311] },
+  { pBar: 120, tC: 56.85, expected: [0.88383,0.87870,0.84553,0.92766,0.87211,0.89862] }
+];
+
+const TOL = 5e-4;
+
+function runZValidationTests() {
+  let results = '';
+  let totalErr = 0, totalPts = 0;
+
+  testCases.forEach(({ pBar, tC, expected }, idx) => {
+    const T = tC + 273.15;        // K
+    const P = pBar * 0.1;         // MPa
+    results += `Test ${idx + 1}:  T = ${tC} °C,  P = ${pBar} bar\n`;
+
+    expected.forEach((zRef, i) => {
+      const xj = gasCompositions[i];
+      try {
+        const { Z } = compressibilityFactor(xj, T, P);
+        const err   = Math.abs(Z - zRef);
+        const pass  = err < TOL ? '✅' : '❌';
+        results += `  Gas ${i + 1}:  Z = ${Z.toFixed(5)}  | Ref = ${zRef.toFixed(5)}  | Δ = ${err.toFixed(5)} ${pass}\n`;
+        totalErr += err;
+        totalPts++;
+      } catch (e) {
+        results += `  Gas ${i + 1}:  Error – ${e.message} ❌\n`;
+      }
+    });
+
+    results += '\n';
+  });
+
+  document.getElementById('validationResults').textContent = results;
+}
+
+window.addEventListener('DOMContentLoaded', runZValidationTests);
+</script>
+
+
+
+
+
+
+</body>
+</html>

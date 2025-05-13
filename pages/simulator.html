@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
+  <title>Gas Flows Simulator</title>
+  <link rel="canonical" href="https://gas-flows.com/simulator.html">
+  <meta name="description" content="Gas flows simulation. Interactive natural gas pipeline simulation and flow calculation tool.Visualize gas distribution, gas flow schemes, and pipeline networks in real-time.">
+  <meta name="keywords" content="
+    gas pipeline simulation, pipeline calculation, pipeline network graph,
+    natural gas flow, gas flow visualization, gas flow scheme,
+    methane distribution, Cytoscape.js simulation,energy network modeling, real-time gas simulation,
+	gas simulation online, Gas pressure simulation free, gas flow simulator free online">
+<link rel="apple-touch-icon" sizes="57x57" href="../icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="../icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="../icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="../icons/android-icon-48x48.png">
+  <link rel="manifest" href="../manifest.json">
+  <link rel="stylesheet" href="../common.css">
+
+  <!-- Cytoscape -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.22.0/cytoscape.min.js"></script>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="../index.html">Flow Calculator</a></li>
+      <li><a href="pressures.html">Pressure Converter</a></li>
+      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
+      <li><a href="simulator.html" class="active">Gas flow Simulator</a></li>
+      <li><a href="contacts.html">Contacts</a></li>
+    </ul>
+  </nav>
+  
+  <!-- Controls area (800px wide, centered) -->
+  <div id="controls">
+    <button id="clearBtn" class="controlButton">Clear</button>
+    <button id="playBtn" class="controlButton">Play (sec)</button>
+    <button id="playMinBtn" class="controlButton">Play (min)</button>
+    <button id="playHourBtn" class="controlButton">Play (hour)</button>
+    <button id="stopBtn" class="controlButton">Pause</button>
+	<button id="resetButton" class="controlButton">Reset</button>
+  </div>
+  
+  <!-- Cytoscape container: full browser width -->
+  <div id="cy"></div>
+	  
+	<!-- Info area -->
+	<div class="wide-container">
+	  <div id="info-edges">
+		<!-- Edges table will be injected here -->
+	  </div>
+	</div>
+
+	<div class="wide-container">
+	  <div id="info-nodes">
+		<!-- Nodes table will be injected here -->
+	  </div>
+	</div>
+	
+<!-- Scenario script UI (drop into simulator.html) -->
+<div id="script-container" class="container">
+  <h3 style="margin:4px 0;">Scenario script</h3>
+  <div style="display: flex; gap: 10px;">
+<textarea id="scriptInput" rows="8" style="width:50%; font-family:monospace;"
+  placeholder="HH:MM:SS or condition , action
+00:01:00, n0.injection = 100
+n0.pressure > 0.1, n0.injection = 200
+n0.pressure > 1, n0.injection = 500
+n1.pressure > 2, n0.injection = 0
+n1.pressure > 10, n1_n3.disable = true
+00:00:00, n0.pressure = 22
+00:00:01, n0.pressureSet = true
+00:00:02, n1.pressure = 12
+00:00:03, n1.pressureSet = true
+00:00:45, n2.pressure = 7.5
+00:00:46, n2.pressureSet = true
+n3.flow < -5, n3_n0.reverse = true
+00:01:00, n4.injection = 0
+n0_n2.flow > 12, n0_n2.disable = true"></textarea>
+
+
+    <pre id="scriptStatus"
+      style="width:50%; margin:0; font-family:monospace; white-space:pre-wrap; border:1px solid #ccc; padding:4px; background:#f9f9f9;"></pre>
+  </div>
+</div>
+
+
+<!-- add after ui.js -->
+<script src="../js/script_engine.js"></script>
+
+
+  <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
+    <p><strong>Disclaimer:</strong> This Gas Flows Simulator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
+  </footer>
+  
+  <script src="../js/simulation.js"></script>
+  <script src="../js/ui.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</body>
+</html>
