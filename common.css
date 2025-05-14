@@ -82,11 +82,9 @@ nav a:hover {
   margin: 0 auto;
 }
 
-
 /* Field groups (used in index.html and pressures.html) */
 .field-group {
   display: flex;
-  align: center;
   align-items: center;
   margin-bottom: 8px;
   gap: 10px;
