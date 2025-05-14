@@ -31,7 +31,7 @@
 <body>
   <nav>
     <ul>
-      <li><a href="/">Flow Calculator</a></li>
+      <li><a href="../index.html">Flow Calculator</a></li>
       <li><a href="pressures.html">Pressure Converter</a></li>
       <li><a href="aga8.html" class="active">AGA8 Z-Factor</a></li>
       <li><a href="simulator.html">Gas flow Simulator</a></li>
@@ -39,126 +39,132 @@
     </ul>
   </nav>
 
+  <div id="controls" style="margin-bottom: 16px;">
+    <button id="groupedOrder" class="controlButton">Grouped Order</button>
+    <button id="AGAOrder" class="controlButton">AGA8 Order</button>
+    <button id="resetButton" class="controlButton">Reset</button>
+  </div>
+
   <div class="container">
     <h2>AGA8-92DC Compressibility Factor Calculator</h2>
 
     <div class="field-group">
       <label for="temperature">Temperature (°C):</label>
       <input type="number" id="temperature" value="7" step="1">
-      <span>– Gas temperature</span>
+      <span>Gas temperature</span>
     </div>
 
     <div class="field-group">
-      <label for="pressure">Pressure (bar):</label>
+      <label for="pressure">Pressure (barA):</label>
       <input type="number" id="pressure" value="120" step="1">
-      <span>– Operating pressure</span>
+      <span>Operating pressure</span>
     </div>
 
     <!-- Mole fractions: indexed 0..20, Russian order -->
 <div class="field-group">
-  <label for="mol_0">Methane</label>
-  <input id="mol_0" type="number" step="1e-5" value="0.9659">
-  <span>– Methane (CH₄)</span>
+  <label for="mol_methane">Methane</label>
+  <input id="mol_methane" type="number" step="1e-5" value="0.9659">
+  <span>Methane (CH₄)</span>
 </div>
 <div class="field-group">
-  <label for="mol_1">Ethane</label>
-  <input id="mol_1" type="number" step="1e-5" value="0.02751">
-  <span>– Ethane (C₂H₆)</span>
+  <label for="mol_ethane">Ethane</label>
+  <input id="mol_ethane" type="number" step="1e-5" value="0.02751">
+  <span>Ethane (C₂H₆)</span>
 </div>
 <div class="field-group">
-  <label for="mol_2">Propane</label>
-  <input id="mol_2" type="number" step="1e-5" value="0.00046">
-  <span>– Propane (C₃H₈)</span>
+  <label for="mol_propane">Propane</label>
+  <input id="mol_propane" type="number" step="1e-5" value="0.00046">
+  <span>Propane (C₃H₈)</span>
 </div>
 <div class="field-group">
-  <label for="mol_3">Isobutane</label>
-  <input id="mol_3" type="number" step="1e-5" value="0.00046">
-  <span>– Isobutane (i-C₄H₁₀)</span>
+  <label for="mol_isobutane">Isobutane</label>
+  <input id="mol_isobutane" type="number" step="1e-5" value="0.00046">
+  <span>Isobutane (i-C₄H₁₀)</span>
 </div>
 <div class="field-group">
-  <label for="mol_4">n-Butane</label>
-  <input id="mol_4" type="number" step="1e-5" value="0.00010">
-  <span>– n-Butane (n-C₄H₁₀)</span>
+  <label for="mol_n-butane">n-Butane</label>
+  <input id="mol_n-butane" type="number" step="1e-5" value="0.00010">
+  <span>n-Butane (n-C₄H₁₀)</span>
 </div>
 <div class="field-group">
-  <label for="mol_5">Isopentane</label>
-  <input id="mol_5" type="number" step="1e-5" value="0.00004">
-  <span>– Isopentane (i-C₅H₁₂)</span>
+  <label for="mol_isopentane">Isopentane</label>
+  <input id="mol_isopentane" type="number" step="1e-5" value="0.00004">
+  <span>Isopentane (i-C₅H₁₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_6">n-Pentane</label>
-  <input id="mol_6" type="number" step="1e-5" value="0.00002">
-  <span>– n-Pentane (n-C₅H₁₂)</span>
+  <label for="mol_n-pentane">n-Pentane</label>
+  <input id="mol_n-pentane" type="number" step="1e-5" value="0.00002">
+  <span>n-Pentane (n-C₅H₁₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_7">n-Hexane</label>
-  <input id="mol_7" type="number" step="1e-5" value="0.00002">
-  <span>– n-Hexane (n-C₆H₁₄)</span>
+  <label for="mol_n-hexane">n-Hexane</label>
+  <input id="mol_n-hexane" type="number" step="1e-5" value="0.00002">
+  <span>n-Hexane (n-C₆H₁₄)</span>
 </div>
 <div class="field-group">
-  <label for="mol_8">n-Heptane</label>
-  <input id="mol_8" type="number" step="1e-5" value="0.0">
-  <span>– n-Heptane (n-C₇H₁₆)</span>
+  <label for="mol_n-heptane">n-Heptane</label>
+  <input id="mol_n-heptane" type="number" step="1e-5" value="0.0">
+  <span>n-Heptane (n-C₇H₁₆)</span>
 </div>
 <div class="field-group">
-  <label for="mol_9">n-Octane</label>
-  <input id="mol_9" type="number" step="1e-5" value="0.0">
-  <span>– n-Octane (n-C₈H₁₈)</span>
+  <label for="mol_n-octane">n-Octane</label>
+  <input id="mol_n-octane" type="number" step="1e-5" value="0.0">
+  <span>n-Octane (n-C₈H₁₈)</span>
 </div>
 <div class="field-group">
-  <label for="mol_10">n-Nonane</label>
-  <input id="mol_10" type="number" step="1e-5" value="0.0">
-  <span>– n-Nonane (n-C₉H₂₀)</span>
+  <label for="mol_n-nonane">n-Nonane</label>
+  <input id="mol_n-nonane" type="number" step="1e-5" value="0.0">
+  <span>n-Nonane (n-C₉H₂₀)</span>
 </div>
 <div class="field-group">
-  <label for="mol_11">n-Decane</label>
-  <input id="mol_11" type="number" step="1e-5" value="0.0">
-  <span>– n-Decane (n-C₁₀H₂₂)</span>
+  <label for="mol_n-decane">n-Decane</label>
+  <input id="mol_n-decane" type="number" step="1e-5" value="0.0">
+  <span>n-Decane (n-C₁₀H₂₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_12">Helium</label>
-  <input id="mol_12" type="number" step="1e-5" value="0.0">
-  <span>– Helium (He)</span>
+  <label for="mol_helium">Helium</label>
+  <input id="mol_helium" type="number" step="1e-5" value="0.0">
+  <span>Helium (He)</span>
 </div>
 <div class="field-group">
-  <label for="mol_13">Argon</label>
-  <input id="mol_13" type="number" step="1e-5" value="0.0">
-  <span>– Argon (Ar)</span>
+  <label for="mol_argon">Argon</label>
+  <input id="mol_argon" type="number" step="1e-5" value="0.0">
+  <span>Argon (Ar)</span>
 </div>
 <div class="field-group">
-  <label for="mol_14">Nitrogen</label>
-  <input id="mol_14" type="number" step="1e-5" value="0.002">
-  <span>– Nitrogen (N₂)</span>
+  <label for="mol_nitrogen">Nitrogen</label>
+  <input id="mol_nitrogen" type="number" step="1e-5" value="0.002">
+  <span>Nitrogen (N₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_15">Oxygen</label>
-  <input id="mol_15" type="number" step="1e-5" value="0.0">
-  <span>– Oxygen (O₂)</span>
+  <label for="mol_oxygen">Oxygen</label>
+  <input id="mol_oxygen" type="number" step="1e-5" value="0.0">
+  <span>Oxygen (O₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_16">Carbon Monoxide</label>
-  <input id="mol_16" type="number" step="1e-5" value="0.0">
-  <span>– Carbon Monoxide (CO)</span>
+  <label for="mol_carbon-monoxide">Carbon Monoxide</label>
+  <input id="mol_carbon-monoxide" type="number" step="1e-5" value="0.0">
+  <span>Carbon Monoxide (CO)</span>
 </div>
 <div class="field-group">
-  <label for="mol_17">Carbon Dioxide</label>
-  <input id="mol_17" type="number" step="1e-5" value="0.00349">
-  <span>– Carbon Dioxide (CO₂)</span>
+  <label for="mol_carbon-dioxide">Carbon Dioxide</label>
+  <input id="mol_carbon-dioxide" type="number" step="1e-5" value="0.00349">
+  <span>Carbon Dioxide (CO₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_18">Hydrogen</label>
-  <input id="mol_18" type="number" step="1e-5" value="0.0">
-  <span>– Hydrogen (H₂)</span>
+  <label for="mol_hydrogen">Hydrogen</label>
+  <input id="mol_hydrogen" type="number" step="1e-5" value="0.0">
+  <span>Hydrogen (H₂)</span>
 </div>
 <div class="field-group">
-  <label for="mol_19">Water</label>
-  <input id="mol_19" type="number" step="1e-5" value="0.0">
-  <span>– Water (H₂O)</span>
+  <label for="mol_water">Water</label>
+  <input id="mol_water" type="number" step="1e-5" value="0.0">
+  <span>Water (H₂O)</span>
 </div>
 <div class="field-group">
-  <label for="mol_20">Hydrogen Sulfide</label>
-  <input id="mol_20" type="number" step="1e-5" value="0.0">
-  <span>– Hydrogen Sulfide (H₂S)</span>
+  <label for="mol_hydrogen-sulfide">Hydrogen Sulfide</label>
+  <input id="mol_hydrogen-sulfide" type="number" step="1e-5" value="0.0">
+  <span>Hydrogen Sulfide (H₂S)</span>
 </div>
 
     <h2>Results</h2>
@@ -166,37 +172,37 @@
 <div class="field-group">
   <label for="sumResult">Sum Components:</label>
   <input type="text" id="sumResult" readonly>
-  <span>– Sum of all component mole fractions</span>
+  <span>Sum of all component mole fractions</span>
 </div>
 
 <div class="field-group">
   <label for="densityResult">Molar density:</label>
   <input type="text" id="densityResult" readonly>
-  <span>– Molar density (mol/m³)</span>
+  <span>Molar density (mol/m³)</span>
 </div>
 
 <div class="field-group">
   <label for="relativeResult">Relative Density:</label>
   <input type="text" id="relativeResult" readonly>
-  <span>– Air-relative molecular weight (air ≈ 28.9647 g/mol)</span>
+  <span>Air-relative molecular weight (air ≈ 28.9647 g/mol)</span>
 </div>
 
 <div class="field-group">
   <label for="massDensityResult">Mass Density:</label>
   <input type="text" id="massDensityResult" readonly>
-  <span>– Mass density (kg/m³)</span>
+  <span>Mass density (kg/m³)</span>
 </div>
 
 <div class="field-group">
   <label for="massDensityBaseResult">Base Density:</label>
   <input type="text" id="massDensityBaseResult" readonly>
-  <span>– Standart condition  density (kg · m⁻³) (@ 20 °C, 101.325 kPa)</span>
+  <span>Standart condition  density (kg · m⁻³) (@ 20 °C, 101.325 kPa)</span>
 </div>
 
 <div class="field-group">
   <label for="zResult">Z-Factor:</label>
   <input type="text" id="zResult" readonly>
-  <span>– Calculated compressibility</span>
+  <span>Calculated compressibility</span>
 </div>
 
   </div>
@@ -230,29 +236,149 @@
    – displays Z, molar & mass density, and rel. density to air,
      plus a quick Z‑vs‑P chart (0‑250 bar).
 ------------------------------------------------------------------ */
-// input in html form:
-//  0: Methane
-//  1: Ethane
-//  2: Propane
-//  3: Isobutane
-//  4: n-Butane
-//  5: Isopentane
-//  6: n-Pentane
-//  7: n-Hexane
-//  8: n-Heptane
-//  9: n-Octane
-// 10: n-Nonane
-// 11: n-Decane
-// 12: Helium
-// 13: Argon
-// 14: Nitrogen
-// 15: Oxygen
-// 16: Carbon Monoxide
-// 17: Carbon Dioxide
-// 18: Hydrogen
-// 19: Water
-// 20: Hydrogen Sulfide
 
+// Define the component orders
+const GROUPED_ORDER = [
+  'methane', 'ethane', 'propane', 'isobutane', 'n-butane', 
+  'isopentane', 'n-pentane', 'n-hexane', 'n-heptane', 'n-octane',
+  'n-nonane', 'n-decane', 'helium', 'argon', 'nitrogen',
+  'oxygen', 'carbon-monoxide', 'carbon-dioxide', 'hydrogen',
+  'water', 'hydrogen-sulfide'
+];
+
+const AGA8_ORDER = [
+  'methane', 'nitrogen', 'carbon-dioxide', 'ethane', 'propane',
+  'water', 'hydrogen-sulfide', 'hydrogen', 'carbon-monoxide', 'oxygen',
+  'isobutane', 'n-butane', 'isopentane', 'n-pentane', 'n-hexane',
+  'n-heptane', 'n-octane', 'n-nonane', 'n-decane', 'helium', 'argon'
+];
+
+// Function to reorder components
+function reorderComponents(order) {
+  const container = document.querySelector('.container');
+  const components = Array.from(container.querySelectorAll('.field-group')).filter(
+    div => div.querySelector('input[id^="mol_"]')
+  );
+  
+  // Create a map of component divs by their ID
+  const componentMap = {};
+  components.forEach(div => {
+    const input = div.querySelector('input[id^="mol_"]');
+    const id = input.id.replace('mol_', '');
+    componentMap[id] = div;
+  });
+
+  // Remove all component divs
+  components.forEach(div => div.remove());
+
+  // Add them back in the new order
+  order.forEach(id => {
+    if (componentMap[id]) {
+      container.insertBefore(componentMap[id], document.querySelector('h2:last-of-type'));
+    }
+  });
+}
+
+// Function to update button active states
+function updateButtonStates(activeButton) {
+  const buttons = document.querySelectorAll('.controlButton');
+  buttons.forEach(button => button.classList.remove('active'));
+  activeButton.classList.add('active');
+}
+
+// Add event listeners for the order buttons
+document.getElementById('groupedOrder').addEventListener('click', function() {
+  reorderComponents(GROUPED_ORDER);
+  updateButtonStates(this);
+  saveOrderMode('grouped');
+});
+
+document.getElementById('AGAOrder').addEventListener('click', function() {
+  reorderComponents(AGA8_ORDER);
+  updateButtonStates(this);
+  saveOrderMode('aga8');
+});
+
+// --- Persistence logic for user inputs ---
+const STORAGE_KEY = 'aga8UserInputs';
+const ORDER_KEY = 'aga8OrderMode';
+
+function saveUserInputs() {
+  const data = {
+    temperature: document.getElementById('temperature').value,
+    pressure: document.getElementById('pressure').value,
+  };
+  [
+    'methane', 'ethane', 'propane', 'isobutane', 'n-butane',
+    'isopentane', 'n-pentane', 'n-hexane', 'n-heptane', 'n-octane',
+    'n-nonane', 'n-decane', 'helium', 'argon', 'nitrogen',
+    'oxygen', 'carbon-monoxide', 'carbon-dioxide', 'hydrogen',
+    'water', 'hydrogen-sulfide'
+  ].forEach(id => {
+    const input = document.getElementById('mol_' + id);
+    if (input) data[id] = input.value;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function saveOrderMode(mode) {
+  localStorage.setItem(ORDER_KEY, mode);
+}
+
+function loadOrderMode() {
+  return localStorage.getItem(ORDER_KEY);
+}
+
+function clearOrderMode() {
+  localStorage.removeItem(ORDER_KEY);
+}
+
+function loadUserInputs() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (!data) return;
+  try {
+    const vals = JSON.parse(data);
+    if (vals.temperature !== undefined) document.getElementById('temperature').value = vals.temperature;
+    if (vals.pressure !== undefined) document.getElementById('pressure').value = vals.pressure;
+    [
+      'methane', 'ethane', 'propane', 'isobutane', 'n-butane',
+      'isopentane', 'n-pentane', 'n-hexane', 'n-heptane', 'n-octane',
+      'n-nonane', 'n-decane', 'helium', 'argon', 'nitrogen',
+      'oxygen', 'carbon-monoxide', 'carbon-dioxide', 'hydrogen',
+      'water', 'hydrogen-sulfide'
+    ].forEach(id => {
+      if (vals[id] !== undefined) {
+        const input = document.getElementById('mol_' + id);
+        if (input) input.value = vals[id];
+      }
+    });
+  } catch {}
+}
+
+function clearUserInputs() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+// Set Grouped Order as active by default
+window.addEventListener('DOMContentLoaded', () => {
+  loadUserInputs(); // Restore saved values if present
+  // Restore order mode if present
+  const savedOrder = loadOrderMode();
+  if (savedOrder === 'aga8') {
+    reorderComponents(AGA8_ORDER);
+    updateButtonStates(document.getElementById('AGAOrder'));
+  } else {
+    reorderComponents(GROUPED_ORDER);
+    updateButtonStates(document.getElementById('groupedOrder'));
+  }
+  calculateZ();  // auto‑calculate on page load
+  document.querySelectorAll(
+    '#temperature, #pressure, input[id^="mol_"]'
+  ).forEach(el => el.addEventListener('input', () => {
+    calculateZ();
+    saveUserInputs();
+  }));
+});
 
 function calculateZ () {
     const tol          = 1e-6;
@@ -260,8 +386,16 @@ function calculateZ () {
     let   moleSum      = 0;
 
     // gather 21 user mole‑fraction inputs
-    for (let i = 0; i <= 20; i++) {
-      let input = document.getElementById('mol_' + i);
+    const componentIds = [
+        'methane', 'ethane', 'propane', 'isobutane', 'n-butane', 
+        'isopentane', 'n-pentane', 'n-hexane', 'n-heptane', 'n-octane',
+        'n-nonane', 'n-decane', 'helium', 'argon', 'nitrogen',
+        'oxygen', 'carbon-monoxide', 'carbon-dioxide', 'hydrogen',
+        'water', 'hydrogen-sulfide'
+    ];
+
+    for (const id of componentIds) {
+      let input = document.getElementById('mol_' + id);
       let v = parseFloat(input.value);
       if (isNaN(v) || v < 0) {
         v = 0;
@@ -308,7 +442,7 @@ function calculateZ () {
     try {
       /* ── operating conditions ─────────────────────────────────────── */
       const { Z, D } = compressibilityFactor(xj, T, P); // D → kmol·m⁻³
-      zField.value       = Z.toFixed(3);
+      zField.value       = Z.toFixed(5);
       densityField.value = D.toFixed(4);
 
       const M_mix = calculateMolarMass(xj);            // g·mol⁻¹
@@ -449,12 +583,51 @@ function runZValidationTests() {
 }
 
 window.addEventListener('DOMContentLoaded', runZValidationTests);
+
+// --- Reset button logic ---
+const defaultValues = {
+  temperature: 7,
+  pressure: 120,
+  methane: 0.9659,
+  ethane: 0.02751,
+  propane: 0.00046,
+  isobutane: 0.00046,
+  'n-butane': 0.00010,
+  isopentane: 0.00004,
+  'n-pentane': 0.00002,
+  'n-hexane': 0.00002,
+  'n-heptane': 0.0,
+  'n-octane': 0.0,
+  'n-nonane': 0.0,
+  'n-decane': 0.0,
+  helium: 0.0,
+  argon: 0.0,
+  nitrogen: 0.002,
+  oxygen: 0.0,
+  'carbon-monoxide': 0.0,
+  'carbon-dioxide': 0.00349,
+  hydrogen: 0.0,
+  water: 0.0,
+  'hydrogen-sulfide': 0.0
+};
+
+document.getElementById('resetButton').addEventListener('click', function() {
+  clearUserInputs(); // Also clear saved values
+  clearOrderMode(); // Also clear saved order mode
+  document.getElementById('temperature').value = defaultValues.temperature;
+  document.getElementById('pressure').value = defaultValues.pressure;
+  for (const id in defaultValues) {
+    if (id === 'temperature' || id === 'pressure') continue;
+    const input = document.getElementById('mol_' + id);
+    if (input) input.value = defaultValues[id];
+  }
+  reorderComponents(GROUPED_ORDER);
+  updateButtonStates(document.getElementById('groupedOrder'));
+  calculateZ();
+  saveUserInputs(); // Save defaults as new state
+  saveOrderMode('grouped'); // Save Grouped as default after reset
+});
 </script>
-
-
-
-
-
 
 </body>
 </html>

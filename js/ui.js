@@ -1,5 +1,3 @@
-
-
 // Dynamic segment count based on pipeline length:
 function getSegmentCount(lengthKm) {
   if (lengthKm <= 30) return 2;
@@ -11,8 +9,8 @@ function getSegmentCount(lengthKm) {
 // Global variables.
 let nodeIdCounter     = 0;
 let tappedTimeout     = null;
-let creationActive    = false;
-let firstNode         = null;
+window.creationActive = false;
+window.firstNode      = null;
 let doubleTapThreshold= 250; // ms
 let activePopup       = null;
 
@@ -489,6 +487,12 @@ cy.on('taphold', async evt => {
 cy.on('tap', evt => {
   closeActivePopup();
 
+  // If state is inconsistent, reset it
+  if (window.creationActive && (!window.firstNode || !window.firstNode.isNode || !window.firstNode.isNode())) {
+    window.creationActive = false;
+    window.firstNode = null;
+  }
+
   // cancel ongoing double tap
   if (tappedTimeout) {
     clearTimeout(tappedTimeout);
@@ -496,11 +500,11 @@ cy.on('tap', evt => {
 
     if (evt.target !== cy) {
       evt.target.remove();
-      if (firstNode && firstNode.isNode()) {
-        firstNode.style({ 'border-color': '', 'border-width': '' });
+      if (window.firstNode && window.firstNode.isNode()) {
+        window.firstNode.style({ 'border-color': '', 'border-width': '' });
       }
-      creationActive = false;
-      firstNode = null;
+      window.creationActive = false;
+      window.firstNode = null;
       updateInfo();
     }
 
@@ -509,34 +513,34 @@ cy.on('tap', evt => {
 
   // begin double-tap detection
   tappedTimeout = setTimeout(() => {
-    if (!creationActive) {
+    if (!window.creationActive) {
       if (evt.target === cy) {
-        firstNode = cy.add({
+        window.firstNode = cy.add({
           group: 'nodes',
           data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, name: '.', label: '' },
           position: evt.position
         });
         nodeIdCounter++;
-        firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
-        creationActive = true;
+        window.firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
+        window.creationActive = true;
       } else if (evt.target.isNode()) {
-        firstNode = evt.target;
-        firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
-        creationActive = true;
+        window.firstNode = evt.target;
+        window.firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
+        window.creationActive = true;
       } else {
         // Ignore tap on edge or other elements
-        creationActive = false;
-        firstNode = null;
+        window.creationActive = false;
+        window.firstNode = null;
       }
     } else {
       // Second tap
-      if (!firstNode || !firstNode.isNode()) {
-        creationActive = false;
-        firstNode = null;
+      if (!window.firstNode || !window.firstNode.isNode()) {
+        window.creationActive = false;
+        window.firstNode = null;
         return;
       }
 
-      const source = firstNode.id();
+      const source = window.firstNode.id();
       let target, L = 10, D = 565;
 
       if (evt.target === cy) {
@@ -551,25 +555,23 @@ cy.on('tap', evt => {
         target = evt.target.id();
       } else {
         // Invalid second tap — cancel
-        firstNode.style({ 'border-color': '', 'border-width': '' });
-        creationActive = false;
-        firstNode = null;
+        window.firstNode.style({ 'border-color': '', 'border-width': '' });
+        window.creationActive = false;
+        window.firstNode = null;
         tappedTimeout = null;
         return;
       }
 
-		if (source !== target) {
-		  const eData = createEdgeData(source, target, L, D);
-				if (eData.length >= 0.1 && eData.diameter >= 50 && !cy.getElementById(eData.id).length) {
+      if (source !== target) {
+        const eData = createEdgeData(source, target, L, D);
+        if (eData.length >= 0.1 && eData.diameter >= 50 && !cy.getElementById(eData.id).length) {
+          cy.add({ group: 'edges', data: eData });
+        }
+      }
 
-			cy.add({ group: 'edges', data: eData });
-		  }
-		}
-
-
-      firstNode.style({ 'border-color': '', 'border-width': '' });
-      creationActive = false;
-      firstNode = null;
+      window.firstNode.style({ 'border-color': '', 'border-width': '' });
+      window.creationActive = false;
+      window.firstNode = null;
       updateInfo();
     }
 
@@ -587,7 +589,7 @@ cy.on('dragfree','node', evt => {
 // Save/Load from localStorage
 function saveGraphToLocalStorage() {
   localStorage.setItem('graphState',
-    JSON.stringify({ elements:cy.json().elements, simulatedSeconds })
+    JSON.stringify({ elements:cy.json().elements, simulatedSeconds, nodeIdCounter })
   );
 }
 function loadGraphFromLocalStorage() {
@@ -599,8 +601,13 @@ function loadGraphFromLocalStorage() {
   cy.json({ elements: state.elements });
 
   simulatedSeconds = state.simulatedSeconds || 0;
+  nodeIdCounter = state.nodeIdCounter || 0;
   updateInfo();
 }
 
-window.addEventListener('load', loadGraphFromLocalStorage);
+window.addEventListener('load', () => {
+  window.firstNode = null;
+  window.creationActive = false;
+  loadGraphFromLocalStorage();
+});
 window.addEventListener('beforeunload', saveGraphToLocalStorage);

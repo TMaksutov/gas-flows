@@ -38,6 +38,11 @@
       <li><a href="contacts.html">Contacts</a></li>
     </ul>
   </nav>
+  
+  <div id="controls" style="margin-bottom: 16px;">
+    <button id="resetButton" class="controlButton">Reset</button>
+  </div>
+    
   <div class="container">
     <h2>Pressure Converter</h2>
     <div id="pressure-inputs">
@@ -102,6 +107,47 @@
       "Ncm2": 10000         // 1 N/cm² = 10,000 Pa
     };
 
+    // --- Persistence logic for user inputs ---
+    const STORAGE_KEY = 'pressureUserInputs';
+    const defaultValues = {
+      bar: 1,
+      kPa: 100,
+      MPa: 0.1,
+      psi: 14.504,
+      tech_atm: 1.020,
+      atm: 0.987,
+      kgcm2: 1.020,
+      mmHg: 750.062,
+      Ncm2: 10
+    };
+
+    function saveUserInputs() {
+      const data = {};
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) data[id] = input.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadUserInputs() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return;
+      try {
+        const vals = JSON.parse(data);
+        Object.keys(defaultValues).forEach(id => {
+          if (vals[id] !== undefined) {
+            const input = document.getElementById(id);
+            if (input) input.value = vals[id];
+          }
+        });
+      } catch {}
+    }
+
+    function clearUserInputs() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
     // Update all fields when one unit changes.
     function updatePressures(sourceId) {
       const sourceInput = document.getElementById(sourceId);
@@ -115,15 +161,29 @@
           document.getElementById(unit).value = (pascals / conversionFactors[unit]).toFixed(3);
         }
       }
+      saveUserInputs();
     }
 
-    // Attach input event listeners to all fields.
-    Object.keys(conversionFactors).forEach(unit => {
-      document.getElementById(unit).addEventListener("input", () => updatePressures(unit));
+    // Attach input event listeners to all fields and load values on page load.
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserInputs();
+      Object.keys(conversionFactors).forEach(unit => {
+        document.getElementById(unit).addEventListener("input", () => updatePressures(unit));
+      });
+      // Initialize conversion on page load based on the current value of "bar".
+      updatePressures("bar");
     });
 
-    // Initialize conversion on page load based on the default value of "bar".
-    updatePressures("bar");
+    // --- Reset button logic ---
+    document.getElementById('resetButton').addEventListener('click', function() {
+      clearUserInputs();
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = defaultValues[id];
+      });
+      updatePressures('bar');
+      saveUserInputs();
+    });
   </script>
   <!-- Footer -->
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">

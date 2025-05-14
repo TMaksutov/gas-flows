@@ -27,8 +27,8 @@ nav {
   border-bottom: 1px solid #ddd;
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   border-radius: 8px;
 }
 nav ul {
@@ -45,8 +45,8 @@ nav a {
   display: block;
   text-decoration: none;
   color: #333;
-  font-size: 14px;
-  padding: 10px 15px;
+  font-size: 13px;
+  padding: 6px 10px;
 }
 nav a.active,
 nav a:hover {
@@ -131,23 +131,34 @@ nav a:hover {
   border-bottom: 1px solid #ddd;
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 4px;
+  padding-bottom: 4px;
   border-radius: 8px;
 }
 .controlButton {
   margin-right: 10px;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 5px 10px;
+  font-size: 13px;
   border-radius: 8px;
   transition: background-color 0.3s ease;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
 }
 
-.controlButton.active,
 .controlButton:hover {
-  background-color: #ddd;
+  background-color: #f0f0f0;
 }
 
+.controlButton.active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.controlButton.active:hover {
+  background-color: #45a049;
+}
 
 /* Cytoscape container (canvas): full browser width */
 #cy {

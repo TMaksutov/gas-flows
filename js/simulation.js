@@ -410,22 +410,41 @@ updateInfo?.(); // or updateSidebar(), or similar
 
 }
 
-
-
+// Function to update button active states
+function updateButtonStates(activeButton) {
+  const buttons = document.querySelectorAll('.controlButton');
+  buttons.forEach(button => button.classList.remove('active'));
+  if (activeButton) {
+    activeButton.classList.add('active');
+  }
+}
 
 // --- Event listeners to control the simulation ---
 document.getElementById('playBtn').addEventListener('click', function() {
   setSimulationMode("sec", cy, updateInfo);
+  updateButtonStates(this);
 });
 document.getElementById('playMinBtn').addEventListener('click', function() {
   setSimulationMode("min", cy, updateInfo);
+  updateButtonStates(this);
 });
 document.getElementById('playHourBtn').addEventListener('click', function() {
   setSimulationMode("hour", cy, updateInfo);
+  updateButtonStates(this);
 });
 document.getElementById('stopBtn').addEventListener('click', function() {
   setSimulationMode("stop", cy, updateInfo);
+  updateButtonStates(this);
 });
 
-document.getElementById('resetButton').addEventListener('click', resetSimulation);
+document.getElementById('resetButton').addEventListener('click', function() {
+  resetSimulation();
+  updateButtonStates(null); // Remove active state from all buttons
+});
+
+// Set stop button as active by default
+window.addEventListener('DOMContentLoaded', () => {
+  simulationMode = "stop"; // Ensure simulation is paused on load
+  updateButtonStates(document.getElementById('stopBtn'));
+});
 

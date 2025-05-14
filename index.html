@@ -45,9 +45,14 @@
       <li><a href="pages/contacts.html">Contacts</a></li>
     </ul>
   </nav>
+  
+  <div id="controls" style="margin-bottom: 16px;">
+    <button id="resetButton" class="controlButton">Reset</button>
+  </div>
 
   <div class="container">
     <h2>Gas Flow Calculator</h2>
+
 
     <!-- Inputs -->
     <div id="inputs">
@@ -237,6 +242,74 @@
   <script src="js/formulas.js"></script>
   <script src="js/ui.js"></script>
   <script>
+    // --- Persistence logic for user inputs ---
+    const STORAGE_KEY = 'gasFlowUserInputs';
+    const defaultValues = {
+      Tb: 20,
+      Pb: 101.325,
+      E: 0.95,
+      G: 0.6,
+      Z: 0.9,
+      Tf: 15,
+      H1: 0,
+      H2: 0,
+      L: 100,
+      D: 100,
+      P1: 5000,
+      P2: 4000
+    };
+
+    function saveUserInputs() {
+      const data = {};
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) data[id] = input.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadUserInputs() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return;
+      try {
+        const vals = JSON.parse(data);
+        Object.keys(defaultValues).forEach(id => {
+          if (vals[id] !== undefined) {
+            const input = document.getElementById(id);
+            if (input) input.value = vals[id];
+          }
+        });
+      } catch {}
+    }
+
+    function clearUserInputs() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // Attach listeners for persistence
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserInputs();
+      updateResults();
+      const inputs = document.querySelectorAll('#inputs input');
+      inputs.forEach(input => {
+        input.addEventListener('input', function() {
+          updateResults();
+          saveUserInputs();
+        });
+      });
+    });
+
+    // --- Reset button logic ---
+    document.getElementById('resetButton').addEventListener('click', function() {
+      clearUserInputs();
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = defaultValues[id];
+      });
+      updateResults();
+      saveUserInputs();
+    });
+
     const inputs = document.querySelectorAll('#inputs input');
     inputs.forEach(input => input.addEventListener('input', updateResults));
     document.addEventListener('DOMContentLoaded', updateResults);
