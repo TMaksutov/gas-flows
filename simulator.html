@@ -18,14 +18,14 @@
     natural gas flow, gas flow visualization, gas flow scheme,
     methane distribution, Cytoscape.js simulation,energy network modeling, real-time gas simulation,
 	gas simulation online, Gas pressure simulation free, gas flow simulator free online">
-<link rel="apple-touch-icon" sizes="57x57" href="../icons/apple-icon-57x57.png">
-<link rel="apple-touch-icon" sizes="60x60" href="../icons/apple-icon-60x60.png">
-<link rel="icon" type="image/png" sizes="16x16" href="../icons/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="36x36" href="../icons/android-icon-36x36.png">
-<link rel="icon" type="image/png" sizes="48x48" href="../icons/android-icon-48x48.png">
-  <link rel="manifest" href="../manifest.json">
-  <link rel="stylesheet" href="../common.css">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="common.css">
 
   <!-- Cytoscape -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.22.0/cytoscape.min.js"></script>
@@ -33,7 +33,7 @@
 <body>
   <nav>
     <ul>
-      <li><a href="../index.html">Flow Calculator</a></li>
+      <li><a href="index.html">Flow Calculator</a></li>
       <li><a href="pressures.html">Pressure Converter</a></li>
       <li><a href="aga8.html">AGA8 Z-Factor</a></li>
       <li><a href="simulator.html" class="active">Gas flow Simulator</a></li>
@@ -96,15 +96,15 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
 
 
 <!-- add after ui.js -->
-<script src="../js/script_engine.js"></script>
+<script src="js/script_engine.js"></script>
 
 
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
     <p><strong>Disclaimer:</strong> This Gas Flows Simulator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
   </footer>
   
-  <script src="../js/simulation.js"></script>
-  <script src="../js/ui.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Help Modal -->
@@ -113,7 +113,7 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
     <span class="close" id="closeHelpModal">&times;</span>
     <div class="help-carousel">
       <button class="carousel-btn" id="carouselPrev">&#8592;</button>
-      <img id="helpGif" src="../help/Animation1.gif" alt="Help Action" />
+      <img id="helpGif" src="help/Animation1.gif" alt="Help Action" />
       <button class="carousel-btn" id="carouselNext">&#8594;</button>
     </div>
   </div>
@@ -123,7 +123,7 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
 // Help GIFs, titles, and steps
 const helpData = [
   {
-    src: '../help/Animation1.gif',
+    src: 'help/Animation1.gif',
     title: 'Step 1: Build Network',
     steps: [
       'Left Click to add new or connect existing points',
@@ -133,7 +133,7 @@ const helpData = [
     ]
   },
   {
-    src: '../help/Animation2.gif',
+    src: 'help/Animation2.gif',
     title: 'Step 2: Set Parameters',
     steps: [
       'Right click on line to set length, diameter, etc',
@@ -143,7 +143,7 @@ const helpData = [
     ]
   },
   {
-    src: '../help/Animation3.gif',
+    src: 'help/Animation3.gif',
     title: 'Step 3: Set Pressures and Injections',
     steps: [
       'At any point set pressure or injection',
@@ -153,7 +153,7 @@ const helpData = [
     ]
   },
   {
-    src: '../help/Animation4.gif',
+    src: 'help/Animation4.gif',
     title: 'Step 4: Run sumulation',
     steps: [
       'Play button to run real-time simulation',
@@ -163,7 +163,7 @@ const helpData = [
     ]
   },
   {
-    src: '../help/Animation5.gif',
+    src: 'help/Animation5.gif',
     title: 'Step 5: Run sumulation',
     steps: [
       'Pause button to stop the simulation',
