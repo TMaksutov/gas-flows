@@ -279,6 +279,7 @@ function updateInfo() {
 
 // Reset everything
 function clearGraph() {
+  stopSimulation(); // Pause simulation when clearing
   cy.elements().remove();
   nodeIdCounter = 0;
   simulatedSeconds = 0;
@@ -286,6 +287,9 @@ function clearGraph() {
 
   // also erase the saved state
   localStorage.removeItem('graphState');
+
+  // Set Pause button as active
+  updateButtonStates(document.getElementById('stopBtn'));
 }
 
 document.getElementById('clearBtn')

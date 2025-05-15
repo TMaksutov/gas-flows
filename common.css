@@ -18,7 +18,6 @@ body::-webkit-scrollbar {
 }
 
 
-
 /* Navigation menu styled to match a container of 800px width */
 nav {
   max-width: 800px;
@@ -167,4 +166,35 @@ nav a:hover {
   border: 1px solid #ccc;
   margin-bottom: 10px;
 }
+
+/* Modal styles for help popup */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0; width: 100%; height: 100%;
+  overflow: auto; background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+  background-color: #fff; margin: 5% auto; padding: 20px;
+  border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px;
+  position: relative;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+}
+.close {
+  color: #aaa; position: absolute; top: 10px; right: 20px;
+  font-size: 28px; font-weight: bold; cursor: pointer;
+}
+.close:hover, .close:focus { color: #000; text-decoration: none; cursor: pointer; }
+.help-carousel {
+  display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px;
+}
+.help-carousel img {
+  max-width: 320px; max-height: 220px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;
+}
+.carousel-btn {
+  background: #eee; border: 1px solid #ccc; border-radius: 50%; width: 36px; height: 36px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.carousel-btn:hover { background: #ddd; }
 

@@ -40,7 +40,6 @@
       <li><a href="contacts.html">Contacts</a></li>
     </ul>
   </nav>
-  
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
     <button id="clearBtn" class="controlButton">Clear</button>
@@ -48,7 +47,8 @@
     <button id="playMinBtn" class="controlButton">Play (min)</button>
     <button id="playHourBtn" class="controlButton">Play (hour)</button>
     <button id="stopBtn" class="controlButton">Pause</button>
-	<button id="resetButton" class="controlButton">Reset</button>
+    <button id="resetButton" class="controlButton">Reset</button>
+    <button id="helpButton" class="controlButton">Help</button>
   </div>
   
   <!-- Cytoscape container: full browser width -->
@@ -107,6 +107,137 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
   <script src="../js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- Help Modal -->
+<div id="helpModal" class="modal">
+  <div class="modal-content">
+    <span class="close" id="closeHelpModal">&times;</span>
+    <div class="help-carousel">
+      <button class="carousel-btn" id="carouselPrev">&#8592;</button>
+      <img id="helpGif" src="../help/Animation1.gif" alt="Help Action" />
+      <button class="carousel-btn" id="carouselNext">&#8594;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Help GIFs, titles, and steps
+const helpData = [
+  {
+    src: '../help/Animation1.gif',
+    title: 'Step 1: Build Network',
+    steps: [
+      'Left Click to add new or connect existing points',
+      'Drag with left button to move nodes or canvas',
+      'Double click on object to delete',
+      'Clear button to clear the network'
+    ]
+  },
+  {
+    src: '../help/Animation2.gif',
+    title: 'Step 2: Set Parameters',
+    steps: [
+      'Right click on line to set length, diameter, etc',
+      'Right click on point to set pressure, injection, etc',
+      'Set checkbox to freeze the pressure',
+      'Disable checkbox deactivates the line'
+    ]
+  },
+  {
+    src: '../help/Animation3.gif',
+    title: 'Step 3: Set Pressures and Injections',
+    steps: [
+      'At any point set pressure or injection',
+      'Negative injection is consumption',
+      'Freeze the pressure to keep it constant',
+      'Combine settings for complex scenarios'
+    ]
+  },
+  {
+    src: '../help/Animation4.gif',
+    title: 'Step 4: Run sumulation',
+    steps: [
+      'Play button to run real-time simulation',
+      'Play (min) to run 1 minute simulation every 1 second',
+      'When parameters are settled down, simulation will be stopped',
+      'Colors represent the flow speed'
+    ]
+  },
+  {
+    src: '../help/Animation5.gif',
+    title: 'Step 5: Run sumulation',
+    steps: [
+      'Pause button to stop the simulation',
+      'Play buttns to run simulation again',
+      'Reset button to reset the simulation',
+      'Clear button to clear the network'
+
+    ]
+  }
+];
+let currentGif = 0;
+
+const helpModal = document.getElementById('helpModal');
+const helpButton = document.getElementById('helpButton');
+const closeHelpModal = document.getElementById('closeHelpModal');
+const helpGif = document.getElementById('helpGif');
+const prevBtn = document.getElementById('carouselPrev');
+const nextBtn = document.getElementById('carouselNext');
+
+// New: Title and steps elements
+let helpTitle = document.getElementById('helpGifTitle');
+let helpSteps = document.getElementById('helpGifSteps');
+if (!helpTitle) {
+  helpTitle = document.createElement('h3');
+  helpTitle.id = 'helpGifTitle';
+  helpGif.parentNode.parentNode.insertBefore(helpTitle, helpGif.parentNode);
+}
+if (!helpSteps) {
+  helpSteps = document.createElement('ul');
+  helpSteps.id = 'helpGifSteps';
+  helpGif.parentNode.parentNode.insertBefore(helpSteps, helpGif.parentNode.nextSibling);
+}
+
+function showGif(index) {
+  const data = helpData[index];
+  helpGif.src = data.src;
+  helpTitle.textContent = data.title;
+  helpSteps.innerHTML = '';
+  data.steps.forEach(step => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    helpSteps.appendChild(li);
+  });
+  prevBtn.disabled = (index === 0);
+  nextBtn.disabled = (index === helpData.length - 1);
+}
+
+helpButton.onclick = function() {
+  if (typeof stopSimulation === 'function') stopSimulation();
+  if (typeof updateButtonStates === 'function') updateButtonStates(document.getElementById('stopBtn'));
+  helpModal.style.display = 'block';
+  showGif(currentGif);
+};
+closeHelpModal.onclick = function() {
+  helpModal.style.display = 'none';
+};
+window.onclick = function(event) {
+  if (event.target == helpModal) {
+    helpModal.style.display = 'none';
+  }
+};
+prevBtn.onclick = function() {
+  if (currentGif > 0) {
+    currentGif--;
+    showGif(currentGif);
+  }
+};
+nextBtn.onclick = function() {
+  if (currentGif < helpData.length - 1) {
+    currentGif++;
+    showGif(currentGif);
+  }
+};
+</script>
 
 </body>
 </html>
