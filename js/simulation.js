@@ -336,6 +336,7 @@ function checkSystemStability(cy) {
       stableStepCount = 0;
       simulationMode = "stop";
       stopSimulation();
+      setSimState('pause');
     }
   } else {
     stableStepCount = 0;
