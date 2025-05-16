@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Help - Gas Flows Simulator</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body style="margin:0;">
+<!-- Help Modal Content (moved from simulator.html) -->
+<div id="helpModal" class="modal" style="display:block;">
+  <div class="modal-content" style="margin:4vh auto 2vh auto; max-width:600px; width:90vw; height:80vh;">
+    <span class="close" id="closeHelpModal">&times;</span>
+    <div class="help-carousel">
+      <button class="carousel-btn" id="carouselPrev">&#8592;</button>
+      <img id="helpGif" src="help/Animation1.gif" alt="Help Action" />
+      <button class="carousel-btn" id="carouselNext">&#8594;</button>
+    </div>
+  </div>
+</div>
+<script>
+// Help GIFs, titles, and steps
+const helpData = [
+  {
+    src: 'help/Animation1.gif',
+    title: 'Step 1: Build Network',
+    steps: [
+      'Left Click to add new or connect existing points',
+      'Drag with left button to move nodes or canvas',
+      'Double click on object to delete',
+      'Clear button to clear the network'
+    ]
+  },
+  {
+    src: 'help/Animation2.gif',
+    title: 'Step 2: Set Parameters',
+    steps: [
+      'Right click on line to set length, diameter, etc',
+      'Right click on point to set pressure, injection, etc',
+      'Set checkbox to freeze the pressure',
+      'Disable checkbox deactivates the line'
+    ]
+  },
+  {
+    src: 'help/Animation3.gif',
+    title: 'Step 3: Set Pressures and Injections',
+    steps: [
+      'At any point set pressure or injection',
+      'Negative injection is consumption',
+      'Freeze the pressure to keep it constant',
+      'Combine settings for complex scenarios'
+    ]
+  },
+  {
+    src: 'help/Animation4.gif',
+    title: 'Step 4: Run sumulation',
+    steps: [
+      'Play button to run real-time simulation',
+      'Play (min) to run 1 minute simulation every 1 second',
+      'When parameters are settled down, simulation will be stopped',
+      'Colors represent the flow speed'
+    ]
+  },
+  {
+    src: 'help/Animation5.gif',
+    title: 'Step 5: Run sumulation',
+    steps: [
+      'Pause button to stop the simulation',
+      'Play buttns to run simulation again',
+      'Reset button to reset the simulation',
+      'Clear button to clear the network'
+    ]
+  }
+];
+let currentGif = 0;
+
+const helpModal = document.getElementById('helpModal');
+const closeHelpModal = document.getElementById('closeHelpModal');
+const helpGif = document.getElementById('helpGif');
+const prevBtn = document.getElementById('carouselPrev');
+const nextBtn = document.getElementById('carouselNext');
+
+// New: Title and steps elements
+let helpTitle = document.getElementById('helpGifTitle');
+let helpSteps = document.getElementById('helpGifSteps');
+if (!helpTitle) {
+  helpTitle = document.createElement('h3');
+  helpTitle.id = 'helpGifTitle';
+  helpGif.parentNode.parentNode.insertBefore(helpTitle, helpGif.parentNode);
+}
+if (!helpSteps) {
+  helpSteps = document.createElement('ul');
+  helpSteps.id = 'helpGifSteps';
+  helpGif.parentNode.parentNode.insertBefore(helpSteps, helpGif.parentNode.nextSibling);
+}
+
+function showGif(index) {
+  const data = helpData[index];
+  helpGif.src = data.src;
+  helpTitle.textContent = data.title;
+  helpSteps.innerHTML = '';
+  data.steps.forEach(step => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    helpSteps.appendChild(li);
+  });
+  prevBtn.disabled = (index === 0);
+  nextBtn.disabled = (index === helpData.length - 1);
+}
+
+closeHelpModal.onclick = function() {
+  window.parent.postMessage({ type: 'closeHelpModal' }, '*');
+};
+window.onclick = function(event) {
+  if (event.target == helpModal) {
+    window.parent.postMessage({ type: 'closeHelpModal' }, '*');
+  }
+};
+prevBtn.onclick = function() {
+  if (currentGif > 0) {
+    currentGif--;
+    showGif(currentGif);
+  }
+};
+nextBtn.onclick = function() {
+  if (currentGif < helpData.length - 1) {
+    currentGif++;
+    showGif(currentGif);
+  }
+};
+// Show first gif on load
+showGif(currentGif);
+</script>
+</body>
+</html> 

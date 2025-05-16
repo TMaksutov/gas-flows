@@ -1,3 +1,4 @@
+// simulation.js
 let simulationInterval = null;
 let simulationStartTime = Date.now();
 let simulationMode = "sec"; // "sec", "min", "hour"
@@ -7,8 +8,7 @@ const PRESSURE_CHANGE_THRESHOLD = 0.005;
 //cehck no changes in flows
 let previousPressures = [];
 let stableStepCount = 0;
-
-
+let highPressureStepCount = 0; 
 
 function computeNodeVolume(geometry, pressure, T, Z) {
   if (geometry <= 0) return 0;
@@ -294,22 +294,47 @@ function updateEdgeVelocities(cy) {
 
 
 
-
-
-
 function checkSystemStability(cy) {
+  // Gather all current pressures (nodes + edge segments)
   const curr = [];
   cy.nodes().forEach(n => curr.push(n.data('pressure') || 0));
-  cy.edges().forEach(e => (e.data('pressureSegments') || []).forEach(p => curr.push(p || 0)));
+  cy.edges().forEach(e => {
+    (e.data('pressureSegments') || []).forEach(p => curr.push(p || 0));
+  });
 
-  if (curr.length === previousPressures.length &&
-      curr.every((p, i) => Math.abs(p - previousPressures[i]) < PRESSURE_CHANGE_THRESHOLD )) {
+  // ---- delayed over-pressure trip (1 h @ 1 s/step) ----
+  const MAX_PRESSURE_MPA = 100;       // 1000 bar = 100 MPa
+  const OVERPRESSURE_DELAY = 3600;    // 1 hour = 3600 s
+  if (curr.some(p => p >= MAX_PRESSURE_MPA)) {
+    highPressureStepCount++;
+  } else {
+    highPressureStepCount = 0;
+  }
+
+  if (highPressureStepCount >= OVERPRESSURE_DELAY) {
+    alert("Simulation stopped: Pressure above 1000 bar for at least 1 hour.");
+    // reset all counters
+    previousPressures = [];
+    stableStepCount = 0;
+    highPressureStepCount = 0;
+    simulationMode = "stop";
+    stopSimulation();
+    setSimState('pause');
+    return;
+  }
+  // --------------------------------------------------
+
+  // existing “no-change” stability check
+  if (
+    curr.length === previousPressures.length &&
+    curr.every((p, i) => Math.abs(p - previousPressures[i]) < PRESSURE_CHANGE_THRESHOLD)
+  ) {
     stableStepCount++;
     if (stableStepCount >= 3600) {
       alert("Simulation finished: Pressures are stable for 1 hour.");
       previousPressures = [];
       stableStepCount = 0;
-      simulationMode = "stop"; // ✅ reflect stopped mode
+      simulationMode = "stop";
       stopSimulation();
     }
   } else {
@@ -368,16 +393,18 @@ function stopSimulation() {
 
 
 function setSimulationMode(mode, cy, updateInfoCallback) {
-  // Mode should be "sec", "min", "hour", or "stop".
   if (mode === "stop") {
     stopSimulation();
   } else {
+    // make sure there is no old interval hanging around
+    stopSimulation();
     simulationMode = mode;
-    if (!simulationInterval) {
-      runSimulation(cy, updateInfoCallback);
-    }
+    // now start a fresh one
+    runSimulation(cy, updateInfoCallback);
   }
 }
+
+
 function resetSimulation() {
   stopSimulation();  // Stop timer
 
@@ -409,42 +436,3 @@ function resetSimulation() {
 updateInfo?.(); // or updateSidebar(), or similar
 
 }
-
-// Function to update button active states
-function updateButtonStates(activeButton) {
-  const buttons = document.querySelectorAll('.controlButton');
-  buttons.forEach(button => button.classList.remove('active'));
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
-}
-
-// --- Event listeners to control the simulation ---
-document.getElementById('playBtn').addEventListener('click', function() {
-  setSimulationMode("sec", cy, updateInfo);
-  updateButtonStates(this);
-});
-document.getElementById('playMinBtn').addEventListener('click', function() {
-  setSimulationMode("min", cy, updateInfo);
-  updateButtonStates(this);
-});
-document.getElementById('playHourBtn').addEventListener('click', function() {
-  setSimulationMode("hour", cy, updateInfo);
-  updateButtonStates(this);
-});
-document.getElementById('stopBtn').addEventListener('click', function() {
-  setSimulationMode("stop", cy, updateInfo);
-  updateButtonStates(this);
-});
-
-document.getElementById('resetButton').addEventListener('click', function() {
-  resetSimulation();
-  updateButtonStates(null); // Remove active state from all buttons
-});
-
-// Set stop button as active by default
-window.addEventListener('DOMContentLoaded', () => {
-  simulationMode = "stop"; // Ensure simulation is paused on load
-  updateButtonStates(document.getElementById('stopBtn'));
-});
-

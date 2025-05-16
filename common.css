@@ -133,7 +133,8 @@ nav a:hover {
   border-radius: 8px;
 }
 .controlButton {
-  margin-right: 10px;
+  margin-right: 3px;
+  margin-left: 0;
   padding: 5px 10px;
   font-size: 13px;
   border-radius: 8px;
@@ -155,6 +156,19 @@ nav a:hover {
 
 .controlButton.active:hover {
   background-color: #45a049;
+}
+
+.controlButton.deactivated {
+  background-color: #eee !important;
+  color: #aaa !important;
+  border-color: #ddd !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+  pointer-events: none !important;
+}
+
+#clearBtn, #resetButton {
+  margin-right: 40px;
 }
 
 /* Cytoscape container (canvas): full browser width */

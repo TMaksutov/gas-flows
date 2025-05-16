@@ -1,3 +1,4 @@
+<!-- simulator.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,15 +43,126 @@
   </nav>
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
-    <button id="clearBtn" class="controlButton">Clear</button>
-    <button id="playBtn" class="controlButton">Play (sec)</button>
-    <button id="playMinBtn" class="controlButton">Play (min)</button>
-    <button id="playHourBtn" class="controlButton">Play (hour)</button>
-    <button id="stopBtn" class="controlButton">Pause</button>
-    <button id="resetButton" class="controlButton">Reset</button>
-    <button id="helpButton" class="controlButton">Help</button>
+    <button id="buildBtn" class="controlButton">Build</button>
+    <button id="clearBtn" class="controlButton">✖ Clear</button>
+    <button id="simulateBtn" class="controlButton">Simulate</button>
+    <button id="pauseBtn" class="controlButton">Ⅱ Pause</button>
+    <button id="playBtn" class="controlButton">> Play (s)</button>
+    <button id="playMinBtn" class="controlButton">>> Play (m)</button>
+    <button id="playHourBtn" class="controlButton">>>> Play (h)</button>
+    <button id="resetButton" class="controlButton">↺ Reset</button>
+    <button id="helpButton" class="controlButton">? Help</button>
   </div>
+
+
+  <script>
+    // globals for UI-mode
+    let uiMode   = 'build';    // 'build' or 'simulate'
+    let simState = 'pause';    // 'pause', 'play_sec', 'play_min', 'play_hour'
   
+    function updateControlButtons() {
+      const btns = [
+        'buildBtn','simulateBtn','clearBtn',
+        'playBtn','playMinBtn','playHourBtn',
+        'pauseBtn','resetButton'
+      ].map(id => document.getElementById(id));
+      btns.forEach(b => b.classList.remove('active','deactivated'));
+  
+      if (uiMode === 'build') {
+        document.getElementById('buildBtn').classList.add('active');
+        document.getElementById('clearBtn').classList.remove('deactivated');
+        ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton']
+          .forEach(id => document.getElementById(id).classList.add('deactivated'));
+        document.getElementById('simulateBtn').classList.remove('deactivated');
+      } else {
+        document.getElementById('simulateBtn').classList.add('active');
+        document.getElementById('clearBtn').classList.add('deactivated');
+        ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton','buildBtn']
+          .forEach(id => document.getElementById(id).classList.remove('deactivated'));
+        if (simState === 'pause')      document.getElementById('pauseBtn').classList.add('active');
+        if (simState === 'play_sec')   document.getElementById('playBtn').classList.add('active');
+        if (simState === 'play_min')   document.getElementById('playMinBtn').classList.add('active');
+        if (simState === 'play_hour')  document.getElementById('playHourBtn').classList.add('active');
+      }
+    }
+  
+    function setUIMode(m) {
+      uiMode = m;
+      // persist UI mode
+      localStorage.setItem('uiMode', m);
+      if (m === 'build') {
+        setSimState('pause');
+      }
+      updateControlButtons();
+    }
+  
+    function setSimState(s) {
+      simState = s;
+      // persist simulation state
+      localStorage.setItem('simState', s);
+      updateControlButtons();
+    }
+  
+    // wire up your controls
+    document.getElementById('buildBtn').addEventListener('click', () => {
+      setUIMode('build');
+      setSimulationMode('stop', cy, updateInfo);
+    });
+    document.getElementById('simulateBtn').addEventListener('click', () => {
+      setUIMode('simulate');
+      setSimState('pause');
+      setSimulationMode('stop', cy, updateInfo);
+    });
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (uiMode !== 'build') return;
+      clearGraph();
+      setUIMode('build');
+      setSimulationMode('stop', cy, updateInfo);
+    });
+    document.getElementById('playBtn').addEventListener('click', () => {
+      if (uiMode !== 'simulate') return;
+      setSimulationMode('sec', cy, updateInfo);
+      setSimState('play_sec');
+    });
+    document.getElementById('playMinBtn').addEventListener('click', () => {
+      if (uiMode !== 'simulate') return;
+      setSimulationMode('min', cy, updateInfo);
+      setSimState('play_min');
+    });
+    document.getElementById('playHourBtn').addEventListener('click', () => {
+      if (uiMode !== 'simulate') return;
+      setSimulationMode('hour', cy, updateInfo);
+      setSimState('play_hour');
+    });
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      setSimulationMode('stop', cy, updateInfo);
+      setSimState('pause');
+    });
+    document.getElementById('resetButton').addEventListener('click', () => {
+      if (uiMode !== 'simulate') return;
+      resetSimulation();
+      setSimState('pause');
+    });
+  
+    // on page load, restore last UI mode but always stay paused
+    window.addEventListener('DOMContentLoaded', () => {
+      simulationMode = 'stop';
+      // restore build vs. simulate
+      const savedMode = localStorage.getItem('uiMode');
+      if (savedMode === 'simulate') {
+        setUIMode('simulate');
+      } else {
+        setUIMode('build');
+      }
+      // force pause
+      setSimState('pause');
+      // ensure no simulation runs until user clicks Play
+      setSimulationMode('stop', cy, updateInfo);
+    });
+  </script>
+  
+
+
   <!-- Cytoscape container: full browser width -->
   <div id="cy"></div>
 	  
@@ -94,8 +206,6 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
   </div>
 </div>
 
-
-<!-- add after ui.js -->
 <script src="js/script_engine.js"></script>
 
 
@@ -107,137 +217,39 @@ n0_n2.flow > 12, n0_n2.disable = true"></textarea>
   <script src="js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Help Modal -->
-<div id="helpModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeHelpModal">&times;</span>
-    <div class="help-carousel">
-      <button class="carousel-btn" id="carouselPrev">&#8592;</button>
-      <img id="helpGif" src="help/Animation1.gif" alt="Help Action" />
-      <button class="carousel-btn" id="carouselNext">&#8594;</button>
-    </div>
+<!-- Help Modal (iframe-based, loads help.html) -->
+<div id="helpModalContainer" class="modal" style="display:none;">
+  <div class="modal-content" style="padding:0; max-width:700px; width:90vw; max-height:500px; height:80vh;">
+    <iframe
+      id="helpIframe"
+      src="help.html"
+      style="width:100%; height:100%; border:none;">
+    </iframe>
   </div>
 </div>
 
 <script>
-// Help GIFs, titles, and steps
-const helpData = [
-  {
-    src: 'help/Animation1.gif',
-    title: 'Step 1: Build Network',
-    steps: [
-      'Left Click to add new or connect existing points',
-      'Drag with left button to move nodes or canvas',
-      'Double click on object to delete',
-      'Clear button to clear the network'
-    ]
-  },
-  {
-    src: 'help/Animation2.gif',
-    title: 'Step 2: Set Parameters',
-    steps: [
-      'Right click on line to set length, diameter, etc',
-      'Right click on point to set pressure, injection, etc',
-      'Set checkbox to freeze the pressure',
-      'Disable checkbox deactivates the line'
-    ]
-  },
-  {
-    src: 'help/Animation3.gif',
-    title: 'Step 3: Set Pressures and Injections',
-    steps: [
-      'At any point set pressure or injection',
-      'Negative injection is consumption',
-      'Freeze the pressure to keep it constant',
-      'Combine settings for complex scenarios'
-    ]
-  },
-  {
-    src: 'help/Animation4.gif',
-    title: 'Step 4: Run sumulation',
-    steps: [
-      'Play button to run real-time simulation',
-      'Play (min) to run 1 minute simulation every 1 second',
-      'When parameters are settled down, simulation will be stopped',
-      'Colors represent the flow speed'
-    ]
-  },
-  {
-    src: 'help/Animation5.gif',
-    title: 'Step 5: Run sumulation',
-    steps: [
-      'Pause button to stop the simulation',
-      'Play buttns to run simulation again',
-      'Reset button to reset the simulation',
-      'Clear button to clear the network'
+  const helpButton = document.getElementById('helpButton');
+  const helpModalContainer = document.getElementById('helpModalContainer');
 
-    ]
-  }
-];
-let currentGif = 0;
-
-const helpModal = document.getElementById('helpModal');
-const helpButton = document.getElementById('helpButton');
-const closeHelpModal = document.getElementById('closeHelpModal');
-const helpGif = document.getElementById('helpGif');
-const prevBtn = document.getElementById('carouselPrev');
-const nextBtn = document.getElementById('carouselNext');
-
-// New: Title and steps elements
-let helpTitle = document.getElementById('helpGifTitle');
-let helpSteps = document.getElementById('helpGifSteps');
-if (!helpTitle) {
-  helpTitle = document.createElement('h3');
-  helpTitle.id = 'helpGifTitle';
-  helpGif.parentNode.parentNode.insertBefore(helpTitle, helpGif.parentNode);
-}
-if (!helpSteps) {
-  helpSteps = document.createElement('ul');
-  helpSteps.id = 'helpGifSteps';
-  helpGif.parentNode.parentNode.insertBefore(helpSteps, helpGif.parentNode.nextSibling);
-}
-
-function showGif(index) {
-  const data = helpData[index];
-  helpGif.src = data.src;
-  helpTitle.textContent = data.title;
-  helpSteps.innerHTML = '';
-  data.steps.forEach(step => {
-    const li = document.createElement('li');
-    li.textContent = step;
-    helpSteps.appendChild(li);
+  // Close on message from iframe
+  window.addEventListener('message', event => {
+    if (event.data?.type === 'closeHelpModal') {
+      helpModalContainer.style.display = 'none';
+    }
   });
-  prevBtn.disabled = (index === 0);
-  nextBtn.disabled = (index === helpData.length - 1);
-}
 
-helpButton.onclick = function() {
-  if (typeof stopSimulation === 'function') stopSimulation();
-  if (typeof updateButtonStates === 'function') updateButtonStates(document.getElementById('stopBtn'));
-  helpModal.style.display = 'block';
-  showGif(currentGif);
-};
-closeHelpModal.onclick = function() {
-  helpModal.style.display = 'none';
-};
-window.onclick = function(event) {
-  if (event.target == helpModal) {
-    helpModal.style.display = 'none';
-  }
-};
-prevBtn.onclick = function() {
-  if (currentGif > 0) {
-    currentGif--;
-    showGif(currentGif);
-  }
-};
-nextBtn.onclick = function() {
-  if (currentGif < helpData.length - 1) {
-    currentGif++;
-    showGif(currentGif);
-  }
-};
+  helpButton.addEventListener('click', () => {
+    // Only pause simulation if we're already in simulate mode
+    if (uiMode === 'simulate') {
+      if (typeof setSimulationMode === 'function') {
+        setSimulationMode('stop', cy, updateInfo);
+      }
+      setSimState('pause');
+      // ensure the simulate button stays active
+      setUIMode('simulate');
+    }
+    // Show the help overlay regardless of mode
+    helpModalContainer.style.display = 'block';
+  });
 </script>
-
-</body>
-</html>

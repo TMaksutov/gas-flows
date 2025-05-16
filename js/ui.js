@@ -1,3 +1,4 @@
+// ui.js
 // Dynamic segment count based on pipeline length:
 function getSegmentCount(lengthKm) {
   if (lengthKm <= 30) return 2;
@@ -277,24 +278,6 @@ function updateInfo() {
 }
 
 
-// Reset everything
-function clearGraph() {
-  stopSimulation(); // Pause simulation when clearing
-  cy.elements().remove();
-  nodeIdCounter = 0;
-  simulatedSeconds = 0;
-  updateInfo();
-
-  // also erase the saved state
-  localStorage.removeItem('graphState');
-
-  // Set Pause button as active
-  updateButtonStates(document.getElementById('stopBtn'));
-}
-
-document.getElementById('clearBtn')
-        .addEventListener('click', clearGraph);
-
 // Popup helper (text & checkbox fields)
 function showMultiInputPopup(fields, x, y) {
   return new Promise(resolve => {
@@ -487,28 +470,30 @@ cy.on('taphold', async evt => {
   }
 });
 
-// Tap‑then‑double‑tap for drawing nodes & edges
+// Tap-then-double-tap for drawing nodes & edges, with deletion disabled in simulate mode
 cy.on('tap', evt => {
   closeActivePopup();
 
   // If state is inconsistent, reset it
-  if (window.creationActive && (!window.firstNode || !window.firstNode.isNode || !window.firstNode.isNode())) {
+  if (window.creationActive &&
+      (!window.firstNode || !window.firstNode.isNode || !window.firstNode.isNode())) {
     window.creationActive = false;
-    window.firstNode = null;
+    window.firstNode      = null;
   }
 
-  // cancel ongoing double tap
+  // cancel ongoing double-tap
   if (tappedTimeout) {
     clearTimeout(tappedTimeout);
     tappedTimeout = null;
 
-    if (evt.target !== cy) {
+    // Only allow deletion of nodes/edges when in BUILD mode
+    if (uiMode === 'build' && evt.target !== cy) {
       evt.target.remove();
       if (window.firstNode && window.firstNode.isNode()) {
         window.firstNode.style({ 'border-color': '', 'border-width': '' });
       }
       window.creationActive = false;
-      window.firstNode = null;
+      window.firstNode      = null;
       updateInfo();
     }
 
@@ -517,30 +502,33 @@ cy.on('tap', evt => {
 
   // begin double-tap detection
   tappedTimeout = setTimeout(() => {
+    // if creation isn't active yet, start it
     if (!window.creationActive) {
       if (evt.target === cy) {
         window.firstNode = cy.add({
           group: 'nodes',
-          data: { id: 'n' + nodeIdCounter, injection: 0, pressure: 0, name: '.', label: '' },
+          data: { id:'n'+nodeIdCounter, injection:0, pressure:0, name:'.', label:'' },
           position: evt.position
         });
         nodeIdCounter++;
-        window.firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
+        window.firstNode.style({ 'border-color':'blue', 'border-width':'1px' });
         window.creationActive = true;
+
       } else if (evt.target.isNode()) {
         window.firstNode = evt.target;
-        window.firstNode.style({ 'border-color': 'blue', 'border-width': '1px' });
+        window.firstNode.style({ 'border-color':'blue', 'border-width':'1px' });
         window.creationActive = true;
+
       } else {
-        // Ignore tap on edge or other elements
         window.creationActive = false;
-        window.firstNode = null;
+        window.firstNode      = null;
       }
+
     } else {
-      // Second tap
+      // complete the second tap: add an edge (no deletions here)
       if (!window.firstNode || !window.firstNode.isNode()) {
         window.creationActive = false;
-        window.firstNode = null;
+        window.firstNode      = null;
         return;
       }
 
@@ -548,40 +536,44 @@ cy.on('tap', evt => {
       let target, L = 10, D = 565;
 
       if (evt.target === cy) {
-        target = 'n' + nodeIdCounter;
+        target = 'n'+nodeIdCounter;
         cy.add({
           group: 'nodes',
-          data: { id: target, injection: 0, pressure: 0, name: '.', label: '' },
+          data: { id:target, injection:0, pressure:0, name:'.', label:'' },
           position: evt.position
         });
         nodeIdCounter++;
+
       } else if (evt.target.isNode()) {
         target = evt.target.id();
+
       } else {
-        // Invalid second tap — cancel
-        window.firstNode.style({ 'border-color': '', 'border-width': '' });
+        // invalid second tap
+        window.firstNode.style({ 'border-color':'', 'border-width':'' });
         window.creationActive = false;
-        window.firstNode = null;
-        tappedTimeout = null;
+        window.firstNode      = null;
+        tappedTimeout         = null;
         return;
       }
 
       if (source !== target) {
         const eData = createEdgeData(source, target, L, D);
-        if (eData.length >= 0.1 && eData.diameter >= 50 && !cy.getElementById(eData.id).length) {
-          cy.add({ group: 'edges', data: eData });
+        if (eData.length >= 0.1 && eData.diameter >= 50
+            && !cy.getElementById(eData.id).length) {
+          cy.add({ group:'edges', data:eData });
         }
       }
 
-      window.firstNode.style({ 'border-color': '', 'border-width': '' });
+      window.firstNode.style({ 'border-color':'', 'border-width':'' });
       window.creationActive = false;
-      window.firstNode = null;
+      window.firstNode      = null;
       updateInfo();
     }
 
     tappedTimeout = null;
   }, doubleTapThreshold);
 });
+
 
 
 // Snap to grid on drag end
@@ -615,3 +607,15 @@ window.addEventListener('load', () => {
   loadGraphFromLocalStorage();
 });
 window.addEventListener('beforeunload', saveGraphToLocalStorage);
+
+// Reset everything
+function clearGraph() {
+  stopSimulation(); // Pause simulation when clearing
+  cy.elements().remove();
+  nodeIdCounter = 0;
+  simulatedSeconds = 0;
+  updateInfo();
+
+  // also erase the saved state
+  localStorage.removeItem('graphState');
+}
