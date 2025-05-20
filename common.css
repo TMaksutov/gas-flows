@@ -81,8 +81,8 @@ nav a:hover {
   margin: 0 auto;
 }
 .container table {
-  border-collapse: separate;   /* don’t collapse borders */
-  border-spacing: 20px 0;      /* 20px between columns, 0px between rows */
+  border-collapse: separate;   /* don't collapse borders */
+  border-spacing: 20px 10px;      /* 20px between columns, 10px between rows */
 }
 
 /* Field groups (used in index.html and pressures.html) */

@@ -185,20 +185,15 @@
   <div style="display: flex; gap: 10px;">
 <textarea id="scriptInput" rows="8" style="width:50%; font-family:monospace;"
   placeholder="HH:MM:SS or condition , action
-00:01:00, n0.injection = 100
-n0.pressure > 0.1, n0.injection = 200
-n0.pressure > 1, n0.injection = 500
-n1.pressure > 2, n0.injection = 0
+00:01:00, n0.injection = 100  # injection in m³/hour
+n0.pressure > 0.1, n0.injection = 200  # injection in m³/hour
 n1.pressure > 10, n1_n3.disable = true
-00:00:00, n0.pressure = 22
-00:00:01, n0.pressureSet = true
-00:00:02, n1.pressure = 12
-00:00:03, n1.pressureSet = true
-00:00:45, n2.pressure = 7.5
-00:00:46, n2.pressureSet = true
-n3.flow < -5, n3_n0.reverse = true
-00:01:00, n4.injection = 0
-n0_n2.flow > 12, n0_n2.disable = true"></textarea>
+0:00:00, n0.pressure = 22
+05:00:01, n0.pressureSet = true
+99:00:45, n2.pressure = 7.5
+105:00:46, n2.pressureSet = true
+n3.flow < -5, n3_n0.reverse = true  # flow in m³/hour
+n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
 
 
     <pre id="scriptStatus"

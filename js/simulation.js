@@ -4,7 +4,7 @@ let simulationStartTime = Date.now();
 let simulationMode = "sec"; // "sec", "min", "hour"
 let simulatedSeconds = 0;
 const MIN_FLOW_THRESHOLD = 0.01;
-const PRESSURE_CHANGE_THRESHOLD = 0.005;
+const PRESSURE_CHANGE_THRESHOLD = 0.02;
 //cehck no changes in flows
 let previousPressures = [];
 let stableStepCount = 0;
@@ -52,6 +52,7 @@ function weymouth({ E, Tb, Pb, P1, P2, G, Tf, L, D, Z, H1, H2 }) {
   }
   
   // Compute flow using the Weymouth formula.
+  // This returns flow in m³/s (standard conditions)
   const Q = 3.7435e-3 * (Tb_K / Pb) *
     Math.sqrt((Math.pow(P_high, 2) - Math.exp(s) * Math.pow(P_low, 2)) / (G * Tf_K * Le * Z)) *
     Math.pow(D, 2.667) * E / (24 * 60 * 60);
@@ -121,6 +122,7 @@ function updateNodeSegments(cy) {
       }
     });
 
+    // injection is already stored in m³/s internally
     let injection = parseFloat(node.data('injection')) || 0;
     let totalVolume, newPressure;
 
@@ -203,6 +205,7 @@ function updateEdgeSegments(cy) {
     for (let i = 0; i < numSegs - 1; i++) {
       const p1 = segPressures[i], p2 = segPressures[i + 1];
 
+      // Weymouth returns flow in m³/s
       let flow = weymouth({
         E, Tb: 20, Pb: 0.101325,
         P1: p1, P2: p2, G: 0.60,
@@ -225,7 +228,7 @@ function updateEdgeSegments(cy) {
 		edgeVolSegs[i + 1] += actualFlow;
 
 
-      newFlowSegments.push(actualFlow); // Store the used averaged flow
+      newFlowSegments.push(actualFlow); // Store the used averaged flow in m³/s
     }
 
     edge.data('flowSegments', newFlowSegments);
@@ -256,7 +259,8 @@ function updateEdgeVelocities(cy) {
     let v1 = 0, v2 = 0;
 
     if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1) {
-      const Q1_std = flowSegments[0]; // standard m³/s
+      // Q1_std and Q2_std are in m³/s
+      const Q1_std = flowSegments[0]; 
       const Q2_std = flowSegments[flowSegments.length - 1];
 
       let P1 = pressureSegments[0]; 
@@ -292,56 +296,42 @@ function updateEdgeVelocities(cy) {
   });
 }
 
-
-
 function checkSystemStability(cy) {
-  // Gather all current pressures (nodes + edge segments)
+  // Only check every 10 hours (36000 seconds)
+  if (simulatedSeconds % 36000 !== 0) return;
+
+  // Get current pressures from all edge segments
   const curr = [];
-  cy.nodes().forEach(n => curr.push(n.data('pressure') || 0));
-  cy.edges().forEach(e => {
-    (e.data('pressureSegments') || []).forEach(p => curr.push(p || 0));
+  cy.edges().forEach(edge => {
+    const pressureSegments = edge.data('pressureSegments') || [];
+    curr.push(...pressureSegments);
   });
 
-  // ---- delayed over-pressure trip (1 h @ 1 s/step) ----
-  const MAX_PRESSURE_MPA = 100;       // 1000 bar = 100 MPa
-  const OVERPRESSURE_DELAY = 3600;    // 1 hour = 3600 s
+  // Check for over-pressure in any segment
+  const MAX_PRESSURE_MPA = 100;
   if (curr.some(p => p >= MAX_PRESSURE_MPA)) {
-    highPressureStepCount++;
-  } else {
-    highPressureStepCount = 0;
-  }
-
-  if (highPressureStepCount >= OVERPRESSURE_DELAY) {
-    alert("Simulation stopped: Pressure above 1000 bar for at least 1 hour.");
-    // reset all counters
-    previousPressures = [];
-    stableStepCount = 0;
-    highPressureStepCount = 0;
-    simulationMode = "stop";
     stopSimulation();
     setSimState('pause');
+    simulationMode = "stop";
+    alert("Simulation stopped: Pressure above 1000 bar detected in pipeline segment.");
     return;
   }
-  // --------------------------------------------------
 
-  // existing “no-change” stability check
-  if (
-    curr.length === previousPressures.length &&
-    curr.every((p, i) => Math.abs(p - previousPressures[i]) < PRESSURE_CHANGE_THRESHOLD)
-  ) {
-    stableStepCount++;
-    if (stableStepCount >= 3600) {
-      alert("Simulation finished: Pressures are stable for 1 hour.");
-      previousPressures = [];
-      stableStepCount = 0;
-      simulationMode = "stop";
-      stopSimulation();
+  // Compare with previous segment pressures if we have them
+  if (previousPressures.length > 0) {
+    const isStable = curr.length === previousPressures.length && 
+                    curr.every((p, i) => Math.abs(p - previousPressures[i]) < PRESSURE_CHANGE_THRESHOLD);
+
+    if (isStable) {
+      stopSimulation(); 
       setSimState('pause');
+      simulationMode = "stop";
+      alert("Simulation finished: All pressures are stable for 10 hours.");
     }
-  } else {
-    stableStepCount = 0;
-    previousPressures = curr;
   }
+
+  // Save current segment pressures for next check
+  previousPressures = curr;
 }
 
 
@@ -394,6 +384,13 @@ function stopSimulation() {
 
 
 function setSimulationMode(mode, cy, updateInfoCallback) {
+  // Clear any ongoing node creation state
+  if (window.firstNode) {
+    try { window.firstNode.style({ 'border-color': '', 'border-width': '' }); } catch(e) {}
+    window.creationActive = false;
+    window.firstNode = null;
+  }
+
   if (mode === "stop") {
     stopSimulation();
   } else {
@@ -409,6 +406,13 @@ function setSimulationMode(mode, cy, updateInfoCallback) {
 function resetSimulation() {
   stopSimulation();  // Stop timer
 
+  // Clear any ongoing node creation state
+  if (window.firstNode) {
+    try { window.firstNode.style({ 'border-color': '', 'border-width': '' }); } catch(e) {}
+    window.creationActive = false;
+    window.firstNode = null;
+  }
+
   simulatedSeconds = 0;
   // updateTimeDisplay?.(0);  // Removed – no such function
 
@@ -416,7 +420,7 @@ function resetSimulation() {
   cy.nodes().forEach(node => {
     node.data('pressure', 0);
     node.data('pressureSet', null);
-    node.data('injection', 0);
+    node.data('injection', 0); // This is stored in m³/s internally
     node.data('fixed', false);
     node.data('volumeSegments', Array((node.data('volumeSegments') || []).length).fill(0));
   });
@@ -428,7 +432,7 @@ function resetSimulation() {
     edge.data('reverse', false);
     const n = edge.data('volumeSegments')?.length || 2;
     edge.data('volumeSegments', Array(n).fill(0));
-    edge.data('flowSegments', Array(n - 1).fill(0));
+    edge.data('flowSegments', Array(n - 1).fill(0)); // These are stored in m³/s internally
     edge.data('pressureSegments', Array(n).fill(0));
   });
 

@@ -69,11 +69,12 @@
 
   function parseCondition(str) {
     /* time HH:MM[:SS]  or  MM:SS */
-	const t = str.match(/^(\d{1,2}):(\d{2}):(\d{2})$/);
-	if (t) {
-	  const h = +t[1], m = +t[2], s = +t[3];
-	  return { type: 'time', value: h * 3600 + m * 60 + s };
-	}
+    // First try the HH:MM:SS format with variable hour digits
+    const t = str.match(/^(\d{1,4}):(\d{2}):(\d{2})$/);
+    if (t) {
+      const h = +t[1], m = +t[2], s = +t[3];
+      return { type: 'time', value: h * 3600 + m * 60 + s };
+    }
 
     /* comparison id.prop op value */
     const cmp = str.match(/^([\w\d_]+(?:_[\w\d_]+)?)\.(\w+)\s*(>=|<=|==|>|<)\s*([\d.]+)$/);
@@ -125,6 +126,17 @@
     if (cond.type === 'cmp') {
       const el = getElement(cond.id);
       const val = dataOf(el, cond.prop);
+      
+      // For displaying to users, if checking node injection, compare using m³/hour
+      if (cond.prop === 'injection' && el.isNode && el.isNode()) {
+        return compare(val * 3600, cond.op, cond.value);
+      }
+      
+      // For checking flow values
+      if (cond.prop === 'flow' && el.isEdge && el.isEdge()) {
+        return compare(val * 3600, cond.op, cond.value);
+      }
+      
       return compare(val, cond.op, cond.value);
     }
     return false;
@@ -132,7 +144,13 @@
 
   function performAction(act) {
     const el = getElement(act.id);
-    setData(el, act.prop, act.value);
+    
+    // If setting a node's injection, convert from m³/hour to m³/s
+    if (act.prop === 'injection' && el.isNode && el.isNode()) {
+      setData(el, act.prop, act.value / 3600);
+    } else {
+      setData(el, act.prop, act.value);
+    }
   }
 
   /** ------ cytoscape helpers -------------------------------------------- */

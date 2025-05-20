@@ -196,7 +196,7 @@ function updateInfo() {
   let totalVol = 0, posInj = 0, negInj = 0;
   let nodeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr><th>ID</th><th>Name</th><th>Pos</th>
-        <th>P (MPa)</th><th>Geom</th><th>I (m³/s)</th></tr>`;
+        <th>P (MPa)</th><th>Geom</th><th>I (m³/h)</th></tr>`;
   cy.nodes().forEach(node => {
     const inj = parseFloat(node.data('injection') || 0);
     const pres = parseFloat(node.data('pressure') || 0);
@@ -209,7 +209,7 @@ function updateInfo() {
     });
     node.data('geometry', geom);
     let base = `P: ${pres.toFixed(2)}`;
-    if (inj !== 0) base += ` | I: ${inj.toFixed(0)}`;
+    if (inj !== 0) base += ` | I: ${(inj * 3600).toFixed(0)} m³/h`;
     node.data('label', base + "\n\n" + (node.data('name') || "."));
     nodeHTML += `<tr>
       <td>${node.id()}</td>
@@ -217,7 +217,7 @@ function updateInfo() {
       <td>(${Math.round(node.position('x'))},${Math.round(node.position('y'))})</td>
       <td>${pres.toFixed(2)}</td>
       <td>${geom.toFixed(1)}</td>
-      <td>${inj ? inj.toFixed(0) : ''}</td>
+      <td>${inj ? (inj * 3600).toFixed(0) : ''}</td>
     </tr>`;
   });
   nodeHTML += `</table>`;
@@ -225,18 +225,18 @@ function updateInfo() {
   let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr><th>ID</th><th>Name</th><th>Src→Tgt</th>
         <th>L, km</th><th>D, mm</th><th>v1, m/s</th><th>v2, m/s</th>
-        <th>Gas Vol.</th><th>Segment Volumes, m³</th><th>Segment Flows, standart m³/sec </th><th>Segment Pressures, MPa</th></tr>`;
+        <th>Gas Vol.</th><th>Segment Volumes, m³</th><th>Segment Flows, m³/h</th><th>Segment Pressures, MPa</th></tr>`;
 
   cy.edges().forEach(edge => {
     const vs = (edge.data('volumeSegments') || []).map(v => v.toFixed(0)).join(', ');
-    const fs = (edge.data('flowSegments') || []).map(f => f.toFixed(2)).join(', ');
+    const fs = (edge.data('flowSegments') || []).map(f => (f * 3600).toFixed(2)).join(', ');
     const ps = (edge.data('pressureSegments') || []).map(p => p.toFixed(2)).join(', ');
     const sumVol = (edge.data('volumeSegments') || []).reduce((s, v) => s + v, 0);
     totalVol += sumVol;
 
     const formattedTotalVol = (() => {
-      if (sumVol >= 1_000_000) return (sumVol / 1_000_000).toFixed(2) + ' M m³';
-      if (sumVol >= 1_000) return (sumVol / 1_000).toFixed(1) + ' k m³';
+      if (sumVol >= 1_000_000) return (sumVol / 1_000_000).toFixed(2) + ' × 10⁶ m³';
+      if (sumVol >= 1_000) return (sumVol / 1_000).toFixed(1) + ' × 10³ m³';
       return sumVol.toFixed(0) + ' m³';
     })();
 
@@ -267,12 +267,12 @@ function updateInfo() {
     `<div style="margin: 10px 0; font-weight: bold; text-align: center;">
       Total Gas Volume: ${
         (() => {
-          if (totalVol >= 1_000_000) return (totalVol / 1_000_000).toFixed(2) + ' M m³';
-          if (totalVol >= 1_000) return (totalVol / 1_000).toFixed(1) + ' k m³';
+          if (totalVol >= 1_000_000) return (totalVol / 1_000_000).toFixed(2) + ' × 10⁶ m³';
+          if (totalVol >= 1_000) return (totalVol / 1_000).toFixed(1) + ' × 10³ m³';
           return totalVol.toFixed(0) + ' m³';
         })()
-      }      |      Inputs: ${posInj.toFixed(0)} m³/s, Outputs: ${negInj.toFixed(0)} m³/s
-           |      Simulation: ${Math.floor(simulatedSeconds / 3600)} h ${Math.floor((simulatedSeconds % 3600) / 60)} m ${simulatedSeconds % 60} s
+      }      |      Inputs: ${(posInj * 3600).toFixed(0)} m³/h, Outputs: ${(negInj * 3600).toFixed(0)} m³/h
+           |      Simulation: ${Math.floor(simulatedSeconds / 3600)} h ${Math.floor((simulatedSeconds % 3600) / 60)} m ${simulatedSeconds % 60} s
     </div>` +
     edgeHTML;
 }
@@ -424,14 +424,14 @@ cy.on('cxttap', async evt => {
     const n = evt.target;
     const res = await showMultiInputPopup([
       { key:'name',       label:"Name:",              defaultValue:n.data('name') },
-      { key:'injection',  label:"Gas in/out, m³/s:",  defaultValue:n.data('injection') },
+      { key:'injection',  label:"Gas in/out, m³/h:",  defaultValue:n.data('injection') ? (n.data('injection') * 3600).toFixed(0) : "" },
       { key:'pressure',   label:"Pressure, MPa:",     defaultValue:n.data('pressure') },
       { key:'pressureSet',label:"Set pressure",       type:'checkbox', defaultValue:n.data('pressureSet') }
     ], x, y);
     if (res) {
       n.data('name', res.name);
       const ni = parseFloat(res.injection);
-      if (!isNaN(ni)) n.data('injection', ni);
+      if (!isNaN(ni)) n.data('injection', ni / 3600); // Convert from m³/h to m³/s for storage
       const np = parseFloat(res.pressure);
       if (!isNaN(np)) n.data('pressure', np);
       n.data('pressureSet', res.pressureSet);
@@ -452,14 +452,14 @@ cy.on('taphold', async evt => {
     const n = evt.target;
     const res = await showMultiInputPopup([
       { key:'name',       label:"Name:",              defaultValue:n.data('name') },
-      { key:'injection',  label:"Gas in/out, m³/s:",  defaultValue:n.data('injection') },
+      { key:'injection',  label:"Gas in/out, m³/h:",  defaultValue:n.data('injection') ? (n.data('injection') * 3600).toFixed(0) : "" },
       { key:'pressure',   label:"Pressure, MPa:",     defaultValue:n.data('pressure') },
       { key:'pressureSet',label:"Set pressure",       type:'checkbox', defaultValue:n.data('pressureSet') }
     ], x, y);
     if (res) {
       n.data('name', res.name);
       const ni = parseFloat(res.injection);
-      if (!isNaN(ni)) n.data('injection', ni);
+      if (!isNaN(ni)) n.data('injection', ni / 3600); // Convert from m³/h to m³/s for storage
       const np = parseFloat(res.pressure);
       if (!isNaN(np)) n.data('pressure', np);
       n.data('pressureSet', res.pressureSet);
@@ -502,6 +502,13 @@ cy.on('tap', evt => {
 
   // begin double-tap detection
   tappedTimeout = setTimeout(() => {
+    // Only allow creation of nodes/edges when in BUILD mode
+    if (uiMode !== 'build') {
+      window.creationActive = false;
+      window.firstNode = null;
+      return;
+    }
+    
     // if creation isn't active yet, start it
     if (!window.creationActive) {
       if (evt.target === cy) {
