@@ -172,7 +172,7 @@ nav a:hover {
 }
 
 #clearBtn, #resetButton {
-  margin-right: 40px;
+  margin-right: 10px;
 }
 
 /* Cytoscape container (canvas): full browser width */
@@ -215,4 +215,96 @@ nav a:hover {
   transition: background 0.2s;
 }
 .carousel-btn:hover { background: #ddd; }
+
+/* Cookie Notice Styles */
+.cookie-notice {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #2c3e50;
+  color: white;
+  padding: 15px 20px;
+  z-index: 9999;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.cookie-notice-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.cookie-notice-text {
+  flex: 1;
+  min-width: 300px;
+}
+
+.cookie-notice-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cookie-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.cookie-btn-accept {
+  background: #27ae60;
+  color: white;
+}
+
+.cookie-btn-accept:hover {
+  background: #229954;
+}
+
+.cookie-btn-decline {
+  background: #95a5a6;
+  color: white;
+}
+
+.cookie-btn-decline:hover {
+  background: #7f8c8d;
+}
+
+.cookie-notice a {
+  color: #3498db;
+  text-decoration: underline;
+}
+
+.cookie-notice a:hover {
+  color: #2980b9;
+}
+
+.cookie-notice.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .cookie-notice-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .cookie-notice-text {
+    min-width: auto;
+  }
+  
+  .cookie-notice-buttons {
+    justify-content: center;
+  }
+}
 

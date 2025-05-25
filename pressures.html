@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
     gtag('js', new Date());
     gtag('config', 'G-MYJRPRS3TW');
   </script>
@@ -192,5 +198,7 @@
 	While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results.
 	Always consult a qualified engineer or technical expert before making operational decisions.</p>
   </footer>
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
 </body>
 </html>

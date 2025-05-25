@@ -157,6 +157,16 @@ let cy = cytoscape({
     'text-max-width': '200px'
   }
 },
+{
+  selector: 'edge:selected',
+  style: {
+    'line-color': '#0074D9',
+    'target-arrow-color': '#0074D9',
+    'source-arrow-color': '#0074D9',
+    'width': edge => 2 + Math.round((parseFloat(edge.data('diameter')) || 0) / 200),
+    'opacity': 0.8
+  }
+},
 
   ],
   layout: { name: 'preset' }
@@ -229,7 +239,7 @@ function updateInfo() {
 
   cy.edges().forEach(edge => {
     const vs = (edge.data('volumeSegments') || []).map(v => v.toFixed(0)).join(', ');
-    const fs = (edge.data('flowSegments') || []).map(f => (f * 3600).toFixed(2)).join(', ');
+    const fs = (edge.data('flowSegments') || []).map(f => (f * 3600).toFixed(0)).join(', ');
     const ps = (edge.data('pressureSegments') || []).map(p => p.toFixed(2)).join(', ');
     const sumVol = (edge.data('volumeSegments') || []).reduce((s, v) => s + v, 0);
     totalVol += sumVol;
@@ -291,6 +301,7 @@ function showMultiInputPopup(fields, x, y) {
       .popup-row { display:flex; align-items:center; margin-bottom:8px }
       .popup-row label { width:140px; margin-right:8px }
       .popup-row input { flex:1; width:60px; padding:4px }
+      .popup-row input:disabled { background-color:#f5f5f5; color:#666; }
       .popup-buttons { text-align:right; margin-top:8px }
       .popup-buttons button { margin-left:4px; width:110px }
     </style>`;
@@ -298,10 +309,11 @@ function showMultiInputPopup(fields, x, y) {
       const type = f.type==='checkbox'?'checkbox':'text';
       const chk  = f.type==='checkbox'&&f.defaultValue?'checked':'';
       const val  = f.type!=='checkbox'?`value="${f.defaultValue}"`:'';
+      const disabled = f.disabled ? 'disabled' : '';
       pop.innerHTML += `
         <div class="popup-row">
           <label for="inp${i}">${f.label}</label>
-          <input type="${type}" id="inp${i}" ${val} ${chk}/>
+          <input type="${type}" id="inp${i}" ${val} ${chk} ${disabled}/>
         </div>
       `;
     });
@@ -313,7 +325,7 @@ function showMultiInputPopup(fields, x, y) {
     `;
     document.body.appendChild(pop);
     activePopup = pop;
-    const first = pop.querySelector('input[type="text"]');
+    const first = pop.querySelector('input[type="text"]:not([disabled])');
     if (first) { first.focus(); first.select(); }
     pop.addEventListener('keydown', e => {
       if (e.key==='Enter') {
@@ -349,68 +361,107 @@ closeActivePopup = function() {
 
 // Handle edge popup (recalc segments on length change)
 async function handleEdgePopup(edge, x, y) {
-  const originalLength = parseFloat(edge.data('length'));
-  const originalDiameter = parseFloat(edge.data('diameter'));
+  // Check if multiple edges are selected
+  const selectedEdges = cy.edges(':selected');
+  const isMultiSelection = selectedEdges.length > 1;
+  
+  let defaultValues;
+  
+  if (isMultiSelection) {
+    // For multi-selection, use values from the first selected edge
+    const firstEdge = selectedEdges[0];
+    defaultValues = {
+      name: `${selectedEdges.length} edges selected`,
+      length: firstEdge.data('length'),
+      diameter: firstEdge.data('diameter'),
+      E: firstEdge.data('E'),
+      Z: firstEdge.data('Z'),
+      T: firstEdge.data('T'),
+      disable: firstEdge.data('disable') || false
+    };
+  } else {
+    // For single selection, use values from the clicked edge
+    defaultValues = {
+      name: edge.data('name'),
+      length: edge.data('length'),
+      diameter: edge.data('diameter'),
+      E: edge.data('E'),
+      Z: edge.data('Z'),
+      T: edge.data('T'),
+      disable: edge.data('disable') || false
+    };
+  }
 
   const result = await showMultiInputPopup([
-    { key:'name',     label:"Name:",         defaultValue:edge.data('name') },
-    { key:'length',   label:"Length, km:",   defaultValue:edge.data('length') },
-    { key:'diameter', label:"Diameter, mm:", defaultValue:edge.data('diameter') },
-    { key:'E',        label:"E",             defaultValue:edge.data('E') },
-    { key:'Z',        label:"Z",             defaultValue:edge.data('Z') },
-    { key:'T',        label:"T",             defaultValue:edge.data('T') },
-    { key:'disable',  label:"Disable",       type:'checkbox', defaultValue:edge.data('disable') || false }
+    { key:'name',     label:"Name:",         defaultValue: defaultValues.name, disabled: isMultiSelection },
+    { key:'length',   label:"Length, km:",   defaultValue: defaultValues.length },
+    { key:'diameter', label:"Diameter, mm:", defaultValue: defaultValues.diameter },
+    { key:'E',        label:"E",             defaultValue: defaultValues.E },
+    { key:'Z',        label:"Z",             defaultValue: defaultValues.Z },
+    { key:'T',        label:"T",             defaultValue: defaultValues.T },
+    { key:'disable',  label:"Disable",       type:'checkbox', defaultValue: defaultValues.disable }
   ], x, y);
 
   if (!result) return;
 
-  edge.data('name', result.name);
+  // Determine which edges to update
+  const edgesToUpdate = isMultiSelection ? selectedEdges : cy.collection().union(edge);
 
-const newL = parseFloat(result.length);
-if (parseFloat(newL.toFixed(3)) < 0.1) {
-  alert('Length must be at least 0.1 km.');
-  return;  // Cancel the edit
-}
-
-const newD = parseFloat(result.diameter);
-if (parseFloat(newD.toFixed(2)) < 50) {
-  alert('Diameter must be at least 50 mm.');
-  return;  // Cancel the edit
-}
-
-
-
-  // Only reinitialize segments if length or diameter changed
-  const lengthChanged = !isNaN(newL) && newL >= 0.1 && newL !== originalLength;
-  const diameterChanged = !isNaN(newD) && newD > 0 && newD !== originalDiameter;
-
-  if (lengthChanged || diameterChanged) {
-    const sc = getSegmentCount(newL);
-    edge.data('length', newL.toFixed(1));
-    edge.data('diameter', newD.toFixed(0));
-    edge.data('volumeSegments',    Array(sc).fill(0));
-    edge.data('flowSegments',      Array(sc - 1).fill(0));
-    edge.data('pressureSegments',  Array(sc).fill(0));
-  } else {
-    if (!isNaN(newL) && newL >= 0.1) edge.data('length', newL.toFixed(1));
-    if (!isNaN(newD) && newD > 0) edge.data('diameter', newD.toFixed(0));
+  // Validate inputs before applying to any edge
+  const newL = parseFloat(result.length);
+  if (parseFloat(newL.toFixed(3)) < 0.1) {
+    alert('Length must be at least 0.1 km.');
+    return;
   }
 
-  const newE = parseFloat(result.E);
-  if (!isNaN(newE) && newE > 0.5 && newE <= 1) edge.data('E', newE.toFixed(2));
+  const newD = parseFloat(result.diameter);
+  if (parseFloat(newD.toFixed(2)) < 50) {
+    alert('Diameter must be at least 50 mm.');
+    return;
+  }
 
-  const newZ = parseFloat(result.Z);
-  if (!isNaN(newZ) && newZ > 0.5 && newZ <= 1) edge.data('Z', newZ.toFixed(2));
+  // Apply changes to all selected edges
+  edgesToUpdate.forEach(currentEdge => {
+    const originalLength = parseFloat(currentEdge.data('length'));
+    const originalDiameter = parseFloat(currentEdge.data('diameter'));
 
-  const newT = parseFloat(result.T);
-  if (!isNaN(newT) && newT > -30 && newT <= 100) edge.data('T', newT.toFixed(1));
+    // Only update name for single selection
+    if (!isMultiSelection) {
+      currentEdge.data('name', result.name);
+    }
 
-  edge.data('disable', result.disable);
+    // Only reinitialize segments if length or diameter changed
+    const lengthChanged = !isNaN(newL) && newL >= 0.1 && newL !== originalLength;
+    const diameterChanged = !isNaN(newD) && newD > 0 && newD !== originalDiameter;
 
-  edge.data('label',
-    `L: ${edge.data('length')} km | D: ${edge.data('diameter')} mm\n\n` +
-    `${edge.data('name') || '.'}`
-  );
+    if (lengthChanged || diameterChanged) {
+      const sc = getSegmentCount(newL);
+      currentEdge.data('length', newL.toFixed(1));
+      currentEdge.data('diameter', newD.toFixed(0));
+      currentEdge.data('volumeSegments',    Array(sc).fill(0));
+      currentEdge.data('flowSegments',      Array(sc - 1).fill(0));
+      currentEdge.data('pressureSegments',  Array(sc).fill(0));
+    } else {
+      if (!isNaN(newL) && newL >= 0.1) currentEdge.data('length', newL.toFixed(1));
+      if (!isNaN(newD) && newD > 0) currentEdge.data('diameter', newD.toFixed(0));
+    }
+
+    const newE = parseFloat(result.E);
+    if (!isNaN(newE) && newE > 0.5 && newE <= 1) currentEdge.data('E', newE.toFixed(2));
+
+    const newZ = parseFloat(result.Z);
+    if (!isNaN(newZ) && newZ > 0.5 && newZ <= 1) currentEdge.data('Z', newZ.toFixed(2));
+
+    const newT = parseFloat(result.T);
+    if (!isNaN(newT) && newT > -30 && newT <= 100) currentEdge.data('T', newT.toFixed(1));
+
+    currentEdge.data('disable', result.disable);
+
+    currentEdge.data('label',
+      `L: ${currentEdge.data('length')} km | D: ${currentEdge.data('diameter')} mm\n\n` +
+      `${currentEdge.data('name') || '.'}`
+    );
+  });
 
   updateInfo();
 }
@@ -438,7 +489,23 @@ cy.on('cxttap', async evt => {
       updateInfo();
     }
   } else if (evt.target.isEdge()) {
-    await handleEdgePopup(evt.target, x, y);
+    const clickedEdge = evt.target;
+    
+    // If the clicked edge is not selected, select it (and deselect others if no modifier key)
+    if (!clickedEdge.selected()) {
+      // Check if Ctrl/Cmd key is pressed for multi-selection
+      const isMultiSelectKey = evt.originalEvent && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey);
+      
+      if (!isMultiSelectKey) {
+        // Deselect all other edges if no modifier key
+        cy.edges().unselect();
+      }
+      
+      // Select the clicked edge
+      clickedEdge.select();
+    }
+    
+    await handleEdgePopup(clickedEdge, x, y);
   }
 });
 
@@ -466,7 +533,23 @@ cy.on('taphold', async evt => {
       updateInfo();
     }
   } else if (evt.target.isEdge()) {
-    await handleEdgePopup(evt.target, x, y);
+    const clickedEdge = evt.target;
+    
+    // If the clicked edge is not selected, select it (and deselect others if no modifier key)
+    if (!clickedEdge.selected()) {
+      // Check if Ctrl/Cmd key is pressed for multi-selection
+      const isMultiSelectKey = evt.originalEvent && (evt.originalEvent.ctrlKey || evt.originalEvent.metaKey);
+      
+      if (!isMultiSelectKey) {
+        // Deselect all other edges if no modifier key
+        cy.edges().unselect();
+      }
+      
+      // Select the clicked edge
+      clickedEdge.select();
+    }
+    
+    await handleEdgePopup(clickedEdge, x, y);
   }
 });
 
@@ -621,6 +704,12 @@ function clearGraph() {
   cy.elements().remove();
   nodeIdCounter = 0;
   simulatedSeconds = 0;
+  
+  // Reset CSV data
+  if (window.resetCSVData) {
+    window.resetCSVData();
+  }
+  
   updateInfo();
 
   // also erase the saved state

@@ -8,7 +8,7 @@ const PRESSURE_CHANGE_THRESHOLD = 0.02;
 //cehck no changes in flows
 let previousPressures = [];
 let stableStepCount = 0;
-let highPressureStepCount = 0; 
+let highPressureStepCount = 0;
 
 function computeNodeVolume(geometry, pressure, T, Z) {
   if (geometry <= 0) return 0;
@@ -348,6 +348,12 @@ if (window.evaluateScripts) evaluateScripts(simulatedSeconds);
   updateEdgeSegments(cy);
   updateEdgeVelocities(cy);
   simulatedSeconds += 1;
+  
+  // Log data every minute using the CSV logger
+  if (window.logSimulationData) {
+    window.logSimulationData(cy, simulatedSeconds);
+  }
+  
   if (updateInfoCallback) updateInfoCallback();
   checkSystemStability(cy);
 }
@@ -361,6 +367,12 @@ function runSimulation(cy, updateInfoCallback) {
 	}
 
   if (simulationInterval) return;
+  
+  // Initialize CSV headers when starting simulation
+  if (window.initializeCSVHeaders && window.hasCSVData && !window.hasCSVData()) {
+    window.initializeCSVHeaders(cy);
+  }
+  
   simulationInterval = setInterval(() => {
     let iterations = 1;
     if (simulationMode === "min") {
@@ -415,6 +427,11 @@ function resetSimulation() {
 
   simulatedSeconds = 0;
   // updateTimeDisplay?.(0);  // Removed – no such function
+
+  // Reset CSV data
+  if (window.resetCSVData) {
+    window.resetCSVData();
+  }
 
   // Reset node data
   cy.nodes().forEach(node => {

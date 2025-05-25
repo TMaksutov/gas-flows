@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
     gtag('js', new Date());
     gtag('config', 'G-MYJRPRS3TW');
   </script>
@@ -47,19 +53,10 @@
   </form>
 </section>
 
-<script>
-document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-  // Wait for form submission to complete
-  setTimeout(function() {
-    document.getElementById('messageInput').value = '';
-  }, 100);
-});
-</script>
 
 <div class="container">
 	<p><strong>Backlog:</strong></p>
 	<ul>
-	  <li>Graph import/export (JSON, CSV) for sharing and backup.</li>
 	  <li>Graphs and simulations results save, import and export.</li>
 	  <li>Support multiple unit systems.</li>
 	  <li>Add automatic calculations of Z.</li>
@@ -76,6 +73,11 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 <div class="container">
 	<table>
 		<tbody>
+			<tr>
+				<td>25.05.2025</td>
+				<td>v.0.25</td>
+				<td>Multiply lines selection and change parameters<br>CSV export<br>Cookie settings</td>
+		 	</tr>
 		  <tr>
 			<td>20.05.2025</td>
 			<td>v.0.24</td>
@@ -119,22 +121,22 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 		  <tr>
 			<td>27.04.2025</td>
 			<td>v.0.16</td>
-			<td>Improved velocity calculation using the Z-factor and base conditions; Updated explanations in the flow calculator; Added total volumes for each pipeline.</td>
+			<td>Improved velocity calculation using the Z-factor and base conditions<br> Updated explanations in the flow calculator<br> Added total volumes for each pipeline.</td>
 		  </tr>
 		  <tr>
 			<td>22.04.2025</td>
 			<td>v.0.15</td>
-			<td>Fixed bug in v2 calculation; Simulation stops when the system remains stable for 1 hour.</td>
+			<td>Fixed bug in v2 calculation<br> Simulation stops when the system remains stable for 1 hour.</td>
 		  </tr>
 		  <tr>
 			<td>20.04.2025</td>
 			<td>v.0.14</td>
-			<td>Flows are averaged with k = 0.2 every second; Nodes with fixed pressure are blue.</td>
+			<td>Flows are averaged with k = 0.2 every second<br> Nodes with fixed pressure are blue.</td>
 		  </tr>
 		  <tr>
 			<td>19.04.2025</td>
 			<td>v.0.13</td>
-			<td>Adaptive number of segments; Fixed graph drawing bugs; Fixed flow info speed display; Enable/disable individual edges.</td>
+			<td>Adaptive number of segments<br> Fixed graph drawing bugs<br> Fixed flow info speed display<br> Enable/disable individual edges.</td>
 		  </tr>
 		  <tr>
 			<td>18.04.2025</td>
@@ -144,7 +146,7 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 		  <tr>
 			<td>14.04.2025</td>
 			<td>v.0.11</td>
-			<td>Show per-segment edge pressures, flows, and volumes; Auto-save and restore network and time from browser memory.</td>
+			<td>Show per-segment edge pressures, flows, and volumes<br> Auto-save and restore network and time from browser memory.</td>
 		  </tr>
 		  <tr>
 			<td>11.04.2025</td>
@@ -154,12 +156,12 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 		  <tr>
 			<td>09.04.2025</td>
 			<td>v.0.9</td>
-			<td>Implemented long-press (taphold) to prevent immediate pop-up closure; Validated and applied user inputs (injection, pressure, length, diameter) live.</td>
+			<td>Implemented long-press (taphold) to prevent immediate pop-up closure<br> Validated and applied user inputs (injection, pressure, length, diameter) live.</td>
 		  </tr>
 		  <tr>
 			<td>06.04.2025</td>
 			<td>v.0.8</td>
-			<td>Initial Cytoscape-based editor: disabled context menu, tap to create/connect/delete nodes and edges; Core simulation engine: pressure and volume updates; Interactive play controls.</td>
+			<td>Initial Cytoscape-based editor<br> disabled context menu<br> tap to create/connect/delete nodes and edges<br> Core simulation engine: pressure and volume updates<br> Interactive play controls.</td>
 		  </tr>
 		</tbody>
 	  </table>
@@ -167,6 +169,78 @@ document.getElementById('feedbackForm').addEventListener('submit', function(e) {
 	  
 </div>
 
+<!-- Cookie Settings Section -->
+<section class="container" style="margin-top: 20px; border-top: 1px solid #ccc;">
+	<h3>Cookie Settings</h3>
+	<p>Manage your cookie preferences for this website. We use cookies to improve your experience and analyze website traffic.</p>
+	
+	<div style="margin: 15px 0;">
+	  <p><strong>Current Status:</strong> <span id="cookie-status">Loading...</span></p>
+	</div>
+	
+	<div style="margin: 15px 0;">
+	  <button onclick="cookieConsent.resetCookieSettings()" class="controlButton" style="margin-right: 10px;">
+		Reset Cookie Settings
+	  </button>
+	  <button onclick="showCookieInfo()" class="controlButton">
+		Cookie Information
+	  </button>
+	</div>
+	
+	<div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+	  <p><strong>Cookie Types:</strong></p>
+	  <ul style="margin-left: 20px;">
+		<li><strong>Essential:</strong> Required for website functionality (always enabled)</li>
+		<li><strong>Analytics:</strong> Google Analytics for website improvement (optional)</li>
+	  </ul>
+	</div>
+  </section>
   
+  <script>
+  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+	// Wait for form submission to complete
+	setTimeout(function() {
+	  document.getElementById('messageInput').value = '';
+	}, 100);
+  });
+  
+  // Update cookie status display
+  function updateCookieStatus() {
+	const statusElement = document.getElementById('cookie-status');
+	if (statusElement && typeof cookieConsent !== 'undefined') {
+	  const consent = localStorage.getItem('gas-flows-cookie-consent');
+	  const analyticsEnabled = localStorage.getItem('gas-flows-analytics-consent') === 'true';
+	  
+	  if (consent === 'accepted') {
+		statusElement.innerHTML = '<span style="color: #27ae60;">Cookies Accepted</span> - Analytics enabled';
+	  } else if (consent === 'declined') {
+		statusElement.innerHTML = '<span style="color: #e74c3c;">Analytics Declined</span> - Only essential cookies';
+	  } else {
+		statusElement.innerHTML = '<span style="color: #f39c12;">Not Set</span> - Please choose your preference';
+	  }
+	}
+  }
+  
+  // Show detailed cookie information
+  function showCookieInfo() {
+	if (typeof cookieConsent !== 'undefined') {
+	  cookieConsent.showDetails();
+	} else {
+	  alert('Cookie management system is loading. Please try again in a moment.');
+	}
+  }
+  
+  // Update status when page loads and when cookies change
+  document.addEventListener('DOMContentLoaded', function() {
+	// Wait a bit for cookieConsent to initialize
+	setTimeout(updateCookieStatus, 500);
+	
+	// Update status periodically in case user changes settings
+	setInterval(updateCookieStatus, 2000);
+  });
+  </script>
+  
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
 </body>
 </html>

@@ -2,11 +2,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
     gtag('js', new Date());
     gtag('config', 'G-MYJRPRS3TW');
   </script>
@@ -51,6 +57,7 @@
     <button id="playMinBtn" class="controlButton">>> Play (m)</button>
     <button id="playHourBtn" class="controlButton">>>> Play (h)</button>
     <button id="resetButton" class="controlButton">↺ Reset</button>
+    <button id="csvButton" class="controlButton"> .csv</button>
     <button id="helpButton" class="controlButton">? Help</button>
   </div>
 
@@ -64,7 +71,7 @@
       const btns = [
         'buildBtn','simulateBtn','clearBtn',
         'playBtn','playMinBtn','playHourBtn',
-        'pauseBtn','resetButton'
+        'pauseBtn','resetButton','csvButton'
       ].map(id => document.getElementById(id));
       btns.forEach(b => b.classList.remove('active','deactivated'));
   
@@ -74,11 +81,22 @@
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton']
           .forEach(id => document.getElementById(id).classList.add('deactivated'));
         document.getElementById('simulateBtn').classList.remove('deactivated');
+        
+        // CSV button state based on data availability
+        if (window.updateCSVButtonState) {
+          window.updateCSVButtonState();
+        }
       } else {
         document.getElementById('simulateBtn').classList.add('active');
         document.getElementById('clearBtn').classList.add('deactivated');
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton','buildBtn']
           .forEach(id => document.getElementById(id).classList.remove('deactivated'));
+        
+        // CSV button state based on data availability
+        if (window.updateCSVButtonState) {
+          window.updateCSVButtonState();
+        }
+        
         if (simState === 'pause')      document.getElementById('pauseBtn').classList.add('active');
         if (simState === 'play_sec')   document.getElementById('playBtn').classList.add('active');
         if (simState === 'play_min')   document.getElementById('playMinBtn').classList.add('active');
@@ -107,6 +125,10 @@
     document.getElementById('buildBtn').addEventListener('click', () => {
       setUIMode('build');
       setSimulationMode('stop', cy, updateInfo);
+      // Reset simulation data to ensure column consistency
+      if (typeof resetSimulation === 'function') {
+        resetSimulation();
+      }
     });
     document.getElementById('simulateBtn').addEventListener('click', () => {
       setUIMode('simulate');
@@ -143,6 +165,18 @@
       resetSimulation();
       setSimState('pause');
     });
+    document.getElementById('csvButton').addEventListener('click', () => {
+      const csvButton = document.getElementById('csvButton');
+      if (csvButton.disabled || csvButton.classList.contains('deactivated')) {
+        return; // Don't do anything if button is disabled
+      }
+      
+      if (window.generateCSV) {
+        window.generateCSV();
+      } else {
+        alert('CSV generation function not available.');
+      }
+    });
   
     // on page load, restore last UI mode but always stay paused
     window.addEventListener('DOMContentLoaded', () => {
@@ -158,6 +192,11 @@
       setSimState('pause');
       // ensure no simulation runs until user clicks Play
       setSimulationMode('stop', cy, updateInfo);
+      
+      // Initialize CSV button state
+      if (window.updateCSVButtonState) {
+        window.updateCSVButtonState();
+      }
     });
   </script>
   
@@ -208,9 +247,12 @@ n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
     <p><strong>Disclaimer:</strong> This Gas Flows Simulator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
   </footer>
   
+  <script src="js/csv_logger.js"></script>
   <script src="js/simulation.js"></script>
   <script src="js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
 
 <!-- Help Modal (iframe-based, loads help.html) -->
 <div id="helpModalContainer" class="modal" style="display:none;">

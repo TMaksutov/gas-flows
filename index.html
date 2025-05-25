@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
     gtag('js', new Date());
     gtag('config', 'G-MYJRPRS3TW');
   </script>
@@ -56,18 +62,18 @@
 
     <!-- Inputs -->
     <div id="inputs">
-      <div class="field-group"><label for="Tb">Tb (oC)</label><input id="Tb" type="number" step="1" value="20"><span>– Base temperature</span></div>
-      <div class="field-group"><label for="Pb">Pb (kPa)</label><input id="Pb" type="number" step="1" value="101.325"><span>– Base pressure</span></div>
-      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span>– Pipeline efficiency, less than 1</span></div>
-      <div class="field-group"><label for="G">G</label><input id="G" type="number" step="0.01" value="0.6"><span>– Gas gravity (air = 1)</span></div>
-      <div class="field-group"><label for="Z">Z</label><input id="Z" type="number" step="0.01" value="0.9"><span>– Compressibility factor</span></div>
-      <div class="field-group"><label for="Tf">T (oC)</label><input id="Tf" type="number" step="1" value="15"><span>– Gas temperature</span></div>
-      <div class="field-group"><label for="H1">H1 (m)</label><input id="H1" type="number" step="10" value="0"><span>– Upstream elevation</span></div>
-      <div class="field-group"><label for="H2">H2 (m)</label><input id="H2" type="number" step="10" value="0"><span>– Downstream elevation</span></div>
-      <div class="field-group"><label for="L">L (km)</label><input id="L" type="number" step="1" value="100"><span>– Pipe segment length</span></div>
-      <div class="field-group"><label for="D">D (mm)</label><input id="D" type="number" step="1" value="100"><span>– Pipe diameter</span></div>
-      <div class="field-group"><label for="P1">P1 (kPa)</label><input id="P1" type="number" step="100" value="5000"><span>– Upstream pressure</span></div>
-      <div class="field-group"><label for="P2">P2 (kPa)</label><input id="P2" type="number" step="100" value="4000"><span>– Downstream pressure</span></div>
+      <div class="field-group"><label for="Tb">Tb (oC)</label><input id="Tb" type="number" step="1" value="20"><span> Base temperature</span></div>
+      <div class="field-group"><label for="Pb">Pb (kPa)</label><input id="Pb" type="number" step="1" value="101.325"><span> Base pressure</span></div>
+      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span> Pipeline efficiency, less than 1</span></div>
+      <div class="field-group"><label for="G">G</label><input id="G" type="number" step="0.01" value="0.6"><span> Gas gravity (air = 1)</span></div>
+      <div class="field-group"><label for="Z">Z</label><input id="Z" type="number" step="0.01" value="0.9"><span> Compressibility factor</span></div>
+      <div class="field-group"><label for="Tf">T (oC)</label><input id="Tf" type="number" step="1" value="15"><span> Gas temperature</span></div>
+      <div class="field-group"><label for="H1">H1 (m)</label><input id="H1" type="number" step="10" value="0"><span> Upstream elevation</span></div>
+      <div class="field-group"><label for="H2">H2 (m)</label><input id="H2" type="number" step="10" value="0"><span> Downstream elevation</span></div>
+      <div class="field-group"><label for="L">L (km)</label><input id="L" type="number" step="1" value="100"><span> Pipe segment length</span></div>
+      <div class="field-group"><label for="D">D (mm)</label><input id="D" type="number" step="1" value="100"><span> Pipe diameter</span></div>
+      <div class="field-group"><label for="P1">P1 (kPa)</label><input id="P1" type="number" step="100" value="5000"><span> Upstream pressure</span></div>
+      <div class="field-group"><label for="P2">P2 (kPa)</label><input id="P2" type="number" step="100" value="4000"><span> Downstream pressure</span></div>
     </div>
 
 	<!-- Result -->
@@ -80,37 +86,37 @@
   <div class="field-group">
     <label for="Q_m3s">Q (m³/s)</label>
     <input id="Q_m3s" type="text" readonly>
-    <span>– Standard cubic meters per second</span>
+    <span> Standard cubic meters per second</span>
   </div>
   <div class="field-group">
     <label for="Q_th_m3h">Q (10³ m³/h)</label>
     <input id="Q_th_m3h" type="text" readonly>
-    <span>– Thousand cubic meters per hour</span>
+    <span> Thousand cubic meters per hour</span>
   </div>
   <div class="field-group">
     <label for="Q_mil_m3d">Q (10⁶ m³/d)</label>
     <input id="Q_mil_m3d" type="text" readonly>
-    <span>– Million cubic meters per day</span>
+    <span> Million cubic meters per day</span>
   </div>
   <div class="field-group">
     <label for="V1">v₁ (m/s)</label>
     <input id="V1" type="text" readonly>
-    <span>– Gas speed at pipeline start</span>
+    <span> Gas speed at pipeline start</span>
   </div>
   <div class="field-group">
     <label for="V2">v₂ (m/s)</label>
     <input id="V2" type="text" readonly>
-    <span>– Gas speed at pipeline end</span>
+    <span> Gas speed at pipeline end</span>
   </div>
   <div class="field-group">
     <label for="Pavg">Pavg (kPa)</label>
     <input id="Pavg" type="text" readonly>
-    <span>– Average pressure in the pipeline</span>
+    <span> Average pressure in the pipeline</span>
   </div>
   <div class="field-group">
     <label for="Volume">Volume (10³ m³)</label>
     <input id="Volume" type="text" readonly>
-    <span>– Gas volume Thousand cubic meters </span>
+    <span> Gas volume Thousand cubic meters </span>
   </div>
 
 </div>
@@ -241,6 +247,8 @@
   <script src="js/constants.js"></script>
   <script src="js/formulas.js"></script>
   <script src="js/ui.js"></script>
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
   <script>
     // --- Persistence logic for user inputs ---
     const STORAGE_KEY = 'gasFlowUserInputs';

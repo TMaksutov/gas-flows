@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Main pages
+Allow: /index.html
+Allow: /pressures.html
+Allow: /aga8.html
+Allow: /simulator.html
+Allow: /contacts.html
+
+# Static resources
+Allow: /common.css
+Allow: /manifest.json
+Allow: /icons/
+Allow: /js/
+
+# Disallow help modal (it's meant to be embedded)
+Disallow: /help.html
+Disallow: /help/
+
+# Sitemap location
+Sitemap: https://gas-flows.com/sitemap.xml
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1 

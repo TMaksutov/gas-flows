@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
     gtag('js', new Date());
     gtag('config', 'G-MYJRPRS3TW');
   </script>
@@ -223,6 +229,8 @@
 <script src="js/constants.js"></script>
 <script src="js/aga8.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Cookie Consent -->
+<script src="js/cookies.js"></script>
 
   <!-- Your calculation logic -->
 <!-- Only the bottom part is changed; top remains unchanged -->
@@ -628,6 +636,14 @@ document.getElementById('resetButton').addEventListener('click', function() {
   saveOrderMode('grouped'); // Save Grouped as default after reset
 });
 </script>
+
+  <!-- Footer -->
+  <footer class="container" style="margin-top: 5px; font-size: 0.9em;">
+    <p><strong>Disclaimer:</strong> This Gas Flow Calculator is provided for estimation and informational purposes only.
+	The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions.
+	While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results.
+	Always consult a qualified engineer or technical expert before making operational decisions.</p>
+  </footer>
 
 </body>
 </html>
