@@ -82,8 +82,19 @@ function animateDashOffset() {
       const newOffset = oldOffset + direction * smoothedSpeed * delta;
       edge.data('_dashOffset', newOffset);
 
+      // Determine line style based on disable state and speed
+      const maxSpeed = Math.max(Math.abs(v1), Math.abs(v2));
+      const speedKmh = maxSpeed * 3.6; // Convert m/s to km/h
+      const isDisabled = edge.data('disable');
+      
+      let lineStyle = 'dashed'; // Default for enabled lines
+      if (isDisabled) {
+        // Disabled lines: solid if speed < 0.1 km/h, otherwise dashed
+        lineStyle = speedKmh < 0.1 ? 'solid' : 'dashed';
+      }
+
       edge.style({
-        'line-style': 'dashed',
+        'line-style': lineStyle,
         'line-dash-pattern': [7, 1],
         'line-dash-offset': newOffset
       });
@@ -143,7 +154,7 @@ let cy = cytoscape({
       const v2 = parseFloat(edge.data('v2')) || 0;
       return speedToColor(Math.max(Math.abs(v1), Math.abs(v2)));
     },
-    'line-style': ele => ele.data('disable') ? 'dashed' : 'solid',
+    'line-style': ele => ele.data('disable') ? 'solid' : 'dashed',
     'line-dash-pattern': [7, 1],
     'line-dash-offset': 0, // will be animated
     'curve-style': 'bezier',
@@ -194,7 +205,7 @@ function createEdgeData(sourceId, targetId, length, diameter) {
     volumeSegments: Array(segCount).fill(0),
     flowSegments: Array(segCount - 1).fill(0),
     pressureSegments: Array(segCount).fill(0),
-    label: `L: ${length.toFixed(1)} km | D: ${diameter.toFixed(0)} mm\n.`
+    label: `${length.toFixed(1)} km | ${diameter.toFixed(0)} mm\n.`
   };
 }
 
@@ -218,7 +229,7 @@ function updateInfo() {
       geom += Math.PI * (D / 1000) ** 2 * (L / 2) * (1000 / 4);
     });
     node.data('geometry', geom);
-    let base = `P: ${pres.toFixed(2)}`;
+    let base = `${pres.toFixed(2)} MPa`;
     if (inj !== 0) base += ` | I: ${(inj * 3600).toFixed(0)} m³/h`;
     node.data('label', base + "\n\n" + (node.data('name') || "."));
     nodeHTML += `<tr>
@@ -251,7 +262,7 @@ function updateInfo() {
     })();
 
     edge.data('label',
-      `L: ${edge.data('length')} km | D: ${edge.data('diameter')} mm\n\n` +
+      `${edge.data('length')} km | ${edge.data('diameter')} mm\n\n` +
       `${edge.data('name') || '.'}`
     );
 
@@ -458,7 +469,7 @@ async function handleEdgePopup(edge, x, y) {
     currentEdge.data('disable', result.disable);
 
     currentEdge.data('label',
-      `L: ${currentEdge.data('length')} km | D: ${currentEdge.data('diameter')} mm\n\n` +
+      `${currentEdge.data('length')} km | ${currentEdge.data('diameter')} mm\n\n` +
       `${currentEdge.data('name') || '.'}`
     );
   });
