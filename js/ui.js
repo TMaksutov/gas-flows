@@ -183,7 +183,7 @@ let cy = cytoscape({
   layout: { name: 'preset' }
 });
 
-// Create edge data (with defaults for E, Z, T)
+// Create edge data (with defaults for E, T)
 function createEdgeData(sourceId, targetId, length, diameter) {
   length = Math.max(length, 0.1);    // Force minimum 0.1 km
   diameter = Math.max(diameter, 50); // Force minimum 50 mm
@@ -198,13 +198,13 @@ function createEdgeData(sourceId, targetId, length, diameter) {
     length: length.toFixed(1),
     diameter: diameter.toFixed(0),
     E: "0.95",
-    Z: "0.81",
     T: "15",
     name: ".",
     disable: false,
     volumeSegments: Array(segCount).fill(0),
     flowSegments: Array(segCount - 1).fill(0),
     pressureSegments: Array(segCount).fill(0),
+    zSegments: Array(segCount).fill(1.00),
     label: `${length.toFixed(1)} km | ${diameter.toFixed(0)} mm\n.`
   };
 }
@@ -246,12 +246,13 @@ function updateInfo() {
   let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
     <tr><th>ID</th><th>Name</th><th>Src→Tgt</th>
         <th>L, km</th><th>D, mm</th><th>v1, m/s</th><th>v2, m/s</th>
-        <th>Gas Vol.</th><th>Segment Volumes, m³</th><th>Segment Flows, m³/h</th><th>Segment Pressures, MPa</th></tr>`;
+        <th>Gas Vol.</th><th>Segment Volumes, m³</th><th>Segment Flows, m³/h</th><th>Segment Pressures, MPa</th><th>Segment Z-factors</th></tr>`;
 
   cy.edges().forEach(edge => {
     const vs = (edge.data('volumeSegments') || []).map(v => v.toFixed(0)).join(', ');
     const fs = (edge.data('flowSegments') || []).map(f => (f * 3600).toFixed(0)).join(', ');
     const ps = (edge.data('pressureSegments') || []).map(p => p.toFixed(2)).join(', ');
+    const zs = (edge.data('zSegments') || []).map(z => z.toFixed(3)).join(', ');
     const sumVol = (edge.data('volumeSegments') || []).reduce((s, v) => s + v, 0);
     totalVol += sumVol;
 
@@ -278,6 +279,7 @@ function updateInfo() {
       <td>${vs}</td>
       <td>${fs}</td>
       <td>${ps}</td>
+      <td>${zs}</td>
     </tr>`;
   });
   edgeHTML += `</table>`;
@@ -386,7 +388,6 @@ async function handleEdgePopup(edge, x, y) {
       length: firstEdge.data('length'),
       diameter: firstEdge.data('diameter'),
       E: firstEdge.data('E'),
-      Z: firstEdge.data('Z'),
       T: firstEdge.data('T'),
       disable: firstEdge.data('disable') || false
     };
@@ -397,7 +398,6 @@ async function handleEdgePopup(edge, x, y) {
       length: edge.data('length'),
       diameter: edge.data('diameter'),
       E: edge.data('E'),
-      Z: edge.data('Z'),
       T: edge.data('T'),
       disable: edge.data('disable') || false
     };
@@ -408,7 +408,6 @@ async function handleEdgePopup(edge, x, y) {
     { key:'length',   label:"Length, km:",   defaultValue: defaultValues.length },
     { key:'diameter', label:"Diameter, mm:", defaultValue: defaultValues.diameter },
     { key:'E',        label:"E",             defaultValue: defaultValues.E },
-    { key:'Z',        label:"Z",             defaultValue: defaultValues.Z },
     { key:'T',        label:"T",             defaultValue: defaultValues.T },
     { key:'disable',  label:"Disable",       type:'checkbox', defaultValue: defaultValues.disable }
   ], x, y);
@@ -452,16 +451,14 @@ async function handleEdgePopup(edge, x, y) {
       currentEdge.data('volumeSegments',    Array(sc).fill(0));
       currentEdge.data('flowSegments',      Array(sc - 1).fill(0));
       currentEdge.data('pressureSegments',  Array(sc).fill(0));
+      currentEdge.data('zSegments',         Array(sc).fill(1.00));
     } else {
       if (!isNaN(newL) && newL >= 0.1) currentEdge.data('length', newL.toFixed(1));
       if (!isNaN(newD) && newD > 0) currentEdge.data('diameter', newD.toFixed(0));
     }
 
     const newE = parseFloat(result.E);
-    if (!isNaN(newE) && newE > 0.5 && newE <= 1) currentEdge.data('E', newE.toFixed(2));
-
-    const newZ = parseFloat(result.Z);
-    if (!isNaN(newZ) && newZ > 0.5 && newZ <= 1) currentEdge.data('Z', newZ.toFixed(2));
+    if (!isNaN(newE) && newE > 0.5 && newE <= 1.2) currentEdge.data('E', newE.toFixed(2));
 
     const newT = parseFloat(result.T);
     if (!isNaN(newT) && newT > -30 && newT <= 100) currentEdge.data('T', newT.toFixed(1));

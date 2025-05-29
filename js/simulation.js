@@ -89,6 +89,23 @@ function getSegmentLength(i, n, L) {
   return fullLen;
 }
 
+// Calculate Z-factor for segments based on pressure and temperature 0.96 methane composition
+function calculateSegmentZ(pressureSegments, T_C) {
+  // --- 1. Temperature quantities (done once) ----------------------------
+  const T_K = T_C + 273.15;              // convert °C → K
+  const Tr  = T_K / 198.0498;            // critical temperature
+
+  // --- 2. Temperature-dependent coefficients ----------------------------
+  const A1 = -1.0000 + 3.8740 / Tr - 4.5767 / (Tr * Tr) + 1.1813 / (Tr * Tr * Tr);
+  const A2 = 0.1708 - 0.5606 / Tr + 0.4857 / (Tr * Tr);
+
+  // --- 3. Map over each pressure and get Z ------------------------------
+  return pressureSegments.map(P_MPa => {
+    const Pr = P_MPa / 4.4999;           // critical pressure
+    return 1 + A1 * Pr + A2 * Pr * Pr;   // Z = 1 + A1·Pr + A2·Pr²
+  });
+}
+
 // --- Update node segments ---
 function updateNodeSegments(cy) {
   cy.nodes().forEach(node => {
@@ -100,10 +117,10 @@ function updateNodeSegments(cy) {
 	  if (edge.data('disable')) return; // skip disabled edges
 
       let edgeVolSegs = edge.data('volumeSegments') || [];
+      let edgeZSegs = edge.data('zSegments') || [];
       const numEdgeSegs = edgeVolSegs.length;
       let D = parseFloat(edge.data('diameter')) || 0;
       let L = parseFloat(edge.data('length')) || 0;
-      let Z_edge = parseFloat(edge.data('Z')) || 0;
       let T_edge = parseFloat(edge.data('T')) || 0;
 
       if (numEdgeSegs > 0) {
@@ -113,10 +130,11 @@ function updateNodeSegments(cy) {
         let segLength = getSegmentLength(segIdx, numEdgeSegs, L);
         let segGeometry = 3.1415 * Math.pow(D/1000,2) * segLength * (1000/4);
         let vol = parseFloat(edgeVolSegs[segIdx]) || 0;
+        let Z_seg = edgeZSegs[segIdx] || 0.85; // Use segment-specific Z or default
         existingTotalVolume += vol;
         connectedEdgeSegments.push({
           edge, index: segIdx, geometry: segGeometry,
-          Z: Z_edge, T: T_edge
+          Z: Z_seg, T: T_edge
         });
         totalEdgeGeometry += segGeometry;
       }
@@ -186,30 +204,47 @@ function updateEdgeSegments(cy) {
 
     const D = parseFloat(edge.data('diameter')) || 0;
     const E = parseFloat(edge.data('E')) || 0;
-    const Z = parseFloat(edge.data('Z')) || 0;
     const T = parseFloat(edge.data('T')) || 0;
 
     let segPressures = [];
+    // First calculate pressures using a default Z for initial calculation
+    const defaultZ = 0.85;
     for (let i = 0; i < numSegs; i++) {
       let volVal = parseFloat(edgeVolSegs[i]) || 0;
       let segLen = getSegmentLength(i, numSegs, edgeLength);
       let segGeometry = 3.1415 * Math.pow(D / 1000, 2) * segLen * (1000 / 4);
-      let p = computeNodePressure(segGeometry, volVal, T, Z);
+      let p = computeNodePressure(segGeometry, volVal, T, defaultZ);
       segPressures.push(p);
     }
+
+    // Calculate Z-factor array for segments based on initial pressures
+    let segZ = calculateSegmentZ(segPressures, T);
+    
+    // Recalculate pressures with correct Z-factors
+    for (let i = 0; i < numSegs; i++) {
+      let volVal = parseFloat(edgeVolSegs[i]) || 0;
+      let segLen = getSegmentLength(i, numSegs, edgeLength);
+      let segGeometry = 3.1415 * Math.pow(D / 1000, 2) * segLen * (1000 / 4);
+      let p = computeNodePressure(segGeometry, volVal, T, segZ[i]);
+      segPressures[i] = p;
+    }
+    
     edge.data('pressureSegments', segPressures);
+    edge.data('zSegments', segZ);
 
     let newFlowSegments = [];
     let flowLen = numSegs > 1 ? edgeLength / (numSegs - 1) : edgeLength;
 
     for (let i = 0; i < numSegs - 1; i++) {
       const p1 = segPressures[i], p2 = segPressures[i + 1];
+      // Use average Z-factor for the flow segment
+      const avgZ = (segZ[i] + segZ[i + 1]) / 2;
 
       // Weymouth returns flow in m³/s
       let flow = weymouth({
         E, Tb: 20, Pb: 0.101325,
         P1: p1, P2: p2, G: 0.60,
-        Tf: T, L: flowLen, D, Z, H1: 0, H2: 0
+        Tf: T, L: flowLen, D, Z: avgZ, H1: 0, H2: 0
       });
 
       const prevFlow = prevFlows[i] || 0;
@@ -243,11 +278,11 @@ function updateEdgeVelocities(cy) {
   cy.edges().forEach(edge => {
     const flowSegments = edge.data('flowSegments') || [];
     const pressureSegments = edge.data('pressureSegments') || [];
+    const zSegments = edge.data('zSegments') || [];
     const D_mm = parseFloat(edge.data('diameter')) || 0;
     const D_m = D_mm / 1000;
     const area = Math.PI * Math.pow(D_m, 2) / 4;
 
-    const Z = parseFloat(edge.data('Z')) || 1; // Compressibility
     const T = parseFloat(edge.data('T')) || 15; // Temperature [°C]
     const T_K = T + 273.15;
 
@@ -258,13 +293,15 @@ function updateEdgeVelocities(cy) {
 
     let v1 = 0, v2 = 0;
 
-    if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1) {
+    if (flowSegments.length > 0 && area > 0 && pressureSegments.length > 1 && zSegments.length > 0) {
       // Q1_std and Q2_std are in m³/s
       const Q1_std = flowSegments[0]; 
       const Q2_std = flowSegments[flowSegments.length - 1];
 
       let P1 = pressureSegments[0]; 
       let P2 = pressureSegments[pressureSegments.length - 1];
+      let Z1 = zSegments[0] || 0.85;
+      let Z2 = zSegments[zSegments.length - 1] || 0.85;
 
       // 🔥 Fix units: MPa → kPa
       const P1_kPa = P1 * 1000;
@@ -277,9 +314,9 @@ function updateEdgeVelocities(cy) {
       const mass_flow_1 = Q1_std * rho_std;
       const mass_flow_2 = Q2_std * rho_std;
 
-      // Actual density at inlet and outlet
-      const rho1_actual = (P1_kPa * M) / (Z * R * T_K);
-      const rho2_actual = (P2_kPa * M) / (Z * R * T_K);
+      // Actual density at inlet and outlet using segment-specific Z
+      const rho1_actual = (P1_kPa * M) / (Z1 * R * T_K);
+      const rho2_actual = (P2_kPa * M) / (Z2 * R * T_K);
 
       // Actual volumetric flows (m³/s)
       const Q1_actual = mass_flow_1 / rho1_actual;
@@ -451,6 +488,7 @@ function resetSimulation() {
     edge.data('volumeSegments', Array(n).fill(0));
     edge.data('flowSegments', Array(n - 1).fill(0)); // These are stored in m³/s internally
     edge.data('pressureSegments', Array(n).fill(0));
+    edge.data('zSegments', Array(n).fill(0.85));
   });
 
   if (window.resetScriptEngine) window.resetScriptEngine();
