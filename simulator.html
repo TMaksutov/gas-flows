@@ -50,12 +50,13 @@
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
     <button id="buildBtn" class="controlButton">Build</button>
-    <button id="clearBtn" class="controlButton">✖ Clear</button>
+    <button id="clearBtn" class="controlButton">✖ Clear</button> 
+    <button id="RandomBtn" class="controlButton">Random</button>    
     <button id="simulateBtn" class="controlButton">Simulate</button>
     <button id="pauseBtn" class="controlButton">Ⅱ Pause</button>
-    <button id="playBtn" class="controlButton">> Play (s)</button>
-    <button id="playMinBtn" class="controlButton">>> Play (m)</button>
-    <button id="playHourBtn" class="controlButton">>>> Play (h)</button>
+    <button id="playBtn" class="controlButton">Play s</button>
+    <button id="playMinBtn" class="controlButton">> Play m</button>
+    <button id="playHourBtn" class="controlButton">>> Play h</button>
     <button id="resetButton" class="controlButton">↺ Reset</button>
     <button id="csvButton" class="controlButton"> .csv</button>
     <button id="helpButton" class="controlButton">? Help</button>
@@ -69,7 +70,7 @@
   
     function updateControlButtons() {
       const btns = [
-        'buildBtn','simulateBtn','clearBtn',
+        'buildBtn','simulateBtn','clearBtn','RandomBtn',
         'playBtn','playMinBtn','playHourBtn',
         'pauseBtn','resetButton','csvButton'
       ].map(id => document.getElementById(id));
@@ -78,6 +79,7 @@
       if (uiMode === 'build') {
         document.getElementById('buildBtn').classList.add('active');
         document.getElementById('clearBtn').classList.remove('deactivated');
+        document.getElementById('RandomBtn').classList.remove('deactivated');
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton']
           .forEach(id => document.getElementById(id).classList.add('deactivated'));
         document.getElementById('simulateBtn').classList.remove('deactivated');
@@ -89,6 +91,7 @@
       } else {
         document.getElementById('simulateBtn').classList.add('active');
         document.getElementById('clearBtn').classList.add('deactivated');
+        document.getElementById('RandomBtn').classList.add('deactivated');
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton','buildBtn']
           .forEach(id => document.getElementById(id).classList.remove('deactivated'));
         
@@ -125,10 +128,7 @@
     document.getElementById('buildBtn').addEventListener('click', () => {
       setUIMode('build');
       setSimulationMode('stop', cy, updateInfo);
-      // Reset simulation data to ensure column consistency
-      if (typeof resetSimulation === 'function') {
-        resetSimulation();
-      }
+      // Don't reset simulation data - preserve pressures and injections
     });
     document.getElementById('simulateBtn').addEventListener('click', () => {
       setUIMode('simulate');
@@ -138,6 +138,16 @@
     document.getElementById('clearBtn').addEventListener('click', () => {
       if (uiMode !== 'build') return;
       clearGraph();
+      setUIMode('build');
+      setSimulationMode('stop', cy, updateInfo);
+    });
+    document.getElementById('RandomBtn').addEventListener('click', () => {
+      if (uiMode !== 'build') return;
+      if (window.generateRandomNetwork) {
+        generateRandomNetwork();
+      } else {
+        alert('Random network generation function not available.');
+      }
       setUIMode('build');
       setSimulationMode('stop', cy, updateInfo);
     });
@@ -248,6 +258,7 @@ n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
   </footer>
   
   <script src="js/csv_logger.js"></script>
+  <script src="js/random_generator.js"></script>
   <script src="js/simulation.js"></script>
   <script src="js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

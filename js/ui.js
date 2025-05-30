@@ -209,8 +209,34 @@ function createEdgeData(sourceId, targetId, length, diameter) {
   };
 }
 
-
-
+/**
+ * Calculate the actual distance between two nodes based on their positions
+ * Converts pixel distance to kilometers using a scaling factor
+ */
+function calculateNodeDistance(sourceId, targetId) {
+  const sourceNode = cy.getElementById(sourceId);
+  const targetNode = cy.getElementById(targetId);
+  
+  if (!sourceNode.length || !targetNode.length) {
+    return 10; // Default fallback if nodes not found
+  }
+  
+  const sourcePos = sourceNode.position();
+  const targetPos = targetNode.position();
+  
+  // Calculate Euclidean distance in pixels
+  const deltaX = targetPos.x - sourcePos.x;
+  const deltaY = targetPos.y - sourcePos.y;
+  const pixelDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+  
+  // Convert pixels to kilometers
+  // Scale factor: assume 1 pixel = 0.5 km (adjust this as needed for realistic distances)
+  const PIXEL_TO_KM_SCALE = 0.2;
+  const distanceKm = pixelDistance * PIXEL_TO_KM_SCALE;
+  
+  // Ensure minimum distance of 0.1 km
+  return Math.max(distanceKm, 0.1);
+}
 
 // Update tables & labels
 function updateInfo() {
@@ -631,7 +657,36 @@ cy.on('tap', evt => {
       }
 
       const source = window.firstNode.id();
-      let target, L = 10, D = 565;
+      let target, D;
+      
+      // Get diameter from previous edge or use 1000mm for first edge
+      const existingEdges = cy.edges();
+      if (existingEdges.length === 0) {
+        // First edge: use 1000mm
+        D = 1000;
+      } else {
+        // Find the most recently created edge (highest node ID numbers)
+        let mostRecentEdge = null;
+        let highestNodeSum = -1;
+        
+        existingEdges.forEach(edge => {
+          const sourceId = edge.data('source');
+          const targetId = edge.data('target');
+          
+          // Extract numeric part from node IDs (e.g., 'n5' -> 5)
+          const sourceNum = parseInt(sourceId.replace('n', '')) || 0;
+          const targetNum = parseInt(targetId.replace('n', '')) || 0;
+          const nodeSum = sourceNum + targetNum;
+          
+          if (nodeSum > highestNodeSum) {
+            highestNodeSum = nodeSum;
+            mostRecentEdge = edge;
+          }
+        });
+        
+        // Use diameter from most recent edge, or default to 1000 if not found
+        D = mostRecentEdge ? parseFloat(mostRecentEdge.data('diameter')) : 1000;
+      }
 
       if (evt.target === cy) {
         target = 'n'+nodeIdCounter;
@@ -655,6 +710,8 @@ cy.on('tap', evt => {
       }
 
       if (source !== target) {
+        // Calculate actual distance between nodes
+        const L = calculateNodeDistance(source, target);
         const eData = createEdgeData(source, target, L, D);
         if (eData.length >= 0.1 && eData.diameter >= 50
             && !cy.getElementById(eData.id).length) {

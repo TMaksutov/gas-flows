@@ -171,9 +171,6 @@ nav a:hover {
   pointer-events: none !important;
 }
 
-#clearBtn, #resetButton {
-  margin-right: 10px;
-}
 
 /* Cytoscape container (canvas): full browser width */
 #cy {
