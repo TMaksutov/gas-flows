@@ -80,8 +80,8 @@ nav a:hover {
   margin: 0 auto;
 }
 .container table {
-  border-collapse: separate;   /* don't collapse borders */
-  border-spacing: 20px 10px;      /* 20px between columns, 10px between rows */
+  border-collapse: collapse;   /* collapse borders to remove gaps */
+  border-spacing: 0;           /* remove spacing between cells */
 }
 
 /* Field groups (used in index.html and pressures.html) */
@@ -378,6 +378,8 @@ nav a:hover {
   margin: 0 auto;
   text-align: center;
   font-size: 0.85em;
+  border-collapse: collapse;   /* collapse borders to remove gaps */
+  border-spacing: 0;           /* remove spacing between cells */
 }
 
 .collapsible-content table th,
@@ -401,8 +403,8 @@ nav a:hover {
 
 .collapsible-container .collapsible-content table {
   margin-left: 0;
-  border-collapse: separate;
-  border-spacing: 20px 10px;
+  border-collapse: collapse;   /* collapse borders to remove gaps */
+  border-spacing: 0;           /* remove spacing between cells */
 }
 
 .collapsible-container .collapsible-content em {
