@@ -49,17 +49,27 @@
   </nav>
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
-    <button id="buildBtn" class="controlButton">Build</button>
-    <button id="clearBtn" class="controlButton">✖ Clear</button> 
-    <button id="RandomBtn" class="controlButton">Random</button>    
-    <button id="simulateBtn" class="controlButton">Simulate</button>
-    <button id="pauseBtn" class="controlButton">Ⅱ Pause</button>
-    <button id="playBtn" class="controlButton">Play s</button>
-    <button id="playMinBtn" class="controlButton">> Play m</button>
-    <button id="playHourBtn" class="controlButton">>> Play h</button>
-    <button id="resetButton" class="controlButton">↺ Reset</button>
-    <button id="csvButton" class="controlButton"> .csv</button>
-    <button id="helpButton" class="controlButton">? Help</button>
+    <button id="buildBtn" class="controlButton" title="Enter build mode to create and edit the network">🔨 Build</button>
+    <button id="clearBtn" class="controlButton" title="Clear all nodes and pipes from the network">❌</button>
+    <button id="recoverButton" class="controlButton" title="Restore the last saved network">🔄 </button>
+    <button id="RandomBtn" class="controlButton" title="Generate a random network for testing">🎲 </button>  
+    
+    <button class="controlButton"></button>
+    
+    <button id="simulateBtn" class="controlButton" title="Enter simulation mode to run gas flow analysis">⚡ Run</button>
+
+    <button id="pauseBtn" class="controlButton" title="Pause the simulation">⏸️</button>
+    <button id="playBtn" class="controlButton" title="Run simulation in real-time (seconds)">▶️</button>
+    <button id="playMinBtn" class="controlButton" title="Run simulation at accelerated speed (minutes)">⏩</button>
+    <button id="playHourBtn" class="controlButton" title="Run simulation at maximum speed (hours)">⏭️</button>
+    <button id="resetButton" class="controlButton" title="Reset simulation to initial state">↺ </button>
+    <button id="csvButton" class="controlButton" title="Export simulation data to CSV file">📈</button>
+    
+    <button class="controlButton"></button>
+
+    <button id="exportButton" class="controlButton" title="Export current network to file">💾 </button>
+    <button id="importButton" class="controlButton" title="Import network from file">📁 </button>
+    <button id="helpButton" class="controlButton" title="Open help documentation">❓ </button>
   </div>
 
 
@@ -72,7 +82,7 @@
       const btns = [
         'buildBtn','simulateBtn','clearBtn','RandomBtn',
         'playBtn','playMinBtn','playHourBtn',
-        'pauseBtn','resetButton','csvButton'
+        'pauseBtn','resetButton','csvButton','exportButton','importButton','recoverButton'
       ].map(id => document.getElementById(id));
       btns.forEach(b => b.classList.remove('active','deactivated'));
   
@@ -80,9 +90,14 @@
         document.getElementById('buildBtn').classList.add('active');
         document.getElementById('clearBtn').classList.remove('deactivated');
         document.getElementById('RandomBtn').classList.remove('deactivated');
+        document.getElementById('recoverButton').classList.remove('deactivated');
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton']
           .forEach(id => document.getElementById(id).classList.add('deactivated'));
         document.getElementById('simulateBtn').classList.remove('deactivated');
+        
+        // Export/Import buttons always available
+        ['exportButton','importButton'].forEach(id => 
+          document.getElementById(id).classList.remove('deactivated'));
         
         // CSV button state based on data availability
         if (window.updateCSVButtonState) {
@@ -92,8 +107,13 @@
         document.getElementById('simulateBtn').classList.add('active');
         document.getElementById('clearBtn').classList.add('deactivated');
         document.getElementById('RandomBtn').classList.add('deactivated');
+        document.getElementById('recoverButton').classList.add('deactivated');
         ['playBtn','playMinBtn','playHourBtn','pauseBtn','resetButton','buildBtn']
           .forEach(id => document.getElementById(id).classList.remove('deactivated'));
+        
+        // Export/Import buttons always available
+        ['exportButton','importButton'].forEach(id => 
+          document.getElementById(id).classList.remove('deactivated'));
         
         // CSV button state based on data availability
         if (window.updateCSVButtonState) {
@@ -146,7 +166,7 @@
       if (window.generateRandomNetwork) {
         generateRandomNetwork();
       } else {
-        alert('Random network generation function not available.');
+        console.error('Random network generation function not available.');
       }
       setUIMode('build');
       setSimulationMode('stop', cy, updateInfo);
@@ -184,7 +204,7 @@
       if (window.generateCSV) {
         window.generateCSV();
       } else {
-        alert('CSV generation function not available.');
+        console.error('CSV generation function not available.');
       }
     });
   
@@ -215,25 +235,44 @@
   <!-- Cytoscape container: full browser width -->
   <div id="cy"></div>
 	  
-	<!-- Info area -->
-	<div class="wide-container">
-	  <div id="info-edges">
-		<!-- Edges table will be injected here -->
-	  </div>
-	</div>
+  <!-- Info area - Edges Data (Collapsible) -->
+  <div class="collapsible-container">
+    <div class="collapsible-header">
+      <div id="simulation-summary" style="font-size: 0.9em; color: #666; margin-top: 5px;">
+        Total Gas Volume: 0.00 × 10⁶ m³ | Inputs: 0 m³/h, Outputs: 0 m³/h | Simulation: 0 h 0 m 0 s
+      </div>
+      <span class="collapsible-toggle">▼</span>
+    </div>
+    <div class="collapsible-content">
+      <div id="info-edges">
+        <!-- Edges table will be injected here -->
+      </div>
+    </div>
+  </div>
 
-	<div class="wide-container">
-	  <div id="info-nodes">
-		<!-- Nodes table will be injected here -->
-	  </div>
-	</div>
+  <!-- Info area - Nodes Data (Collapsible) -->
+  <div class="collapsible-container">
+    <div class="collapsible-header">
+      <h3> Nodes Data & Gas Injection Points</h3>
+      <span class="collapsible-toggle">▼</span>
+    </div>
+    <div class="collapsible-content">
+      <div id="info-nodes">
+        <!-- Nodes table will be injected here -->
+      </div>
+    </div>
+  </div>
 	
-<!-- Scenario script UI (drop into simulator.html) -->
-<div id="script-container" class="container">
-  <h3 style="margin:4px 0;">Scenario script</h3>
-  <div style="display: flex; gap: 10px;">
-<textarea id="scriptInput" rows="8" style="width:50%; font-family:monospace;"
-  placeholder="HH:MM:SS or condition , action
+<!-- Scenario script UI (collapsible) -->
+<div class="collapsible-container">
+  <div class="collapsible-header">
+    <h3> Scenario Script & Automation</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content">
+    <div class="script-content">
+      <textarea id="scriptInput" rows="8"
+        placeholder="HH:MM:SS or condition , action
 00:01:00, n0.injection = 100  # injection in m³/hour
 n0.pressure > 0.1, n0.injection = 200  # injection in m³/hour
 n1.pressure > 10, n1_n3.disable = true
@@ -244,9 +283,8 @@ n1.pressure > 10, n1_n3.disable = true
 n3.flow < -5, n3_n0.reverse = true  # flow in m³/hour
 n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
 
-
-    <pre id="scriptStatus"
-      style="width:50%; margin:0; font-family:monospace; white-space:pre-wrap; border:1px solid #ccc; padding:4px; background:#f9f9f9;"></pre>
+      <pre id="scriptStatus"></pre>
+    </div>
   </div>
 </div>
 
@@ -259,6 +297,7 @@ n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
   
   <script src="js/csv_logger.js"></script>
   <script src="js/random_generator.js"></script>
+  <script src="js/graph_io.js"></script>
   <script src="js/simulation.js"></script>
   <script src="js/ui.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

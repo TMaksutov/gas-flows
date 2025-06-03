@@ -27,6 +27,8 @@
   natural gas calculator, gas volume calculator, gas velocity calculator, gas compression calculator, flow rate conversion,
   online gas calculator, gas hydraulics calculator,
   Weymouth equation, Weymouth formula, Weymouth equation in SI units,
+  Panhandle A equation, Panhandle A formula, Panhandle B equation, Panhandle B formula,
+  Darcy-Weisbach equation, Darcy-Weisbach formula, friction factor calculation,
   gas flow online, Gas flow calculator free, gas flow calculator free online
   ">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
@@ -51,8 +53,12 @@
       <li><a href="contacts.html">Contacts</a></li>
     </ul>
   </nav>
-  
   <div id="controls" style="margin-bottom: 16px;">
+
+    <button id="weymouthButton" class="controlButton">Weymouth</button>
+    <button id="panhandleAButton" class="controlButton">Panhandle A</button>
+    <button id="panhandleBButton" class="controlButton">Panhandle B</button>
+
     <button id="resetButton" class="controlButton">Reset</button>
   </div>
 
@@ -127,42 +133,185 @@
 
 </div>
 <!-- Formulas rendered via MathJax -->
-<div class="container">
-  <p>Weymouth formula in SI units:</p>
+<div class="collapsible-container">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>Weymouth Formula</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content expanded">
+    <p>
+      $$
+      Q_\text{base} = 3.7435 \cdot 10^{-3} \cdot \left(\frac{T_b}{P_b}\right) \cdot 
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G \cdot T_f \cdot L_e \cdot Z} \right)^{0.5} 
+      \cdot D^{2.667} \cdot E
+      $$
+    </p>
 
-  <p>
-    $$
-    Q_\text{base} = 3.7435 \cdot 10^{-3} \cdot \left(\frac{T_b}{P_b}\right) \cdot 
-    \left( \frac{P_1^2 - e^s \cdot P_2^2}{G \cdot T_f \cdot L_e \cdot Z} \right)^{0.5} 
-    \cdot D^{2.667} \cdot E
-    $$
-  </p>
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
 
-  <p>
-    $$
-    L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
-    s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
-    $$
-  </p>
-
-  <table style="font-size: 0.95em;">
-    <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
-    <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
-    <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
-    <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
-    <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-    <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
-    <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
-    <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-    <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
-    <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
-    <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
-    <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
-    <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
-    <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
-    <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
-  </table>
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
+      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
+      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
+      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+    </table>
+  </div>
 </div>
+
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Panhandle A Formula</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      Q_\text{base} = 4.5965 \times 10^{-3} \cdot \left(\frac{T_b}{P_b}\right)^{1.0788} \cdot 
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.8539} \cdot T_f \cdot L_e \cdot Z} \right)^{0.5394} 
+      \cdot D^{2.6182} \cdot E
+      $$
+    </p>
+
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
+      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
+      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
+      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+    </table>
+    
+    <p><em>Note: Valid for Reynolds numbers 5-11 million, 300-1500 mm pipes, 5500-10300 kPa</em></p>
+  </div>
+</div>
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Panhandle B Formula</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      Q_\text{base} = 1.002 \times 10^{-2} \cdot \left(\frac{T_b}{P_b}\right)^{1.02} \cdot 
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.961} \cdot T_f \cdot L_e \cdot Z} \right)^{0.51} 
+      \cdot D^{2.53} \cdot E
+      $$
+    </p>
+
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
+      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
+      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
+      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+    </table>
+    
+    <p><em>Note: Valid for Reynolds numbers 4-40 million, >900 mm pipes, >6900 kPa</em></p>
+  </div>
+</div>
+
+</div>
+
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Darcy-Weisbach Formula</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      v = \sqrt{\frac{2 \cdot \Delta P_f \cdot D}{f \cdot L \cdot \rho}}
+      \qquad
+      Q_\text{actual} = v \cdot A \cdot E
+      \qquad
+      Q_\text{base} = Q_\text{actual} \cdot \frac{P_1 \cdot T_b \cdot Z}{P_b \cdot T_f}
+      $$
+    </p>
+
+    <p>
+      $$
+      \Delta P_f = P_1 - P_2 - \rho \cdot g \cdot (H_2 - H_1)
+      \qquad
+      A = \frac{\pi D^2}{4}
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( v \)</td><td>= Gas velocity, m/s</td></tr>
+      <tr><td>\( \Delta P_f \)</td><td>= Frictional pressure drop, Pa</td></tr>
+      <tr><td>\( f \)</td><td>= Darcy friction factor (dimensionless)</td></tr>
+      <tr><td>\( \rho \)</td><td>= Gas density at flowing conditions, kg/m³</td></tr>
+      <tr><td>\( Q_\text{actual} \)</td><td>= Actual volumetric flow rate, m³/s</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/s</td></tr>
+      <tr><td>\( A \)</td><td>= Pipe cross-sectional area, m²</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
+      <tr><td>\( g \)</td><td>= Gravitational acceleration, 9.81 m/s²</td></tr>
+      <tr><td>\( P_1, P_2 \)</td><td>= Upstream and downstream pressures, Pa</td></tr>
+      <tr><td>\( P_b \)</td><td>= Base pressure, Pa</td></tr>
+      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
+      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
+      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
+      <tr><td>\( D \)</td><td>= Pipe inside diameter, m</td></tr>
+      <tr><td>\( L \)</td><td>= Pipe segment length, m</td></tr>
+      <tr><td>\( H_1, H_2 \)</td><td>= Upstream and downstream elevations, m</td></tr>
+    </table>
+  </div>
+</div>
+
+
+
 
 <div class="container">
   <p>Gas velocity full expanded formula:</p>
@@ -224,10 +373,6 @@
   </table>
 </div>
 
-</div>
-
-
-
 
 
 
@@ -250,6 +395,45 @@
   <!-- Cookie Consent -->
   <script src="js/cookies.js"></script>
   <script>
+    // --- Collapsible functionality ---
+    function toggleCollapsible(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector('.collapsible-toggle');
+      
+      if (header.classList.contains('collapsed')) {
+        header.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+      } else {
+        header.classList.add('collapsed');
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+      }
+    }
+
+    // Function to expand specific formula container
+    function expandFormulaContainer(formulaName) {
+      const containers = document.querySelectorAll('.collapsible-container');
+      
+      containers.forEach(container => {
+        const header = container.querySelector('.collapsible-header');
+        const content = container.querySelector('.collapsible-content');
+        const title = header.querySelector('h3').textContent.toLowerCase();
+        
+        if (title.includes(formulaName.toLowerCase())) {
+          // Expand this container
+          header.classList.remove('collapsed');
+          content.classList.remove('collapsed');
+          content.classList.add('expanded');
+        } else {
+          // Collapse other containers
+          header.classList.add('collapsed');
+          content.classList.remove('expanded');
+          content.classList.add('collapsed');
+        }
+      });
+    }
+
     // --- Persistence logic for user inputs ---
     const STORAGE_KEY = 'gasFlowUserInputs';
     const defaultValues = {
@@ -267,12 +451,16 @@
       P2: 4000
     };
 
+    // Track selected formula
+    let selectedFormula = 'weymouth'; // default
+
     function saveUserInputs() {
       const data = {};
       Object.keys(defaultValues).forEach(id => {
         const input = document.getElementById(id);
         if (input) data[id] = input.value;
       });
+      data.selectedFormula = selectedFormula; // Save selected formula
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
@@ -287,6 +475,30 @@
             if (input) input.value = vals[id];
           }
         });
+        
+        // Load selected formula
+        if (vals.selectedFormula) {
+          selectedFormula = vals.selectedFormula;
+          // Set the appropriate button as active
+          const buttonMap = {
+            'weymouth': 'weymouthButton',
+            'panhandleA': 'panhandleAButton',
+            'panhandleB': 'panhandleBButton'
+          };
+          if (buttonMap[selectedFormula]) {
+            setActiveButton(buttonMap[selectedFormula]);
+          }
+          
+          // Expand the appropriate formula container
+          const formulaNameMap = {
+            'weymouth': 'weymouth',
+            'panhandleA': 'panhandle a',
+            'panhandleB': 'panhandle b'
+          };
+          if (formulaNameMap[selectedFormula]) {
+            expandFormulaContainer(formulaNameMap[selectedFormula]);
+          }
+        }
       } catch {}
     }
 
@@ -294,16 +506,65 @@
       localStorage.removeItem(STORAGE_KEY);
     }
 
+    // Set active button state
+    function setActiveButton(activeButtonId) {
+      const buttons = ['weymouthButton', 'panhandleAButton', 'panhandleBButton'];
+      buttons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+          if (buttonId === activeButtonId) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        }
+      });
+    }
+
     // Attach listeners for persistence
     document.addEventListener('DOMContentLoaded', function() {
       loadUserInputs();
+      
+      // Set defaults if no saved data exists
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (!savedData) {
+        setActiveButton('weymouthButton'); // Set default active button
+        expandFormulaContainer('weymouth'); // Expand default formula
+      }
+      
       updateResults();
+      
       const inputs = document.querySelectorAll('#inputs input');
       inputs.forEach(input => {
         input.addEventListener('input', function() {
           updateResults();
           saveUserInputs();
         });
+      });
+
+      // Formula button event listeners
+      document.getElementById('weymouthButton').addEventListener('click', function() {
+        selectedFormula = 'weymouth';
+        setActiveButton('weymouthButton');
+        expandFormulaContainer('weymouth');
+        updateResults();
+        saveUserInputs();
+      });
+
+      document.getElementById('panhandleAButton').addEventListener('click', function() {
+        selectedFormula = 'panhandleA';
+        setActiveButton('panhandleAButton');
+        expandFormulaContainer('panhandle a');
+        updateResults();
+        saveUserInputs();
+      });
+
+      document.getElementById('panhandleBButton').addEventListener('click', function() {
+        selectedFormula = 'panhandleB';
+        setActiveButton('panhandleBButton');
+        expandFormulaContainer('panhandle b');
+        updateResults();
+        saveUserInputs();
       });
     });
 
@@ -344,8 +605,22 @@ function updateResults() {
   const R = 8.314;         // [J/(mol·K)]
   const M = 0.01604;       // [kg/mol] (natural gas)
 
-  // Weymouth standard flow (m³/s)
-  const Q_std_m3s = weymouth({ E, Tb, Pb, P1: P1_kPa, P2: P2_kPa, G, Tf, L, D: D_mm, Z, H1, H2 });
+  // Use selected formula
+  let Q_std_m3s;
+  const formulaParams = { E, Tb, Pb, P1: P1_kPa, P2: P2_kPa, G, Tf, L, D: D_mm, Z, H1, H2 };
+  
+  switch (selectedFormula) {
+    case 'panhandleA':
+      Q_std_m3s = panhandleA(formulaParams);
+      break;
+    case 'panhandleB':
+      Q_std_m3s = panhandleB(formulaParams);
+      break;
+    case 'weymouth':
+    default:
+      Q_std_m3s = weymouth(formulaParams);
+      break;
+  }
 
   // Derived flows
   const Q_th_m3h = Q_std_m3s * 3600 / 1000;

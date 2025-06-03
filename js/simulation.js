@@ -363,7 +363,7 @@ function checkSystemStability(cy) {
       stopSimulation(); 
       setSimState('pause');
       simulationMode = "stop";
-      alert("Simulation finished: All pressures are stable for 10 hours.");
+      console.log("Simulation finished: All pressures are stable for 10 hours.");
     }
   }
 
@@ -470,11 +470,10 @@ function resetSimulation() {
     window.resetCSVData();
   }
 
-  // Reset node data
+  // Reset node volume segments but preserve pressure, injection, and pressureSet data
   cy.nodes().forEach(node => {
-    node.data('pressure', 0);
-    node.data('pressureSet', null);
-    node.data('injection', 0); // This is stored in m³/s internally
+    // Keep existing: pressure, pressureSet, injection
+    // Only reset volume segments and fixed state
     node.data('fixed', false);
     node.data('volumeSegments', Array((node.data('volumeSegments') || []).length).fill(0));
   });

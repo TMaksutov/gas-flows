@@ -23,6 +23,40 @@ function closeActivePopup() {
   }
 }
 
+// Collapsible container functionality
+function initializeCollapsibleContainers() {
+  const headers = document.querySelectorAll('.collapsible-header');
+  
+  headers.forEach(header => {
+    const content = header.nextElementSibling;
+    const toggle = header.querySelector('.collapsible-toggle');
+    
+    // Set initial collapsed state
+    header.classList.add('collapsed');
+    content.classList.add('collapsed');
+    content.classList.remove('expanded');
+    
+    header.addEventListener('click', () => {
+      const isCollapsed = header.classList.contains('collapsed');
+      
+      if (isCollapsed) {
+        // Expand
+        header.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+      } else {
+        // Collapse
+        header.classList.add('collapsed');
+        content.classList.add('expanded');
+        content.classList.remove('expanded');
+        setTimeout(() => {
+          content.classList.add('collapsed');
+        }, 10);
+      }
+    });
+  });
+}
+
 function speedToColor(speed) {
   const absSpeed = Math.abs(speed);
 
@@ -270,7 +304,7 @@ function updateInfo() {
   nodeHTML += `</table>`;
 
   let edgeHTML = `<table border="1" cellpadding="4" cellspacing="0">
-    <tr><th>ID</th><th>Name</th><th>Src→Tgt</th>
+    <tr><th>ID</th><th>Name</th>
         <th>L, km</th><th>D, mm</th><th>v1, m/s</th><th>v2, m/s</th>
         <th>Gas Vol.</th><th>Segment Volumes, m³</th><th>Segment Flows, m³/h</th><th>Segment Pressures, MPa</th><th>Segment Z-factors</th></tr>`;
 
@@ -296,7 +330,6 @@ function updateInfo() {
     edgeHTML += `<tr>
       <td>${edge.id()}</td>
       <td>${edge.data('name')}</td>
-      <td>${edge.data('source')}→${edge.data('target')}</td>
       <td>${parseFloat(edge.data('length')).toFixed(1)}</td>
       <td>${edge.data('diameter')}</td>
       <td>${parseFloat(edge.data('v1') || 0).toFixed(1)}</td>
@@ -312,18 +345,23 @@ function updateInfo() {
 
   document.getElementById('info-nodes').innerHTML = nodeHTML;
 
-  document.getElementById('info-edges').innerHTML =
-    `<div style="margin: 10px 0; font-weight: bold; text-align: center;">
-      Total Gas Volume: ${
-        (() => {
-          if (totalVol >= 1_000_000) return (totalVol / 1_000_000).toFixed(2) + ' × 10⁶ m³';
-          if (totalVol >= 1_000) return (totalVol / 1_000).toFixed(1) + ' × 10³ m³';
-          return totalVol.toFixed(0) + ' m³';
-        })()
-      }      |      Inputs: ${(posInj * 3600).toFixed(0)} m³/h, Outputs: ${(negInj * 3600).toFixed(0)} m³/h
-           |      Simulation: ${Math.floor(simulatedSeconds / 3600)} h ${Math.floor((simulatedSeconds % 3600) / 60)} m ${simulatedSeconds % 60} s
-    </div>` +
-    edgeHTML;
+  // Update the simulation summary in the header
+  const simulationSummaryText = `Total Gas Volume: ${
+    (() => {
+      if (totalVol >= 1_000_000) return (totalVol / 1_000_000).toFixed(2) + ' × 10⁶ m³';
+      if (totalVol >= 1_000) return (totalVol / 1_000).toFixed(1) + ' × 10³ m³';
+      return totalVol.toFixed(0) + ' m³';
+    })()
+  } | Inputs: ${(posInj * 3600).toFixed(0)} m³/h, Outputs: ${(negInj * 3600).toFixed(0)} m³/h | Simulation: ${Math.floor(simulatedSeconds / 3600)} h ${Math.floor((simulatedSeconds % 3600) / 60)} m ${simulatedSeconds % 60} s`;
+
+  // Update the header
+  const summaryElement = document.getElementById('simulation-summary');
+  if (summaryElement) {
+    summaryElement.textContent = simulationSummaryText;
+  }
+
+  // Update the edges table content only
+  document.getElementById('info-edges').innerHTML = edgeHTML;
 }
 
 
@@ -739,11 +777,25 @@ cy.on('dragfree','node', evt => {
 
 // Save/Load from localStorage
 function saveGraphToLocalStorage() {
-  localStorage.setItem('graphState',
-    JSON.stringify({ elements:cy.json().elements, simulatedSeconds, nodeIdCounter })
-  );
+  if (window.graphIO) {
+    window.graphIO.autoSave();
+  } else {
+    // Fallback to old method
+    localStorage.setItem('graphState',
+      JSON.stringify({ elements:cy.json().elements, simulatedSeconds, nodeIdCounter })
+    );
+  }
 }
+
 function loadGraphFromLocalStorage() {
+  if (window.graphIO) {
+    // Try to load using new graph I/O system
+    if (window.graphIO.loadFromLocalStorage()) {
+      return; // Successfully loaded
+    }
+  }
+  
+  // Fallback to old method
   const s = localStorage.getItem('graphState');
   if (!s) return;
 
@@ -760,12 +812,21 @@ window.addEventListener('load', () => {
   window.firstNode = null;
   window.creationActive = false;
   loadGraphFromLocalStorage();
+  
+  // Initialize collapsible containers after page load
+  setTimeout(initializeCollapsibleContainers, 100);
 });
 window.addEventListener('beforeunload', saveGraphToLocalStorage);
 
 // Reset everything
 function clearGraph() {
   stopSimulation(); // Pause simulation when clearing
+  
+  // Save current graph before clearing (for recovery)
+  if (window.graphIO && cy.elements().length > 0) {
+    window.graphIO.autoSave();
+  }
+  
   cy.elements().remove();
   nodeIdCounter = 0;
   simulatedSeconds = 0;
@@ -777,6 +838,7 @@ function clearGraph() {
   
   updateInfo();
 
-  // also erase the saved state
-  localStorage.removeItem('graphState');
+  // Note: We're NOT removing the saved graph data anymore
+  // Users can recover their graph using Import button
+  console.log('Graph cleared. Use Import button to recover previous graphs.');
 }

@@ -146,19 +146,22 @@ function generateRandomNetwork() {
   
   // Set fixed pressures for leftmost and rightmost nodes
   // All injection rates remain 0 (no gas inputs/outputs)
+  
+  // Generate one pressure value for all left nodes and one for all right nodes
+  const leftPressure = randomFloat(5, 7);
+  const rightPressure = randomFloat(3, 4);
+  
   for (let lineIndex = 0; lineIndex < numLines; lineIndex++) {
     const currentLine = allNodes[lineIndex];
     
-    // Set high pressure (5-7 MPa) for leftmost nodes (first column)
+    // Set high pressure (5-7 MPa) for leftmost nodes (first column) - same for all
     const leftmostNode = currentLine[0];
-    const leftPressure = randomFloat(5, 7);
     leftmostNode.data('pressure', leftPressure);
     leftmostNode.data('pressureSet', true);
     leftmostNode.data('injection', 0); // No injection
     
-    // Set lower pressure (3-4 MPa) for rightmost nodes (last column)
+    // Set lower pressure (3-4 MPa) for rightmost nodes (last column) - same for all
     const rightmostNode = currentLine[numColumnsPerLine - 1];
-    const rightPressure = randomFloat(3, 4);
     rightmostNode.data('pressure', rightPressure);
     rightmostNode.data('pressureSet', true);
     rightmostNode.data('injection', 0); // No injection
