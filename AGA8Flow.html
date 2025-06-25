@@ -1,7 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) with consent -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
   <title>AGA8 Gas Flow Calculator</title>
+  <link rel="canonical" href="https://gas-flows.com/AGA8Flow.html">
+  <meta name="description" content="AGA8-92DC based gas flow calculator for pipelines. Calculates flow, density, Z-factor, and more for natural gas mixtures.">
+  <meta name="keywords" content="AGA8, AGA8-92DC, gas flow calculator, natural gas, pipeline, Z-factor, compressibility, gas density, flow rate, online calculator, AGA8 flow, gas properties">
+  <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="common.css">
   <style>
     .main-layout {
@@ -54,6 +77,17 @@
 </head>
 
 <body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Flow Calculator</a></li>
+      <li><a href="pressures.html">Units Converter</a></li>
+      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
+      <li><a href="AGA8Flow.html" class="active">AGA8 Flow</a></li>
+      <li><a href="simulator.html">Gas Simulator</a></li>
+      <li><a href="contacts.html">Contacts</a></li>
+    </ul>
+  </nav>
+
   <div id="controls" style="margin-bottom: 16px;">
     <button id="groupedOrder" class="controlButton">Grouped Order</button>
     <button id="AGAOrder" class="controlButton">AGA8 Order</button>

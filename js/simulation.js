@@ -122,14 +122,15 @@ function updateNodeSegments(cy) {
       totalVolume = computedVolume + injection;
     } else {
       totalVolume = existingTotalVolume + injection;
-      // use the T and Z of the first connected segment as-is
-      let { T, Z } = connectedEdgeSegments[0] || { T: 0, Z: 1 };
-      newPressure = computeNodePressure(
-        totalEdgeGeometry,
-        totalVolume,
-        T,
-        Z
-      );
+      
+      // FIXED: Use correct physics formula with all connected segments' T and Z
+      const P_base = 0.101325, T_base = 293.15;
+      let denom = 0;
+      connectedEdgeSegments.forEach(seg => {
+        const Tk = seg.T + 273.15;
+        denom += seg.geometry / (Tk * seg.Z);
+      });
+      newPressure = denom ? (totalVolume * P_base) / (T_base * denom) : 0;
       node.data('pressure', newPressure);
     }
 
