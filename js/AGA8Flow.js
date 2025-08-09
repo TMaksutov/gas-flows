@@ -65,12 +65,12 @@ const defaultValues = {
   H1: 0,
   H2: 0,
   L: 100,
-  D: 100,
+  D: 500,
   P1:50,
-  P2: 40,
+  P2: 20,
   // Pressure range parameters
-  P1_min: 30,
-  P1_max: 40,
+  P1_min: 50,
+  P1_max: 60,
   P2_min: 20,
   P2_max: 30,
   pressureStep: 1
