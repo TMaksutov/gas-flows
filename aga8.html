@@ -476,7 +476,11 @@ function calculateZ () {
   }
 
   function calculateMolarMass (xj) {
-    return xj.reduce((sum, x, i) => sum + x * MW[i], 0);
+    // Map from grouped order (xj) to ISO order (MW array)
+    // xj order: methane, ethane, propane, isobutane, n-butane, isopentane, n-pentane, n-hexane, n-heptane, n-octane, n-nonane, n-decane, helium, argon, nitrogen, oxygen, carbon-monoxide, carbon-dioxide, hydrogen, water, hydrogen-sulfide
+    // MW order: methane, nitrogen, carbon-dioxide, ethane, propane, water, hydrogen-sulfide, hydrogen, carbon-monoxide, oxygen, isobutane, n-butane, isopentane, n-pentane, n-hexane, n-heptane, n-octane, n-nonane, n-decane, helium, argon
+    const MW_INDICES = [0, 3, 4, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 1, 9, 8, 2, 7, 5, 6];
+    return xj.reduce((sum, x, i) => sum + x * MW[MW_INDICES[i]], 0);
   }
 
 /* ─── Helpers ──────────────────────────────────────────────────── */
