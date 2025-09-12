@@ -453,6 +453,25 @@ nav a:hover {
   text-align: left; /* Keep code readable with left alignment */
 }
 
+/* Simple modern link styles */
+.modern-link {
+  display: inline-block;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 5px 5px;
+  margin: 2px 2px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+}
+
+.modern-link:hover {
+  color: #1d4ed8;
+  background: #e3f2fd;
+  border-color: #3b82f6;
+}
+
 /* Responsive adjustments for collapsible containers */
 @media (max-width: 768px) {
   .collapsible-header {

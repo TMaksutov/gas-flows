@@ -19,11 +19,8 @@
   <title>AGA8-92DC Z-Factor Calculator | Natural Gas Compressibility</title>
   <link rel="canonical" href="https://gas-flows.com/aga8.html">
   <meta name="description" content="Calculate Z-factors and gas density for natural gas mixtures using the AGA8-92DC equation. Online compressibility factor calculator.">
-  <meta name="keywords" content="
-	AGA8, AGA8-92DC, z-factor calculator, compressibility factor, gas density, molar density, mass density,
-	specific density, natural gas, gas flow calculator, natural gas compressibility,
-	gas z-factor online, AGA8 calculator free, natural gas properties, gas mixture calculation
-	">
+  <meta name="keywords" content="AGA8 calculator, AGA8-92DC, z-factor calculator, compressibility factor calculator, natural gas calculator, free online calculator, gas density calculator, molar density, mass density, natural gas compressibility, gas mixture calculation, ISO 12213, what is z-factor, how to calculate z-factor, AGA8 formula, gas properties calculator">
+
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -213,10 +210,41 @@
 </div>
 
   </div>
-  <div class="container">
+  
+
+
+<div class="container">
 	<div class="field-group">
 	  <canvas id="zChart" width="600" height="300"></canvas>
 	</div>
+</div>
+
+<div class="container">
+  <div class="field-group">
+    <p><strong>AGA8 Details</strong><br>
+    AGA8 is the American Gas Association's standard equation of state used to calculate the compressibility (Z-factor) and 
+      density of natural gas from its composition, pressure, and temperature. 
+      It ensures accurate gas flow and volume measurements in pipelines and custody transfer. 
+      The standard is widely applied in the oil and gas industry and is aligned with ISO 12213 for international use.<br><br>
+      
+      ISO 12213 has three parts: Part 1 gives general guidelines, Part 2 defines the detailed (AGA8 Detail) method, 
+      and Part 3 covers the simplified (Gross) method for easier applications.<br><br>
+      
+      <strong>AGA8 Application Restrictions:</strong><br>
+      Pressure: 0 MPa to 12 MPa (0 to 120 bar)<br>
+      Temperature: 263 K to 338 K (-10°C to 65°C)<br>
+      Superior Calorific Value: 30 MJ/m³ to 45 MJ/m³<br>
+      Relative Density: 0.55 to 0.80<br><br>
+
+      <strong>AGA8 References:</strong><br>
+    <a href="https://github.com/MiroslavDressler/AGA8/blob/master/ISO_12213-2.pdf" target="_blank" class="modern-link">ISO 12213-2:1997 Standard (PDF)</a><br>
+    <a href="https://github.com/usnistgov/AGA8" target="_blank" class="modern-link">Repository for the AGA 8 from NIST</a><br>
+    <a href="https://pages.nist.gov/AGA8/" target="_blank" class="modern-link">Repository with supplementary files to AGA 8</a><br>
+    <a href="https://www.iso.org/standard/44411.html" target="_blank" class="modern-link">Official page for ISO 12213-2:1997 Standard (paid)</a><br>
+    <a href="https://github.com/MiroslavDressler/AGA8" target="_blank" class="modern-link">Repository for FORTRAN, PASCAL and C language</a><br>
+    <a href="https://github.com/Dseal95/AGA8-Detail" target="_blank" class="modern-link">Community Python Implementation of AGA8 DETAILS</a><br>
+    <a href="https://pypi.org/project/pyaga8/" target="_blank" class="modern-link">Python package for calculating gas properties using the AGA8</a><br>
+  </div>
 </div>
 
  <div class="container">
