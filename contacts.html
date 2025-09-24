@@ -50,7 +50,7 @@
       Your message:
       <textarea name="message" id="messageInput" rows="5" style="display: block; width: 90%;" placeholder="Type your message here..."></textarea>
     </label>
-    <button type="submit" class="controlButton">Send</button>
+    <button type="submit" id="sendButton" class="controlButton" disabled>Send</button>
   </form>
 </section>
 
@@ -77,6 +77,11 @@
   </style>
 	<table>
 		<tbody>
+			<tr>
+				<td>24.09.2025</td>
+				<td>v.0.33</td>
+				<td>Updated page footers with general description of the page</td>
+			</tr>
 			<tr>
 				<td>12.09.2025</td>
 				<td>v.0.32</td>
@@ -240,9 +245,22 @@
 	// Wait for form submission to complete
 	setTimeout(function() {
 	  document.getElementById('messageInput').value = '';
+	  // Re-evaluate send button state after clearing
+	  if (typeof updateSendVisibility === 'function') {
+		updateSendVisibility();
+	  }
 	}, 100);
   });
   
+  // Enable Send button only when message has at least 10 non-space chars
+  function updateSendVisibility() {
+    const sendButton = document.getElementById('sendButton');
+    const messageInput = document.getElementById('messageInput');
+    if (!sendButton || !messageInput) return;
+    const len = messageInput.value.trim().length;
+    sendButton.disabled = len < 10;
+  }
+
   // Update cookie status display
   function updateCookieStatus() {
 	const statusElement = document.getElementById('cookie-status');
@@ -273,6 +291,13 @@
   document.addEventListener('DOMContentLoaded', function() {
 	// Wait a bit for cookieConsent to initialize
 	setTimeout(updateCookieStatus, 500);
+
+	// Initialize feedback Send button state and listener
+	const msg = document.getElementById('messageInput');
+	if (msg) {
+	  msg.addEventListener('input', updateSendVisibility);
+	  updateSendVisibility();
+	}
 	
 	// Update status periodically in case user changes settings
 	setInterval(updateCookieStatus, 2000);
