@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- Google tag (gtag.js) with consent -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
+  <title>Обратная связь</title>
+<link rel="canonical" href="https://gas-flows.com/contacts.html">
+  <meta name="description" content="Оставьте свой отзыв о газовом онлайн-симуляторе.">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="../common.css">
+ 
+
+</head>
+<body>
+<div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html" selected>RU</option></select></div>
+<!-- Menu -->
+  <nav>
+    <ul>
+      <li><a href="index.html">Калькулятор расхода</a></li>
+      <li><a href="pressures.html">Конвертер единиц</a></li>
+      <li><a href="aga8.html">AGA8 Z-Фактор</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Расход</a></li>
+      <li><a href="simulator.html">Газовый симулятор</a></li>
+      <li><a href="contacts.html" class="active">Контакты</a></li>
+    </ul>
+  </nav>
+  
+<!-- Feedback Form -->
+<section class="container" style="margin-top: 40px; border-top: 1px solid #ccc;">
+  <h3>Отправьте нам отзыв / Присоединяйтесь к команде / Запросите функцию</h3>
+  <form action="https://formspree.io/f/xeoapazr" method="POST" id="feedbackForm">
+    <label style="display: block; margin-bottom: 10px;">
+      Ваше сообщение:
+      <textarea name="message" id="messageInput" rows="5" style="display: block; width: 90%;" placeholder="Напишите ваше сообщение здесь..."></textarea>
+    </label>
+    <button type="submit" id="sendButton" class="controlButton" disabled>Отправить</button>
+  </form>
+</section>
+
+
+<div class="container">
+	<p><strong>Бэклог:</strong></p>
+	<ul>
+	  <li>Эффект Джоуля-Томсона для расчета температуры газа.</li>
+	  <li>Формула Darcy-Weisbach в симуляторе.</li>
+	  <li>Различные составы газа в симуляторе.</li>
+	  <li>Расчет параметров газа GERG-2008.</li>
+	  <li>Поддержка нескольких систем единиц.</li>
+	  <li>Добавить разность высот для узлов.</li>
+	  <li>Добавить поддержку локализации для разных языков.</li>
+	  <li>Переработать интерфейс для мобильных устройств.</li>
+	  <li>Исправить линии соединения короче 100м.</li>
+	  <li>Добавить компрессорные станции в симулятор.</li>
+	</ul>
+  </div>
+
+<div class="container">
+  <style>
+    td {padding: 10px;}
+  </style>
+	<table>
+		<tbody>
+			<tr>
+				<td>24.09.2025</td>
+				<td>v.0.33</td>
+				<td>Обновлены нижние колонтитулы страниц с общим описанием страницы</td>
+			</tr>
+			<tr>
+				<td>12.09.2025</td>
+				<td>v.0.32</td>
+				<td>Исправлена ошибка порядка компонентов в расчетах массовой плотности<br> Страницы AGA8 Z-Factor и AGA8 Flow</td>
+			</tr>
+			<tr>
+				<td>22.06.2025</td>
+				<td>v.0.31</td>
+				<td>Исправлены ошибки расчета температуры<br> Страница AGA8 flow</td>
+			</tr>
+			<tr>
+				<td>08.06.2025</td>
+				<td>v.0.30</td>
+				<td>Калькулятор AGA8 flow (внутренний файл)</td>
+		 	</tr>
+			<tr>
+				<td>04.06.2025</td>
+				<td>v.0.29</td>
+				<td>Panhandle A и B используются в симуляторе для D<1000 и D>=1000</td>
+		 	</tr>
+			<tr>
+				<td>03.06.2025</td>
+				<td>v.0.28</td>
+				<td>Экспорт и импорт графиков <br> Изменения интерфейса <br> новые формулы расхода: Panhandle, Weymouth</td>
+		 	</tr>
+			<tr>
+				<td>30.05.2025</td>
+				<td>v.0.27</td>
+				<td>Генератор случайных графиков</td>
+		 	</tr>
+			<tr>
+				<td>29.05.2025</td>
+				<td>v.0.26</td>
+				<td>Автоматический расчет Z-фактора для 96% состава метана</td>
+		 	</tr>
+			<tr>
+				<td>25.05.2025</td>
+				<td>v.0.25</td>
+				<td>Выбор множественных линий и изменение параметров<br>Экспорт CSV<br>Настройки cookie</td>
+		 	</tr>
+		  <tr>
+			<td>20.05.2025</td>
+			<td>v.0.24</td>
+			<td>Изменено на м³ в час для инъекций и потоков</td>
+		  </tr>
+		  <tr>
+			<td>16.05.2025</td>
+			<td>v.0.23</td>
+			<td>Режимы сборки и симуляции</td>
+		  </tr>
+		  <tr>
+			<td>15.05.2025</td>
+			<td>v.0.22</td>
+			<td>Страница справки для симулятора с анимированными инструкциями</td>
+		  </tr>
+		  <tr>
+			<td>14.05.2025</td>
+			<td>v.0.21</td>
+			<td>Значения на страницах сохраняются в памяти браузера</td>
+		  </tr>
+		  <tr>
+			<td>13.05.2025</td>
+			<td>v.0.20</td>
+			<td>AGA8 все 21 компонент</td>
+		  </tr>
+		  <tr>
+			<td>06.05.2025</td>
+			<td>v.0.19</td>
+			<td>Сценарии скриптинга симулятора</td>
+		  </tr>
+		  <tr>
+			<td>05.05.2025</td>
+			<td>v.0.18</td>
+			<td>Калькулятор AGA8 Z-фактора</td>
+		  </tr>
+		  <tr>
+			<td>02.05.2025</td>
+			<td>v.0.17</td>
+			<td>Анимации потоков</td>
+		  </tr>
+		  <tr>
+			<td>27.04.2025</td>
+			<td>v.0.16</td>
+			<td>Улучшенный расчет скорости с использованием Z-фактора и базовых условий<br> Обновлены объяснения в калькуляторе расхода<br> Добавлены общие объемы для каждого трубопровода.</td>
+		  </tr>
+		  <tr>
+			<td>22.04.2025</td>
+			<td>v.0.15</td>
+			<td>Исправлена ошибка в расчете v2<br> Симуляция останавливается, когда система остается стабильной в течение 1 часа.</td>
+		  </tr>
+		  <tr>
+			<td>20.04.2025</td>
+			<td>v.0.14</td>
+			<td>Потоки усредняются с k = 0.2 каждую секунду<br> Узлы с фиксированным давлением синие.</td>
+		  </tr>
+		  <tr>
+			<td>19.04.2025</td>
+			<td>v.0.13</td>
+			<td>Адаптивное количество сегментов<br> Исправлены ошибки рисования графа<br> Исправлено отображение скорости потока<br> Включение/выключение отдельных ребер.</td>
+		  </tr>
+		  <tr>
+			<td>18.04.2025</td>
+			<td>v.0.12</td>
+			<td>E, T и Z могут определяться пользователем.</td>
+		  </tr>
+		  <tr>
+			<td>14.04.2025</td>
+			<td>v.0.11</td>
+			<td>Показ давления, потоков и объемов по сегментам ребер<br> Автосохранение и восстановление сети и времени из памяти браузера.</td>
+		  </tr>
+		  <tr>
+			<td>11.04.2025</td>
+			<td>v.0.10</td>
+			<td>Линии разделены на сегменты для симуляции.</td>
+		  </tr>
+		  <tr>
+			<td>09.04.2025</td>
+			<td>v.0.9</td>
+			<td>Реализован длинный пресс (taphold) для предотвращения немедленного закрытия всплывающего окна<br> Валидация и применение пользовательских входов (инъекция, давление, длина, диаметр) в реальном времени.</td>
+		  </tr>
+		  <tr>
+			<td>06.04.2025</td>
+			<td>v.0.8</td>
+			<td>Первоначальный редактор на базе Cytoscape<br> отключено контекстное меню<br> касание для создания/соединения/удаления узлов и ребер<br> Основной механизм симуляции: обновления давления и объема<br> Интерактивные элементы управления воспроизведением.</td>
+		  </tr>
+		</tbody>
+	  </table>
+	  
+	  
+</div>
+
+<!-- Cookie Settings Section -->
+<section class="container" style="margin-top: 20px; border-top: 1px solid #ccc;">
+	<h3>Настройки cookie</h3>
+	<p>Управляйте своими настройками cookie для этого сайта. Мы используем cookie для улучшения вашего опыта и анализа трафика сайта.</p>
+
+	<div style="margin: 15px 0;">
+	  <p><strong>Текущий статус:</strong> <span id="cookie-status">Загрузка...</span></p>
+	</div>
+
+	<div style="margin: 15px 0;">
+	  <button onclick="cookieConsent.resetCookieSettings()" class="controlButton" style="margin-right: 10px;">
+		Сбросить настройки cookie
+	  </button>
+	  <button onclick="showCookieInfo()" class="controlButton">
+		Информация о cookie
+	  </button>
+	</div>
+
+	<div style="font-size: 0.9em; color: #666; margin-top: 10px;">
+	  <p><strong>Типы cookie:</strong></p>
+	  <ul style="margin-left: 20px;">
+		<li><strong>Основные:</strong> Необходимы для функционирования сайта (всегда включены)</li>
+		<li><strong>Аналитика:</strong> Google Analytics для улучшения сайта (опционально)</li>
+	  </ul>
+	</div>
+  </section>
+  
+  <script>
+  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+	// Wait for form submission to complete
+	setTimeout(function() {
+	  document.getElementById('messageInput').value = '';
+	  // Re-evaluate send button state after clearing
+	  if (typeof updateSendVisibility === 'function') {
+		updateSendVisibility();
+	  }
+	}, 100);
+  });
+  
+  // Enable Send button only when message has at least 10 non-space chars
+  function updateSendVisibility() {
+    const sendButton = document.getElementById('sendButton');
+    const messageInput = document.getElementById('messageInput');
+    if (!sendButton || !messageInput) return;
+    const len = messageInput.value.trim().length;
+    sendButton.disabled = len < 10;
+  }
+
+  // Update cookie status display
+  function updateCookieStatus() {
+	const statusElement = document.getElementById('cookie-status');
+	if (statusElement && typeof cookieConsent !== 'undefined') {
+	  const consent = localStorage.getItem('gas-flows-cookie-consent');
+	  const analyticsEnabled = localStorage.getItem('gas-flows-analytics-consent') === 'true';
+	  
+	  if (consent === 'accepted') {
+		statusElement.innerHTML = '<span style="color: #27ae60;">Cookies Accepted</span> - Analytics enabled';
+	  } else if (consent === 'declined') {
+		statusElement.innerHTML = '<span style="color: #e74c3c;">Analytics Declined</span> - Only essential cookies';
+	  } else {
+		statusElement.innerHTML = '<span style="color: #f39c12;">Not Set</span> - Please choose your preference';
+	  }
+	}
+  }
+  
+  // Show detailed cookie information
+  function showCookieInfo() {
+	if (typeof cookieConsent !== 'undefined') {
+	  cookieConsent.showDetails();
+	} else {
+	  alert('Cookie management system is loading. Please try again in a moment.');
+	}
+  }
+  
+  // Update status when page loads and when cookies change
+  document.addEventListener('DOMContentLoaded', function() {
+	// Wait a bit for cookieConsent to initialize
+	setTimeout(updateCookieStatus, 500);
+
+	// Initialize feedback Send button state and listener
+	const msg = document.getElementById('messageInput');
+	if (msg) {
+	  msg.addEventListener('input', updateSendVisibility);
+	  updateSendVisibility();
+	}
+	
+	// Update status periodically in case user changes settings
+	setInterval(updateCookieStatus, 2000);
+  });
+  </script>
+  
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
+</body>
+</html>

@@ -1,24 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
+  <!-- Home -->
   <url>
     <loc>https://gas-flows.com/index.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/index.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/index.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/index.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/index.html"/>
   </url>
 
+  <!-- Units converter -->
   <url>
     <loc>https://gas-flows.com/pressures.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/pressures.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/pressures.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/pressures.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/pressures.html"/>
   </url>
 
+  <!-- AGA8 Z-Factor -->
   <url>
     <loc>https://gas-flows.com/aga8.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/aga8.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/aga8.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/aga8.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/aga8.html"/>
   </url>
 
+  <!-- AGA8 Flow -->
+  <url>
+    <loc>https://gas-flows.com/AGA8Flow.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/AGA8Flow.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/AGA8Flow.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/AGA8Flow.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/AGA8Flow.html"/>
+  </url>
+
+  <!-- Simulator -->
   <url>
     <loc>https://gas-flows.com/simulator.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/simulator.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/simulator.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/simulator.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/simulator.html"/>
   </url>
 
+  <!-- Contacts -->
   <url>
     <loc>https://gas-flows.com/contacts.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/contacts.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/contacts.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/contacts.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/contacts.html"/>
+  </url>
+
+  <!-- Help -->
+  <url>
+    <loc>https://gas-flows.com/help.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/help.html"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/help.html"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/help.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/help.html"/>
   </url>
 
 </urlset>

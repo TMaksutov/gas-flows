@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
@@ -19,17 +19,17 @@
     src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
   </script>
   <meta charset="utf-8">
-  <title>Gas Flows Calculator</title>
+  <title>Gasfluss-Rechner</title>
 <link rel="canonical" href="https://gas-flows.com/index.html">
 
-  <meta name="description" content="Gas flow calculator for natural gas pipelines.">
-  <meta name="keywords" content="gas flow calculator, gas velocity calculator, gas flow rate, pipeline gas calculator,
-  natural gas calculator, gas volume calculator, gas velocity calculator, gas compression calculator, 
-  online gas calculator, gas hydraulics calculator,
-  Weymouth equation, Weymouth formula, Weymouth equation in SI units,
-  Panhandle A equation, Panhandle A formula, Panhandle B equation, Panhandle B formula,
-  Darcy-Weisbach equation, Darcy-Weisbach formula, friction factor calculation,
-  gas flow online, Gas flow calculator free, gas flow calculator free online
+  <meta name="description" content="Gasfluss-Rechner für Erdgas-Pipelines.">
+  <meta name="keywords" content="Gasfluss-Rechner, Gasgeschwindigkeits-Rechner, Gasflussrate, Pipeline-Gasrechner,
+  Erdgasrechner, Gasvolumen-Rechner, Gasgeschwindigkeits-Rechner, Gaskompressions-Rechner,
+  Online-Gasrechner, Gas-Hydraulik-Rechner,
+  Weymouth-Gleichung, Weymouth-Formel, Weymouth-Gleichung in SI-Einheiten,
+  Panhandle-A-Gleichung, Panhandle-A-Formel, Panhandle-B-Gleichung, Panhandle-B-Formel,
+  Darcy-Weisbach-Gleichung, Darcy-Weisbach-Formel, Reibungsfaktor-Berechnung,
+  Gasfluss online, Gasfluss-Rechner kostenlos, Gasfluss-Rechner kostenlos online
   ">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
@@ -38,55 +38,56 @@
 <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
 <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="../common.css">
+  
 
 </head>
 
 <body>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="index.html" selected>DE</option><option value="../ru/index.html">RU</option></select></div>
   <!-- Navigation -->
   <nav>
     <ul>
-      <li><a href="index.html" class="active">Flow Calculator</a></li>
-      <li><a href="pressures.html">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html">Gas Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
+      <li><a href="index.html" class="active">Flussrechner</a></li>
+      <li><a href="pressures.html">Einheiten-Umrechner</a></li>
+      <li><a href="aga8.html">AGA8 Z-Faktor</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Fluss</a></li>
+      <li><a href="simulator.html">Gas-Simulator</a></li>
+      <li><a href="contacts.html">Kontakte</a></li>
     </ul>
   </nav>
-  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="index.html">EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select></div>
   <div id="controls" style="margin-bottom: 16px;">
 
     <button id="weymouthButton" class="controlButton">Weymouth</button>
     <button id="panhandleAButton" class="controlButton">Panhandle A</button>
     <button id="panhandleBButton" class="controlButton">Panhandle B</button>
 
-    <button id="resetButton" class="controlButton">Reset</button>
+    <button id="resetButton" class="controlButton">Zurücksetzen</button>
   </div>
 
   <div class="container">
-    <h2>Gas Flow Calculator</h2>
+    <h2>Gasfluss-Rechner</h2>
 
 
     <!-- Inputs -->
     <div id="inputs">
-      <div class="field-group"><label for="Tb">Tb (oC)</label><input id="Tb" type="number" step="1" value="20"><span> Base temperature</span></div>
-      <div class="field-group"><label for="Pb">Pb (kPa)</label><input id="Pb" type="number" step="1" value="101.325"><span> Base pressure</span></div>
-      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span> Pipeline efficiency, less than 1</span></div>
-      <div class="field-group"><label for="G">G</label><input id="G" type="number" step="0.01" value="0.6"><span> Gas gravity (air = 1)</span></div>
-      <div class="field-group"><label for="Z">Z</label><input id="Z" type="number" step="0.01" value="0.9"><span> Compressibility factor</span></div>
-      <div class="field-group"><label for="Tf">T (oC)</label><input id="Tf" type="number" step="1" value="15"><span> Gas temperature</span></div>
-      <div class="field-group"><label for="H1">H1 (m)</label><input id="H1" type="number" step="10" value="0"><span> Upstream elevation</span></div>
-      <div class="field-group"><label for="H2">H2 (m)</label><input id="H2" type="number" step="10" value="0"><span> Downstream elevation</span></div>
-      <div class="field-group"><label for="L">L (km)</label><input id="L" type="number" step="1" value="100"><span> Pipe segment length</span></div>
-      <div class="field-group"><label for="D">D (mm)</label><input id="D" type="number" step="1" value="100"><span> Pipe diameter</span></div>
-      <div class="field-group"><label for="P1">P1 (kPa)</label><input id="P1" type="number" step="100" value="5000"><span> Upstream pressure</span></div>
-      <div class="field-group"><label for="P2">P2 (kPa)</label><input id="P2" type="number" step="100" value="4000"><span> Downstream pressure</span></div>
+      <div class="field-group"><label for="Tb">Tb (°C)</label><input id="Tb" type="number" step="1" value="20"><span> Basistemperatur</span></div>
+      <div class="field-group"><label for="Pb">Pb (kPa)</label><input id="Pb" type="number" step="1" value="101.325"><span> Basisdruck</span></div>
+      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span> Pipeline-Wirkungsgrad, weniger als 1</span></div>
+      <div class="field-group"><label for="G">G</label><input id="G" type="number" step="0.01" value="0.6"><span> Gasdichte (Luft = 1)</span></div>
+      <div class="field-group"><label for="Z">Z</label><input id="Z" type="number" step="0.01" value="0.9"><span> Kompressibilitätsfaktor</span></div>
+      <div class="field-group"><label for="Tf">T (°C)</label><input id="Tf" type="number" step="1" value="15"><span> Gastemperatur</span></div>
+      <div class="field-group"><label for="H1">H1 (m)</label><input id="H1" type="number" step="10" value="0"><span> Höhenlage stromaufwärts</span></div>
+      <div class="field-group"><label for="H2">H2 (m)</label><input id="H2" type="number" step="10" value="0"><span> Höhenlage stromabwärts</span></div>
+      <div class="field-group"><label for="L">L (km)</label><input id="L" type="number" step="1" value="100"><span> Rohrsegmentlänge</span></div>
+      <div class="field-group"><label for="D">D (mm)</label><input id="D" type="number" step="1" value="100"><span> Rohrdurchmesser</span></div>
+      <div class="field-group"><label for="P1">P1 (kPa)</label><input id="P1" type="number" step="100" value="5000"><span> Druck stromaufwärts</span></div>
+      <div class="field-group"><label for="P2">P2 (kPa)</label><input id="P2" type="number" step="100" value="4000"><span> Druck stromabwärts</span></div>
     </div>
 
 	<!-- Result -->
 	<div style="margin-bottom: 12px;">
-	  <h2 style="display: inline; margin-right: 10px;">Results</h2>
+	  <h2 style="display: inline; margin-right: 10px;">Ergebnisse</h2>
 	  <!--<span style="font-weight: normal; font-size: 1em;">(converted to base conditions)</span> -->
 	</div>
 
@@ -94,37 +95,37 @@
   <div class="field-group">
     <label for="Q_m3s">Q (m³/s)</label>
     <input id="Q_m3s" type="text" readonly>
-    <span> Standard cubic meters per second</span>
+    <span> Normkubikmeter pro Sekunde</span>
   </div>
   <div class="field-group">
     <label for="Q_th_m3h">Q (10³ m³/h)</label>
     <input id="Q_th_m3h" type="text" readonly>
-    <span> Thousand cubic meters per hour</span>
+    <span> Tausend Kubikmeter pro Stunde</span>
   </div>
   <div class="field-group">
     <label for="Q_mil_m3d">Q (10⁶ m³/d)</label>
     <input id="Q_mil_m3d" type="text" readonly>
-    <span> Million cubic meters per day</span>
+    <span> Millionen Kubikmeter pro Tag</span>
   </div>
   <div class="field-group">
     <label for="V1">v₁ (m/s)</label>
     <input id="V1" type="text" readonly>
-    <span> Gas speed at pipeline start</span>
+    <span> Gasgeschwindigkeit am Pipeline-Anfang</span>
   </div>
   <div class="field-group">
     <label for="V2">v₂ (m/s)</label>
     <input id="V2" type="text" readonly>
-    <span> Gas speed at pipeline end</span>
+    <span> Gasgeschwindigkeit am Pipeline-Ende</span>
   </div>
   <div class="field-group">
     <label for="Pavg">Pavg (kPa)</label>
     <input id="Pavg" type="text" readonly>
-    <span> Average pressure in the pipeline</span>
+    <span> Durchschnittlicher Druck in der Pipeline</span>
   </div>
   <div class="field-group">
     <label for="Volume">Volume (10³ m³)</label>
     <input id="Volume" type="text" readonly>
-    <span> Gas volume Thousand cubic meters </span>
+    <span> Gasvolumen Tausend Kubikmeter </span>
   </div>
 
 </div>
@@ -137,14 +138,14 @@
 <!-- Formulas rendered via MathJax -->
 <div class="collapsible-container">
   <div class="collapsible-header" onclick="toggleCollapsible(this)">
-    <h3>Weymouth Formula</h3>
+    <h3>Weymouth-Formel</h3>
     <span class="collapsible-toggle">▼</span>
   </div>
   <div class="collapsible-content expanded">
     <p>
       $$
-      Q_\text{base} = 3.7435 \cdot 10^{-3} \cdot \left(\frac{T_b}{P_b}\right) \cdot 
-      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G \cdot T_f \cdot L_e \cdot Z} \right)^{0.5} 
+      Q_\text{base} = 3.7435 \cdot 10^{-3} \cdot \left(\frac{T_b}{P_b}\right) \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G \cdot T_f \cdot L_e \cdot Z} \right)^{0.5}
       \cdot D^{2.667} \cdot E
       $$
     </p>
@@ -157,21 +158,21 @@
     </p>
 
     <table style="font-size: 0.95em;">
-      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
-      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
-      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
-      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
-      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
-      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
-      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
-      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
-      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
-      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
-      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
-      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
-      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Volumenstrom bei Basisbedingungen, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Basistemperatur, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Basisdruck, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Druck stromaufwärts, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Druck stromabwärts, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline-Wirkungsgrad (dimensionslos)</td></tr>
+      <tr><td>\( G \)</td><td>= Gasdichte (Luft = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Strömungstemperatur des Gases, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Äquivalente Rohrlänge, km</td></tr>
+      <tr><td>\( L \)</td><td>= Rohrsegmentlänge, km</td></tr>
+      <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Höhenkorrektur-Parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Höhenlage stromaufwärts, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Höhenlage stromabwärts, m</td></tr>
     </table>
   </div>
 </div>
@@ -179,14 +180,14 @@
 
 <div class="collapsible-container">
   <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
-    <h3>Panhandle A Formula</h3>
+    <h3>Panhandle-A-Formel</h3>
     <span class="collapsible-toggle">▼</span>
   </div>
   <div class="collapsible-content collapsed">
     <p>
       $$
-      Q_\text{base} = 4.5965 \times 10^{-3} \cdot \left(\frac{T_b}{P_b}\right)^{1.0788} \cdot 
-      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.8539} \cdot T_f \cdot L_e \cdot Z} \right)^{0.5394} 
+      Q_\text{base} = 4.5965 \times 10^{-3} \cdot \left(\frac{T_b}{P_b}\right)^{1.0788} \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.8539} \cdot T_f \cdot L_e \cdot Z} \right)^{0.5394}
       \cdot D^{2.6182} \cdot E
       $$
     </p>
@@ -199,37 +200,37 @@
     </p>
 
     <table style="font-size: 0.95em;">
-      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
-      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
-      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
-      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
-      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
-      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
-      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
-      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
-      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
-      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
-      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
-      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
-      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Volumenstrom bei Basisbedingungen, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Basistemperatur, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Basisdruck, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Druck stromaufwärts, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Druck stromabwärts, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline-Wirkungsgrad (dimensionslos)</td></tr>
+      <tr><td>\( G \)</td><td>= Gasdichte (Luft = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Strömungstemperatur des Gases, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Äquivalente Rohrlänge, km</td></tr>
+      <tr><td>\( L \)</td><td>= Rohrsegmentlänge, km</td></tr>
+      <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Höhenkorrektur-Parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Höhenlage stromaufwärts, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Höhenlage stromabwärts, m</td></tr>
     </table>
-    
-    <p><em>Note: Valid for Reynolds numbers 5-11 million, 300-1500 mm pipes, 5500-10300 kPa</em></p>
+
+    <p><em>Hinweis: Gültig für Reynoldszahlen 5-11 Millionen, 300-1500 mm Rohre, 5500-10300 kPa</em></p>
   </div>
 </div>
 
 <div class="collapsible-container">
   <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
-    <h3>Panhandle B Formula</h3>
+    <h3>Panhandle-B-Formel</h3>
     <span class="collapsible-toggle">▼</span>
   </div>
   <div class="collapsible-content collapsed">
     <p>
       $$
-      Q_\text{base} = 1.002 \times 10^{-2} \cdot \left(\frac{T_b}{P_b}\right)^{1.02} \cdot 
-      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.961} \cdot T_f \cdot L_e \cdot Z} \right)^{0.51} 
+      Q_\text{base} = 1.002 \times 10^{-2} \cdot \left(\frac{T_b}{P_b}\right)^{1.02} \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.961} \cdot T_f \cdot L_e \cdot Z} \right)^{0.51}
       \cdot D^{2.53} \cdot E
       $$
     </p>
@@ -242,24 +243,24 @@
     </p>
 
     <table style="font-size: 0.95em;">
-      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/d</td></tr>
-      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
-      <tr><td>\( P_b \)</td><td>= Base pressure, kPa</td></tr>
-      <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
-      <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
-      <tr><td>\( G \)</td><td>= Gas gravity (air = 1)</td></tr>
-      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
-      <tr><td>\( L_e \)</td><td>= Equivalent pipe length, km</td></tr>
-      <tr><td>\( L \)</td><td>= Pipe segment length, km</td></tr>
-      <tr><td>\( D \)</td><td>= Pipe inside diameter, mm</td></tr>
-      <tr><td>\( s \)</td><td>= Elevation adjustment parameter</td></tr>
-      <tr><td>\( H_1 \)</td><td>= Upstream elevation, m</td></tr>
-      <tr><td>\( H_2 \)</td><td>= Downstream elevation, m</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Volumenstrom bei Basisbedingungen, m³/d</td></tr>
+      <tr><td>\( T_b \)</td><td>= Basistemperatur, K</td></tr>
+      <tr><td>\( P_b \)</td><td>= Basisdruck, kPa</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Druck stromaufwärts, kPa</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Druck stromabwärts, kPa</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline-Wirkungsgrad (dimensionslos)</td></tr>
+      <tr><td>\( G \)</td><td>= Gasdichte (Luft = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Strömungstemperatur des Gases, K</td></tr>
+      <tr><td>\( L_e \)</td><td>= Äquivalente Rohrlänge, km</td></tr>
+      <tr><td>\( L \)</td><td>= Rohrsegmentlänge, km</td></tr>
+      <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, mm</td></tr>
+      <tr><td>\( s \)</td><td>= Höhenkorrektur-Parameter</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Höhenlage stromaufwärts, m</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Höhenlage stromabwärts, m</td></tr>
     </table>
-    
-    <p><em>Note: Valid for Reynolds numbers 4-40 million, >900 mm pipes, >6900 kPa</em></p>
+
+    <p><em>Hinweis: Gültig für Reynoldszahlen 4-40 Millionen, >900 mm Rohre, >6900 kPa</em></p>
   </div>
 </div>
 
@@ -268,7 +269,7 @@
 
 <div class="collapsible-container">
   <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
-    <h3>Darcy-Weisbach Formula</h3>
+    <h3>Darcy-Weisbach-Formel</h3>
     <span class="collapsible-toggle">▼</span>
   </div>
   <div class="collapsible-content collapsed">
@@ -291,23 +292,23 @@
     </p>
 
     <table style="font-size: 0.95em;">
-      <tr><td>\( v \)</td><td>= Gas velocity, m/s</td></tr>
-      <tr><td>\( \Delta P_f \)</td><td>= Frictional pressure drop, Pa</td></tr>
-      <tr><td>\( f \)</td><td>= Darcy friction factor (dimensionless)</td></tr>
-      <tr><td>\( \rho \)</td><td>= Gas density at flowing conditions, kg/m³</td></tr>
-      <tr><td>\( Q_\text{actual} \)</td><td>= Actual volumetric flow rate, m³/s</td></tr>
-      <tr><td>\( Q_\text{base} \)</td><td>= Volume flow rate at base conditions, m³/s</td></tr>
-      <tr><td>\( A \)</td><td>= Pipe cross-sectional area, m²</td></tr>
-      <tr><td>\( E \)</td><td>= Pipeline efficiency (dimensionless)</td></tr>
-      <tr><td>\( g \)</td><td>= Gravitational acceleration, 9.81 m/s²</td></tr>
-      <tr><td>\( P_1, P_2 \)</td><td>= Upstream and downstream pressures, Pa</td></tr>
-      <tr><td>\( P_b \)</td><td>= Base pressure, Pa</td></tr>
-      <tr><td>\( T_b \)</td><td>= Base temperature, K</td></tr>
-      <tr><td>\( T_f \)</td><td>= Flowing gas temperature, K</td></tr>
-      <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-      <tr><td>\( D \)</td><td>= Pipe inside diameter, m</td></tr>
-      <tr><td>\( L \)</td><td>= Pipe segment length, m</td></tr>
-      <tr><td>\( H_1, H_2 \)</td><td>= Upstream and downstream elevations, m</td></tr>
+      <tr><td>\( v \)</td><td>= Gasgeschwindigkeit, m/s</td></tr>
+      <tr><td>\( \Delta P_f \)</td><td>= Reibungsdruckverlust, Pa</td></tr>
+      <tr><td>\( f \)</td><td>= Darcy-Reibungsfaktor (dimensionslos)</td></tr>
+      <tr><td>\( \rho \)</td><td>= Gasdichte bei Strömungsbedingungen, kg/m³</td></tr>
+      <tr><td>\( Q_\text{actual} \)</td><td>= Tatsächlicher Volumenstrom, m³/s</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Volumenstrom bei Basisbedingungen, m³/s</td></tr>
+      <tr><td>\( A \)</td><td>= Rohrquerschnittsfläche, m²</td></tr>
+      <tr><td>\( E \)</td><td>= Pipeline-Wirkungsgrad (dimensionslos)</td></tr>
+      <tr><td>\( g \)</td><td>= Erdbeschleunigung, 9.81 m/s²</td></tr>
+      <tr><td>\( P_1, P_2 \)</td><td>= Drücke stromaufwärts und stromabwärts, Pa</td></tr>
+      <tr><td>\( P_b \)</td><td>= Basisdruck, Pa</td></tr>
+      <tr><td>\( T_b \)</td><td>= Basistemperatur, K</td></tr>
+      <tr><td>\( T_f \)</td><td>= Strömungstemperatur des Gases, K</td></tr>
+      <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+      <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, m</td></tr>
+      <tr><td>\( L \)</td><td>= Rohrsegmentlänge, m</td></tr>
+      <tr><td>\( H_1, H_2 \)</td><td>= Höhenlagen stromaufwärts und stromabwärts, m</td></tr>
     </table>
   </div>
 </div>
@@ -316,7 +317,7 @@
 
 
 <div class="container">
-  <p>Gas velocity full expanded formula:</p>
+  <p>Vollständige erweiterte Formel für die Gasgeschwindigkeit:</p>
 
   <p>
     $$
@@ -327,51 +328,51 @@
     $$
   </p>
 
-  <p>Where:</p>
+  <p>Wobei:</p>
   <table style="font-size: 0.95em;">
-    <tr><td>\( v \)</td><td>= Gas velocity, m/s</td></tr>
-    <tr><td>\( Q \)</td><td>= Actual volumetric flow rate at flowing conditions, m³/s</td></tr>
-    <tr><td>\( Q_\text{base} \)</td><td>= Volumetric flow rate at base conditions, m³/s</td></tr>
-    <tr><td>\( \rho \)</td><td>= Gas density at flowing conditions, kg/m³</td></tr>
-    <tr><td>\( \rho_\text{base} \)</td><td>= Gas density at base conditions, kg/m³</td></tr>
-    <tr><td>\( A \)</td><td>= Pipe cross-sectional area, m²</td></tr>
-    <tr><td>\( P_\text{base} \)</td><td>= Base pressure, kPa</td></tr>
-    <tr><td>\( P \)</td><td>= Flowing pressure, kPa</td></tr>
-    <tr><td>\( T_\text{base} \)</td><td>= Base temperature, K</td></tr>
-    <tr><td>\( T \)</td><td>= Flowing temperature, K</td></tr>
-    <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-    <tr><td>\( D \)</td><td>= Pipe inside diameter, m</td></tr>
+    <tr><td>\( v \)</td><td>= Gasgeschwindigkeit, m/s</td></tr>
+    <tr><td>\( Q \)</td><td>= Tatsächlicher Volumenstrom bei Strömungsbedingungen, m³/s</td></tr>
+    <tr><td>\( Q_\text{base} \)</td><td>= Volumenstrom bei Basisbedingungen, m³/s</td></tr>
+    <tr><td>\( \rho \)</td><td>= Gasdichte bei Strömungsbedingungen, kg/m³</td></tr>
+    <tr><td>\( \rho_\text{base} \)</td><td>= Gasdichte bei Basisbedingungen, kg/m³</td></tr>
+    <tr><td>\( A \)</td><td>= Rohrquerschnittsfläche, m²</td></tr>
+    <tr><td>\( P_\text{base} \)</td><td>= Basisdruck, kPa</td></tr>
+    <tr><td>\( P \)</td><td>= Strömungsdruck, kPa</td></tr>
+    <tr><td>\( T_\text{base} \)</td><td>= Basistemperatur, K</td></tr>
+    <tr><td>\( T \)</td><td>= Strömungstemperatur, K</td></tr>
+    <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+    <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, m</td></tr>
   </table>
 </div>
 
 
 
 <div class="container">
-  <p>Average pressure and gas volume inside the pipeline (base conditions):</p>
+  <p>Durchschnittlicher Druck und Gasvolumen in der Pipeline (Basisbedingungen):</p>
 
   <p>
     $$
     P_\text{avg} = \frac{2}{3} \times \frac{P_1^3 - P_2^3}{P_1^2 - P_2^2}
     \qquad
-    V_\text{base} = \left( \frac{\pi D^2}{4} \right) 
+    V_\text{base} = \left( \frac{\pi D^2}{4} \right)
     \times L
     \times \frac{P_\text{avg} \times T_\text{base}}{P_\text{base} \times T \times Z}
     $$
   </p>
 
-  <p>Where:</p>
+  <p>Wobei:</p>
   <table style="font-size: 0.95em;">
-    <tr><td>\( P_\text{avg} \)</td><td>= Average gas pressure in the pipeline, kPa</td></tr>
-    <tr><td>\( V_\text{base} \)</td><td>= Gas volume at base conditions, m³</td></tr>
-    <tr><td>\( P_1 \)</td><td>= Upstream pressure, kPa</td></tr>
-    <tr><td>\( P_2 \)</td><td>= Downstream pressure, kPa</td></tr>
-    <tr><td>\( L \)</td><td>= Pipe length, m</td></tr>
-    <tr><td>\( D \)</td><td>= Pipe inside diameter, m</td></tr>
-    <tr><td>\( P_\text{base} \)</td><td>= Base pressure, kPa</td></tr>
-    <tr><td>\( T_\text{base} \)</td><td>= Base temperature, K</td></tr>
-    <tr><td>\( T \)</td><td>= Flowing gas temperature, K</td></tr>
-    <tr><td>\( Z \)</td><td>= Gas compressibility factor (dimensionless)</td></tr>
-    <tr><td>\( \pi \)</td><td>= Pi constant (≈ 3.1416)</td></tr>
+    <tr><td>\( P_\text{avg} \)</td><td>= Durchschnittlicher Gasdruck in der Pipeline, kPa</td></tr>
+    <tr><td>\( V_\text{base} \)</td><td>= Gasvolumen bei Basisbedingungen, m³</td></tr>
+    <tr><td>\( P_1 \)</td><td>= Druck stromaufwärts, kPa</td></tr>
+    <tr><td>\( P_2 \)</td><td>= Druck stromabwärts, kPa</td></tr>
+    <tr><td>\( L \)</td><td>= Rohrlänge, m</td></tr>
+    <tr><td>\( D \)</td><td>= Innerer Rohrdurchmesser, m</td></tr>
+    <tr><td>\( P_\text{base} \)</td><td>= Basisdruck, kPa</td></tr>
+    <tr><td>\( T_\text{base} \)</td><td>= Basistemperatur, K</td></tr>
+    <tr><td>\( T \)</td><td>= Strömungstemperatur des Gases, K</td></tr>
+    <tr><td>\( Z \)</td><td>= Kompressibilitätsfaktor (dimensionslos)</td></tr>
+    <tr><td>\( \pi \)</td><td>= Pi-Konstante (≈ 3.1416)</td></tr>
   </table>
 </div>
 
@@ -384,12 +385,12 @@
 
   <!-- Footer -->
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
-    <h2>How to estimate gas flow in pipelines?</h2>
-    <p>Enter pipe size length inlet and outlet pressures temperature gas gravity and elevation to calculate pipeline flow. Choose a method Weymouth Panhandle A or Panhandle B. The page also shows the Darcy Weisbach formula which is iterative and not auto calculated here. Results include flow at base conditions gas velocities and pipeline inventory.</p>
-    <p><strong>Disclaimer:</strong> This Gas Flow Calculator is provided for estimation and informational purposes only.
-	The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions.
-	While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results.
-	Always consult a qualified engineer or technical expert before making operational decisions.</p>
+    <h2>Wie schätzt man den Gasfluss in Pipelines?</h2>
+    <p>Geben Sie Rohrgröße, Länge, Ein- und Auslassdrücke, Temperatur, Gasdichte und Höhenlage ein, um den Pipeline-Fluss zu berechnen. Wählen Sie eine Methode: Weymouth, Panhandle A oder Panhandle B. Die Seite zeigt auch die Darcy-Weisbach-Formel, die iterativ ist und hier nicht automatisch berechnet wird. Ergebnisse umfassen Fluss bei Basisbedingungen, Gasgeschwindigkeiten und Pipeline-Inventar.</p>
+    <p><strong>Haftungsausschluss:</strong> Dieser Gasfluss-Rechner wird nur für Schätzungs- und Informationszwecke bereitgestellt.
+	Die Berechnungen dieses Tools basieren auf allgemeinen Annahmen und spiegeln möglicherweise nicht die tatsächlichen Betriebsbedingungen wider.
+	Obwohl Anstrengungen unternommen wurden, um Genauigkeit sicherzustellen, geben wir keine Garantien und übernehmen keine Haftung für Fehler oder Entscheidungen, die auf den Ergebnissen basieren.
+	Konsultieren Sie immer einen qualifizierten Ingenieur oder technischen Experten, bevor Sie betriebliche Entscheidungen treffen.</p>
   </footer>
 
   <!-- JS Logic -->

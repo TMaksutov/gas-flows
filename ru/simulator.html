@@ -1,6 +1,6 @@
 <!-- simulator.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
@@ -17,14 +17,14 @@
     gtag('config', 'G-MYJRPRS3TW');
   </script>
   <meta charset="utf-8">
-  <title>Gas Flows Simulator</title>
+  <title>Газовый симулятор потоков</title>
   <link rel="canonical" href="https://gas-flows.com/simulator.html">
-  <meta name="description" content="Gas flows simulation. Interactive natural gas pipeline simulation and flow calculation tool.Visualize gas distribution, gas flow schemes, and pipeline networks in real-time.">
+  <meta name="description" content="Симуляция потоков газа. Интерактивный симулятор трубопроводов природного газа и инструмент расчета потока. Визуализируйте распределение газа, схемы потоков газа и сети трубопроводов в реальном времени.">
   <meta name="keywords" content="
-    gas pipeline simulation, pipeline calculation, pipeline network graph,
-    gas flow visualization, gas flow scheme,
-    methane distribution, Cytoscape.js simulation, real-time gas simulation,
-	gas simulation online, Gas pressure simulation free, gas flow simulator free online">
+    симуляция газопровода, расчет трубопровода, граф сети трубопроводов,
+    визуализация потока газа, схема потока газа,
+    распределение метана, симуляция Cytoscape.js, симуляция газа в реальном времени,
+	онлайн симуляция газа, Бесплатная симуляция давления газа, бесплатный онлайн симулятор потока газа">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -32,46 +32,47 @@
 <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
 <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="../common.css">
+  
 
   <!-- Cytoscape -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.22.0/cytoscape.min.js"></script>
 </head>
 <body>
-  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="index.html">EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select></div>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html" selected>RU</option></select></div>
   <nav>
     <ul>
-      <li><a href="index.html">Flow Calculator</a></li>
-      <li><a href="pressures.html">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html" class="active">Gas Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
+      <li><a href="index.html">Калькулятор расхода</a></li>
+      <li><a href="pressures.html">Конвертер единиц</a></li>
+      <li><a href="aga8.html">AGA8 Z-Фактор</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Расход</a></li>
+      <li><a href="simulator.html" class="active">Газовый симулятор</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
     </ul>
   </nav>
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
-    <button id="buildBtn" class="controlButton" title="Enter build mode to create and edit the network">🔨 Build</button>
-    <button id="clearBtn" class="controlButton" title="Clear all nodes and pipes from the network">❌</button>
-    <button id="recoverButton" class="controlButton" title="Restore the last saved network">🔄 </button>
-    <button id="RandomBtn" class="controlButton" title="Generate a random network for testing">🎲 </button>  
-    
-    <button class="controlButton"></button>
-    
-    <button id="simulateBtn" class="controlButton" title="Enter simulation mode to run gas flow analysis">⚡ Run</button>
+    <button id="buildBtn" class="controlButton" title="Войти в режим сборки для создания и редактирования сети">🔨 Сборка</button>
+    <button id="clearBtn" class="controlButton" title="Очистить все узлы и трубы из сети">❌</button>
+    <button id="recoverButton" class="controlButton" title="Восстановить последнюю сохраненную сеть">🔄 </button>
+    <button id="RandomBtn" class="controlButton" title="Создать случайную сеть для тестирования">🎲 </button>
 
-    <button id="pauseBtn" class="controlButton" title="Pause the simulation">⏸️</button>
-    <button id="playBtn" class="controlButton" title="Run simulation in real-time (seconds)">▶️</button>
-    <button id="playMinBtn" class="controlButton" title="Run simulation at accelerated speed (minutes)">⏩</button>
-    <button id="playHourBtn" class="controlButton" title="Run simulation at maximum speed (hours)">⏭️</button>
-    <button id="resetButton" class="controlButton" title="Reset simulation to initial state">↺ </button>
-    <button id="csvButton" class="controlButton" title="Export simulation data to CSV file">📈</button>
-    
     <button class="controlButton"></button>
 
-    <button id="exportButton" class="controlButton" title="Export current network to file">💾 </button>
-    <button id="importButton" class="controlButton" title="Import network from file">📁 </button>
-    <button id="helpButton" class="controlButton" title="Open help documentation">❓ </button>
+    <button id="simulateBtn" class="controlButton" title="Войти в режим симуляции для анализа потока газа">⚡ Запуск</button>
+
+    <button id="pauseBtn" class="controlButton" title="Приостановить симуляцию">⏸️</button>
+    <button id="playBtn" class="controlButton" title="Запустить симуляцию в реальном времени (секунды)">▶️</button>
+    <button id="playMinBtn" class="controlButton" title="Запустить симуляцию с ускорением (минуты)">⏩</button>
+    <button id="playHourBtn" class="controlButton" title="Запустить симуляцию на максимальной скорости (часы)">⏭️</button>
+    <button id="resetButton" class="controlButton" title="Сбросить симуляцию в начальное состояние">↺ </button>
+    <button id="csvButton" class="controlButton" title="Экспортировать данные симуляции в CSV файл">📈</button>
+
+    <button class="controlButton"></button>
+
+    <button id="exportButton" class="controlButton" title="Экспортировать текущую сеть в файл">💾 </button>
+    <button id="importButton" class="controlButton" title="Импортировать сеть из файла">📁 </button>
+    <button id="helpButton" class="controlButton" title="Открыть документацию справки">❓ </button>
   </div>
 
 
@@ -241,7 +242,7 @@
   <div class="collapsible-container">
     <div class="collapsible-header">
       <div id="simulation-summary" style="font-size: 0.9em; color: #666; margin-top: 5px;">
-        Total Gas Volume: 0.00 × 10⁶ m³ | Inputs: 0 m³/h, Outputs: 0 m³/h | Simulation: 0 h 0 m 0 s
+        Общий объем газа: 0.00 × 10⁶ м³ | Входы: 0 м³/ч, Выходы: 0 м³/ч | Симуляция: 0 ч 0 м 0 с
       </div>
       <span class="collapsible-toggle">▼</span>
     </div>
@@ -255,7 +256,7 @@
   <!-- Info area - Nodes Data (Collapsible) -->
   <div class="collapsible-container">
     <div class="collapsible-header">
-      <h3> Nodes Data & Gas Injection Points</h3>
+      <h3> Данные узлов и точки инъекции газа</h3>
       <span class="collapsible-toggle">▼</span>
     </div>
     <div class="collapsible-content">
@@ -268,22 +269,22 @@
 <!-- Scenario script UI (collapsible) -->
 <div class="collapsible-container">
   <div class="collapsible-header">
-    <h3> Scenario Script & Automation</h3>
+    <h3> Сценарий и автоматизация</h3>
     <span class="collapsible-toggle">▼</span>
   </div>
   <div class="collapsible-content">
     <div class="script-content">
       <textarea id="scriptInput" rows="8"
-        placeholder="HH:MM:SS or condition , action
-00:01:00, n0.injection = 100  # injection in m³/hour
-n0.pressure > 0.1, n0.injection = 200  # injection in m³/hour
+        placeholder="ЧЧ:ММ:СС или условие , действие
+00:01:00, n0.injection = 100  # инъекция в м³/час
+n0.pressure > 0.1, n0.injection = 200  # инъекция в м³/час
 n1.pressure > 10, n1_n3.disable = true
 0:00:00, n0.pressure = 22
 05:00:01, n0.pressureSet = true
 99:00:45, n2.pressure = 7.5
 105:00:46, n2.pressureSet = true
-n3.flow < -5, n3_n0.reverse = true  # flow in m³/hour
-n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
+n3.flow < -5, n3_n0.reverse = true  # поток в м³/час
+n0_n2.flow > 12, n0_n2.disable = true  # поток в м³/час"></textarea>
 
       <pre id="scriptStatus"></pre>
     </div>
@@ -294,9 +295,9 @@ n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
 
 
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
-    <h2>How to simulate gas flows in the pipelines?</h2>
-    <p>In Build mode create your network add nodes and pipes and set limits. Set injections or withdrawals at nodes or fix pressure at any point. Generate a random network if needed. In Run mode start the simulation choose one of three speeds pause or reset. Download results as a CSV log. Use the scenario script to trigger actions by time or by conditions. Review inputs and outputs in Nodes Data and Gas Injection Points. Save export and import your network.</p>
-    <p><strong>Disclaimer:</strong> This Gas Flows Simulator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
+    <h2>Как симулировать потоки газа в трубопроводах?</h2>
+    <p>В режиме сборки создайте свою сеть, добавьте узлы и трубы и установите ограничения. Установите инъекции или отборы в узлах или зафиксируйте давление в любой точке. При необходимости создайте случайную сеть. В режиме запуска начните симуляцию, выберите одну из трех скоростей, приостановите или сбросьте. Загрузите результаты в виде CSV-лога. Используйте сценарий для запуска действий по времени или по условиям. Просмотрите входы и выходы в разделе Данные узлов и точки инъекции газа. Сохраните, экспортируйте и импортируйте свою сеть.</p>
+    <p><strong>Отказ от ответственности:</strong> Этот симулятор потоков газа предоставляется исключительно для оценки и информационных целей. Расчеты, выполненные этим инструментом, основаны на общих предположениях и могут не отражать реальные условия эксплуатации. Несмотря на усилия по обеспечению точности, мы не даем никаких гарантий и не принимаем ответственности за ошибки или решения, принятые на основе результатов. Всегда консультируйтесь с квалифицированным инженером или техническим экспертом перед принятием эксплуатационных решений.</p>
   </footer>
   
   <script src="js/csv_logger.js"></script>

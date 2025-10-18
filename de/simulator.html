@@ -17,14 +17,14 @@
     gtag('config', 'G-MYJRPRS3TW');
   </script>
   <meta charset="utf-8">
-  <title>Gas Flows Simulator</title>
+  <title>Gasfluss-Simulator</title>
   <link rel="canonical" href="https://gas-flows.com/simulator.html">
-  <meta name="description" content="Gas flows simulation. Interactive natural gas pipeline simulation and flow calculation tool.Visualize gas distribution, gas flow schemes, and pipeline networks in real-time.">
+  <meta name="description" content="Gasfluss-Simulation. Interaktives Erdgas-Pipeline-Simulations- und Flussberechnungstool. Visualisieren Sie Gasverteilung, Gasflussschemata und Pipelinenetze in Echtzeit.">
   <meta name="keywords" content="
-    gas pipeline simulation, pipeline calculation, pipeline network graph,
-    gas flow visualization, gas flow scheme,
-    methane distribution, Cytoscape.js simulation, real-time gas simulation,
-	gas simulation online, Gas pressure simulation free, gas flow simulator free online">
+    Gaspipeline-Simulation, Pipeline-Berechnung, Pipelinenetzwerk-Graph,
+    Gasfluss-Visualisierung, Gasfluss-Schema,
+    Methan-Verteilung, Cytoscape.js-Simulation, Echtzeit-Gas-Simulation,
+	Gas-Simulation online, Gasdruck-Simulation kostenlos, Gasfluss-Simulator kostenlos online">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -32,46 +32,47 @@
 <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
 <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="../common.css">
+  
 
   <!-- Cytoscape -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.22.0/cytoscape.min.js"></script>
 </head>
 <body>
-  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="index.html">EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select></div>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="index.html" selected>DE</option><option value="../ru/index.html">RU</option></select></div>
   <nav>
     <ul>
-      <li><a href="index.html">Flow Calculator</a></li>
-      <li><a href="pressures.html">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html" class="active">Gas Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
+      <li><a href="index.html">Flussrechner</a></li>
+      <li><a href="pressures.html">Einheiten-Umrechner</a></li>
+      <li><a href="aga8.html">AGA8 Z-Faktor</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Fluss</a></li>
+      <li><a href="simulator.html" class="active">Gas-Simulator</a></li>
+      <li><a href="contacts.html">Kontakte</a></li>
     </ul>
   </nav>
   <!-- Controls area (800px wide, centered) -->
   <div id="controls">
-    <button id="buildBtn" class="controlButton" title="Enter build mode to create and edit the network">🔨 Build</button>
-    <button id="clearBtn" class="controlButton" title="Clear all nodes and pipes from the network">❌</button>
-    <button id="recoverButton" class="controlButton" title="Restore the last saved network">🔄 </button>
-    <button id="RandomBtn" class="controlButton" title="Generate a random network for testing">🎲 </button>  
-    
-    <button class="controlButton"></button>
-    
-    <button id="simulateBtn" class="controlButton" title="Enter simulation mode to run gas flow analysis">⚡ Run</button>
+    <button id="buildBtn" class="controlButton" title="Erstellen-Modus aktivieren zum Erstellen und Bearbeiten des Netzwerks">🔨 Erstellen</button>
+    <button id="clearBtn" class="controlButton" title="Alle Knoten und Rohre aus dem Netzwerk löschen">❌</button>
+    <button id="recoverButton" class="controlButton" title="Das zuletzt gespeicherte Netzwerk wiederherstellen">🔄 </button>
+    <button id="RandomBtn" class="controlButton" title="Ein zufälliges Netzwerk für Tests generieren">🎲 </button>
 
-    <button id="pauseBtn" class="controlButton" title="Pause the simulation">⏸️</button>
-    <button id="playBtn" class="controlButton" title="Run simulation in real-time (seconds)">▶️</button>
-    <button id="playMinBtn" class="controlButton" title="Run simulation at accelerated speed (minutes)">⏩</button>
-    <button id="playHourBtn" class="controlButton" title="Run simulation at maximum speed (hours)">⏭️</button>
-    <button id="resetButton" class="controlButton" title="Reset simulation to initial state">↺ </button>
-    <button id="csvButton" class="controlButton" title="Export simulation data to CSV file">📈</button>
-    
     <button class="controlButton"></button>
 
-    <button id="exportButton" class="controlButton" title="Export current network to file">💾 </button>
-    <button id="importButton" class="controlButton" title="Import network from file">📁 </button>
-    <button id="helpButton" class="controlButton" title="Open help documentation">❓ </button>
+    <button id="simulateBtn" class="controlButton" title="Simulationsmodus aktivieren zur Gasflussanalyse">⚡ Starten</button>
+
+    <button id="pauseBtn" class="controlButton" title="Simulation pausieren">⏸️</button>
+    <button id="playBtn" class="controlButton" title="Simulation in Echtzeit ausführen (Sekunden)">▶️</button>
+    <button id="playMinBtn" class="controlButton" title="Simulation mit erhöhter Geschwindigkeit ausführen (Minuten)">⏩</button>
+    <button id="playHourBtn" class="controlButton" title="Simulation mit maximaler Geschwindigkeit ausführen (Stunden)">⏭️</button>
+    <button id="resetButton" class="controlButton" title="Simulation auf Anfangszustand zurücksetzen">↺ </button>
+    <button id="csvButton" class="controlButton" title="Simulationsdaten in CSV-Datei exportieren">📈</button>
+
+    <button class="controlButton"></button>
+
+    <button id="exportButton" class="controlButton" title="Aktuelles Netzwerk in Datei exportieren">💾 </button>
+    <button id="importButton" class="controlButton" title="Netzwerk aus Datei importieren">📁 </button>
+    <button id="helpButton" class="controlButton" title="Hilfedokumentation öffnen">❓ </button>
   </div>
 
 
@@ -294,9 +295,9 @@ n0_n2.flow > 12, n0_n2.disable = true  # flow in m³/hour"></textarea>
 
 
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
-    <h2>How to simulate gas flows in the pipelines?</h2>
-    <p>In Build mode create your network add nodes and pipes and set limits. Set injections or withdrawals at nodes or fix pressure at any point. Generate a random network if needed. In Run mode start the simulation choose one of three speeds pause or reset. Download results as a CSV log. Use the scenario script to trigger actions by time or by conditions. Review inputs and outputs in Nodes Data and Gas Injection Points. Save export and import your network.</p>
-    <p><strong>Disclaimer:</strong> This Gas Flows Simulator is provided for estimation and informational purposes only. The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions. While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results. Always consult a qualified engineer or technical expert before making operational decisions.</p>
+    <h2>Wie simuliert man Gasflüsse in Pipelines?</h2>
+    <p>Im Erstellungsmodus erstellen Sie Ihr Netzwerk, fügen Knoten und Rohre hinzu und legen Grenzen fest. Legen Sie Injektionen oder Entnahmen an Knoten fest oder fixieren Sie den Druck an einem beliebigen Punkt. Generieren Sie bei Bedarf ein zufälliges Netzwerk. Im Simulationsmodus starten Sie die Simulation, wählen eine von drei Geschwindigkeiten, pausieren oder setzen zurück. Laden Sie Ergebnisse als CSV-Log herunter. Verwenden Sie das Szenario-Skript, um Aktionen nach Zeit oder Bedingungen auszulösen. Überprüfen Sie Eingaben und Ausgaben in Knotendaten und Gaseinspeisepunkten. Speichern, exportieren und importieren Sie Ihr Netzwerk.</p>
+    <p><strong>Haftungsausschluss:</strong> Dieser Gasfluss-Simulator wird nur für Schätzungs- und Informationszwecke bereitgestellt. Die Berechnungen dieses Tools basieren auf allgemeinen Annahmen und spiegeln möglicherweise nicht die tatsächlichen Betriebsbedingungen wider. Obwohl Anstrengungen unternommen wurden, um Genauigkeit sicherzustellen, geben wir keine Garantien und übernehmen keine Haftung für Fehler oder Entscheidungen, die auf den Ergebnissen basieren. Konsultieren Sie immer einen qualifizierten Ingenieur oder technischen Experten, bevor Sie betriebliche Entscheidungen treffen.</p>
   </footer>
   
   <script src="js/csv_logger.js"></script>

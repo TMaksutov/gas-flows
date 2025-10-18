@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- Google tag (gtag.js) with consent -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <meta charset="utf-8">
+  <title>Калькулятор расхода газа</title>
+<link rel="canonical" href="https://gas-flows.com/index.html">
+
+  <meta name="description" content="Калькулятор расхода газа для трубопроводов природного газа.">
+  <meta name="keywords" content="калькулятор расхода газа, калькулятор скорости газа, расход газа, калькулятор трубопроводного газа,
+  калькулятор природного газа, калькулятор объема газа, калькулятор скорости газа, калькулятор сжатия газа,
+  онлайн калькулятор газа, калькулятор гидравлики газа,
+  уравнение Weymouth, формула Weymouth, уравнение Weymouth в единицах СИ,
+  уравнение Panhandle A, формула Panhandle A, уравнение Panhandle B, формула Panhandle B,
+  уравнение Darcy-Weisbach, формула Darcy-Weisbach, расчет коэффициента трения,
+  газовый поток онлайн, Бесплатный калькулятор расхода газа, бесплатный онлайн калькулятор расхода газа
+  ">
+<link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="../common.css">
+  
+
+</head>
+
+<body>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html" selected>RU</option></select></div>
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html" class="active">Калькулятор расхода</a></li>
+      <li><a href="pressures.html">Конвертер единиц</a></li>
+      <li><a href="aga8.html">AGA8 Z-Фактор</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Расход</a></li>
+      <li><a href="simulator.html">Газовый симулятор</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
+    </ul>
+  </nav>
+  <div id="controls" style="margin-bottom: 16px;">
+
+    <button id="weymouthButton" class="controlButton">Weymouth</button>
+    <button id="panhandleAButton" class="controlButton">Panhandle A</button>
+    <button id="panhandleBButton" class="controlButton">Panhandle B</button>
+
+    <button id="resetButton" class="controlButton">Сброс</button>
+  </div>
+
+  <div class="container">
+    <h2>Калькулятор расхода газа</h2>
+
+
+    <!-- Inputs -->
+    <div id="inputs">
+      <div class="field-group"><label for="Tb">Tb (°C)</label><input id="Tb" type="number" step="1" value="20"><span> Базовая температура</span></div>
+      <div class="field-group"><label for="Pb">Pb (кПа)</label><input id="Pb" type="number" step="1" value="101.325"><span> Базовое давление</span></div>
+      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span> Эффективность трубопровода, менее 1</span></div>
+      <div class="field-group"><label for="G">G</label><input id="G" type="number" step="0.01" value="0.6"><span> Удельный вес газа (воздух = 1)</span></div>
+      <div class="field-group"><label for="Z">Z</label><input id="Z" type="number" step="0.01" value="0.9"><span> Коэффициент сжимаемости</span></div>
+      <div class="field-group"><label for="Tf">T (°C)</label><input id="Tf" type="number" step="1" value="15"><span> Температура газа</span></div>
+      <div class="field-group"><label for="H1">H1 (м)</label><input id="H1" type="number" step="10" value="0"><span> Высотная отметка входа</span></div>
+      <div class="field-group"><label for="H2">H2 (м)</label><input id="H2" type="number" step="10" value="0"><span> Высотная отметка выхода</span></div>
+      <div class="field-group"><label for="L">L (км)</label><input id="L" type="number" step="1" value="100"><span> Длина участка трубопровода</span></div>
+      <div class="field-group"><label for="D">D (мм)</label><input id="D" type="number" step="1" value="100"><span> Диаметр трубы</span></div>
+      <div class="field-group"><label for="P1">P1 (кПа)</label><input id="P1" type="number" step="100" value="5000"><span> Давление на входе</span></div>
+      <div class="field-group"><label for="P2">P2 (кПа)</label><input id="P2" type="number" step="100" value="4000"><span> Давление на выходе</span></div>
+    </div>
+
+	<!-- Result -->
+	<div style="margin-bottom: 12px;">
+	  <h2 style="display: inline; margin-right: 10px;">Результаты</h2>
+	  <!--<span style="font-weight: normal; font-size: 1em;">(converted to base conditions)</span> -->
+	</div>
+
+<div id="results">
+  <div class="field-group">
+    <label for="Q_m3s">Q (м³/с)</label>
+    <input id="Q_m3s" type="text" readonly>
+    <span> Стандартные кубические метры в секунду</span>
+  </div>
+  <div class="field-group">
+    <label for="Q_th_m3h">Q (10³ м³/ч)</label>
+    <input id="Q_th_m3h" type="text" readonly>
+    <span> Тысячи кубических метров в час</span>
+  </div>
+  <div class="field-group">
+    <label for="Q_mil_m3d">Q (10⁶ м³/сут)</label>
+    <input id="Q_mil_m3d" type="text" readonly>
+    <span> Миллионы кубических метров в сутки</span>
+  </div>
+  <div class="field-group">
+    <label for="V1">v₁ (м/с)</label>
+    <input id="V1" type="text" readonly>
+    <span> Скорость газа в начале трубопровода</span>
+  </div>
+  <div class="field-group">
+    <label for="V2">v₂ (м/с)</label>
+    <input id="V2" type="text" readonly>
+    <span> Скорость газа в конце трубопровода</span>
+  </div>
+  <div class="field-group">
+    <label for="Pavg">Pavg (кПа)</label>
+    <input id="Pavg" type="text" readonly>
+    <span> Среднее давление в трубопроводе</span>
+  </div>
+  <div class="field-group">
+    <label for="Volume">Объем (10³ м³)</label>
+    <input id="Volume" type="text" readonly>
+    <span> Объем газа Тысячи кубических метров </span>
+  </div>
+
+</div>
+
+
+
+
+
+</div>
+<!-- Formulas rendered via MathJax -->
+<div class="collapsible-container">
+  <div class="collapsible-header" onclick="toggleCollapsible(this)">
+    <h3>Формула Weymouth</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content expanded">
+    <p>
+      $$
+      Q_\text{base} = 3.7435 \cdot 10^{-3} \cdot \left(\frac{T_b}{P_b}\right) \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G \cdot T_f \cdot L_e \cdot Z} \right)^{0.5}
+      \cdot D^{2.667} \cdot E
+      $$
+    </p>
+
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Объемный расход при базовых условиях, м³/сут</td></tr>
+      <tr><td>\( T_b \)</td><td>= Базовая температура, К</td></tr>
+      <tr><td>\( P_b \)</td><td>= Базовое давление, кПа</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Давление на входе, кПа</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Давление на выходе, кПа</td></tr>
+      <tr><td>\( E \)</td><td>= Эффективность трубопровода (безразмерная)</td></tr>
+      <tr><td>\( G \)</td><td>= Удельный вес газа (воздух = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Температура текущего газа, К</td></tr>
+      <tr><td>\( L_e \)</td><td>= Эквивалентная длина трубы, км</td></tr>
+      <tr><td>\( L \)</td><td>= Длина участка трубы, км</td></tr>
+      <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, мм</td></tr>
+      <tr><td>\( s \)</td><td>= Параметр корректировки высоты</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Высотная отметка входа, м</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Высотная отметка выхода, м</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Формула Panhandle A</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      Q_\text{base} = 4.5965 \times 10^{-3} \cdot \left(\frac{T_b}{P_b}\right)^{1.0788} \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.8539} \cdot T_f \cdot L_e \cdot Z} \right)^{0.5394}
+      \cdot D^{2.6182} \cdot E
+      $$
+    </p>
+
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Объемный расход при базовых условиях, м³/сут</td></tr>
+      <tr><td>\( T_b \)</td><td>= Базовая температура, К</td></tr>
+      <tr><td>\( P_b \)</td><td>= Базовое давление, кПа</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Давление на входе, кПа</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Давление на выходе, кПа</td></tr>
+      <tr><td>\( E \)</td><td>= Эффективность трубопровода (безразмерная)</td></tr>
+      <tr><td>\( G \)</td><td>= Удельный вес газа (воздух = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Температура текущего газа, К</td></tr>
+      <tr><td>\( L_e \)</td><td>= Эквивалентная длина трубы, км</td></tr>
+      <tr><td>\( L \)</td><td>= Длина участка трубы, км</td></tr>
+      <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, мм</td></tr>
+      <tr><td>\( s \)</td><td>= Параметр корректировки высоты</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Высотная отметка входа, м</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Высотная отметка выхода, м</td></tr>
+    </table>
+
+    <p><em>Примечание: Действительно для чисел Рейнольдса 5-11 млн, труб 300-1500 мм, 5500-10300 кПа</em></p>
+  </div>
+</div>
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Формула Panhandle B</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      Q_\text{base} = 1.002 \times 10^{-2} \cdot \left(\frac{T_b}{P_b}\right)^{1.02} \cdot
+      \left( \frac{P_1^2 - e^s \cdot P_2^2}{G^{0.961} \cdot T_f \cdot L_e \cdot Z} \right)^{0.51}
+      \cdot D^{2.53} \cdot E
+      $$
+    </p>
+
+    <p>
+      $$
+      L_e = \frac{L \cdot \left(e^s - 1\right)}{s} \qquad \qquad
+      s = 0.0684 \cdot G \cdot \left(\frac{H_2 - H_1}{T_f \cdot Z}\right)
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( Q_\text{base} \)</td><td>= Объемный расход при базовых условиях, м³/сут</td></tr>
+      <tr><td>\( T_b \)</td><td>= Базовая температура, К</td></tr>
+      <tr><td>\( P_b \)</td><td>= Базовое давление, кПа</td></tr>
+      <tr><td>\( P_1 \)</td><td>= Давление на входе, кПа</td></tr>
+      <tr><td>\( P_2 \)</td><td>= Давление на выходе, кПа</td></tr>
+      <tr><td>\( E \)</td><td>= Эффективность трубопровода (безразмерная)</td></tr>
+      <tr><td>\( G \)</td><td>= Удельный вес газа (воздух = 1)</td></tr>
+      <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+      <tr><td>\( T_f \)</td><td>= Температура текущего газа, К</td></tr>
+      <tr><td>\( L_e \)</td><td>= Эквивалентная длина трубы, км</td></tr>
+      <tr><td>\( L \)</td><td>= Длина участка трубы, км</td></tr>
+      <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, мм</td></tr>
+      <tr><td>\( s \)</td><td>= Параметр корректировки высоты</td></tr>
+      <tr><td>\( H_1 \)</td><td>= Высотная отметка входа, м</td></tr>
+      <tr><td>\( H_2 \)</td><td>= Высотная отметка выхода, м</td></tr>
+    </table>
+
+    <p><em>Примечание: Действительно для чисел Рейнольдса 4-40 млн, труб >900 мм, >6900 кПа</em></p>
+  </div>
+</div>
+
+</div>
+
+
+<div class="collapsible-container">
+  <div class="collapsible-header collapsed" onclick="toggleCollapsible(this)">
+    <h3>Формула Darcy-Weisbach</h3>
+    <span class="collapsible-toggle">▼</span>
+  </div>
+  <div class="collapsible-content collapsed">
+    <p>
+      $$
+      v = \sqrt{\frac{2 \cdot \Delta P_f \cdot D}{f \cdot L \cdot \rho}}
+      \qquad
+      Q_\text{actual} = v \cdot A \cdot E
+      \qquad
+      Q_\text{base} = Q_\text{actual} \cdot \frac{P_1 \cdot T_b \cdot Z}{P_b \cdot T_f}
+      $$
+    </p>
+
+    <p>
+      $$
+      \Delta P_f = P_1 - P_2 - \rho \cdot g \cdot (H_2 - H_1)
+      \qquad
+      A = \frac{\pi D^2}{4}
+      $$
+    </p>
+
+    <table style="font-size: 0.95em;">
+      <tr><td>\( v \)</td><td>= Скорость газа, м/с</td></tr>
+      <tr><td>\( \Delta P_f \)</td><td>= Потеря давления от трения, Па</td></tr>
+      <tr><td>\( f \)</td><td>= Коэффициент трения Дарси (безразмерный)</td></tr>
+      <tr><td>\( \rho \)</td><td>= Плотность газа при рабочих условиях, кг/м³</td></tr>
+      <tr><td>\( Q_\text{actual} \)</td><td>= Действительный объемный расход, м³/с</td></tr>
+      <tr><td>\( Q_\text{base} \)</td><td>= Объемный расход при базовых условиях, м³/с</td></tr>
+      <tr><td>\( A \)</td><td>= Площадь поперечного сечения трубы, м²</td></tr>
+      <tr><td>\( E \)</td><td>= Эффективность трубопровода (безразмерная)</td></tr>
+      <tr><td>\( g \)</td><td>= Ускорение свободного падения, 9.81 м/с²</td></tr>
+      <tr><td>\( P_1, P_2 \)</td><td>= Давление на входе и выходе, Па</td></tr>
+      <tr><td>\( P_b \)</td><td>= Базовое давление, Па</td></tr>
+      <tr><td>\( T_b \)</td><td>= Базовая температура, К</td></tr>
+      <tr><td>\( T_f \)</td><td>= Температура текущего газа, К</td></tr>
+      <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+      <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, м</td></tr>
+      <tr><td>\( L \)</td><td>= Длина участка трубы, м</td></tr>
+      <tr><td>\( H_1, H_2 \)</td><td>= Высотные отметки входа и выхода, м</td></tr>
+    </table>
+  </div>
+</div>
+
+
+
+
+<div class="container">
+  <p>Полная развернутая формула скорости газа:</p>
+
+  <p>
+    $$
+    v = \frac{Q}{A}
+    = \frac{Q_\text{base} \times \frac{\rho_\text{base}}{\rho}}{\frac{\pi D^2}{4}}
+    = \frac{4 \times Q_\text{base} \times \rho_\text{base}}{\pi D^2 \times \rho}
+    = \frac{4 \times Q_\text{base} \times P_\text{base} \times Z \times T}{\pi D^2 \times P \times T_\text{base}}
+    $$
+  </p>
+
+  <p>Где:</p>
+  <table style="font-size: 0.95em;">
+    <tr><td>\( v \)</td><td>= Скорость газа, м/с</td></tr>
+    <tr><td>\( Q \)</td><td>= Действительный объемный расход при рабочих условиях, м³/с</td></tr>
+    <tr><td>\( Q_\text{base} \)</td><td>= Объемный расход при базовых условиях, м³/с</td></tr>
+    <tr><td>\( \rho \)</td><td>= Плотность газа при рабочих условиях, кг/м³</td></tr>
+    <tr><td>\( \rho_\text{base} \)</td><td>= Плотность газа при базовых условиях, кг/м³</td></tr>
+    <tr><td>\( A \)</td><td>= Площадь поперечного сечения трубы, м²</td></tr>
+    <tr><td>\( P_\text{base} \)</td><td>= Базовое давление, кПа</td></tr>
+    <tr><td>\( P \)</td><td>= Рабочее давление, кПа</td></tr>
+    <tr><td>\( T_\text{base} \)</td><td>= Базовая температура, К</td></tr>
+    <tr><td>\( T \)</td><td>= Рабочая температура, К</td></tr>
+    <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+    <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, м</td></tr>
+  </table>
+</div>
+
+
+
+<div class="container">
+  <p>Среднее давление и объем газа в трубопроводе (базовые условия):</p>
+
+  <p>
+    $$
+    P_\text{avg} = \frac{2}{3} \times \frac{P_1^3 - P_2^3}{P_1^2 - P_2^2}
+    \qquad
+    V_\text{base} = \left( \frac{\pi D^2}{4} \right)
+    \times L
+    \times \frac{P_\text{avg} \times T_\text{base}}{P_\text{base} \times T \times Z}
+    $$
+  </p>
+
+  <p>Где:</p>
+  <table style="font-size: 0.95em;">
+    <tr><td>\( P_\text{avg} \)</td><td>= Среднее давление газа в трубопроводе, кПа</td></tr>
+    <tr><td>\( V_\text{base} \)</td><td>= Объем газа при базовых условиях, м³</td></tr>
+    <tr><td>\( P_1 \)</td><td>= Давление на входе, кПа</td></tr>
+    <tr><td>\( P_2 \)</td><td>= Давление на выходе, кПа</td></tr>
+    <tr><td>\( L \)</td><td>= Длина трубы, м</td></tr>
+    <tr><td>\( D \)</td><td>= Внутренний диаметр трубы, м</td></tr>
+    <tr><td>\( P_\text{base} \)</td><td>= Базовое давление, кПа</td></tr>
+    <tr><td>\( T_\text{base} \)</td><td>= Базовая температура, К</td></tr>
+    <tr><td>\( T \)</td><td>= Температура текущего газа, К</td></tr>
+    <tr><td>\( Z \)</td><td>= Коэффициент сжимаемости газа (безразмерный)</td></tr>
+    <tr><td>\( \pi \)</td><td>= Постоянная Пи (≈ 3.1416)</td></tr>
+  </table>
+</div>
+
+
+
+
+
+
+
+
+  <!-- Footer -->
+  <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
+    <h2>Как рассчитать расход газа в трубопроводе?</h2>
+    <p>Введите размер трубы, длину, давление на входе и выходе, температуру, удельный вес газа и высотные отметки для расчета расхода в трубопроводе. Выберите метод Weymouth, Panhandle A или Panhandle B. Страница также показывает формулу Darcy Weisbach, которая является итеративной и не рассчитывается автоматически здесь. Результаты включают расход при базовых условиях, скорости газа и инвентарь трубопровода.</p>
+    <p><strong>Отказ от ответственности:</strong> Этот калькулятор расхода газа предоставляется исключительно для оценки и информационных целей.
+	Расчеты, выполненные этим инструментом, основаны на общих предположениях и могут не отражать реальные условия эксплуатации.
+	Несмотря на усилия по обеспечению точности, мы не даем никаких гарантий и не принимаем ответственности за ошибки или решения, принятые на основе результатов.
+	Всегда консультируйтесь с квалифицированным инженером или техническим экспертом перед принятием эксплуатационных решений.</p>
+  </footer>
+
+  <!-- JS Logic -->
+  <script src="js/constants.js"></script>
+  <script src="js/formulas.js"></script>
+  <script src="js/ui.js"></script>
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
+  <script>
+    // --- Collapsible functionality ---
+    function toggleCollapsible(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector('.collapsible-toggle');
+      
+      if (header.classList.contains('collapsed')) {
+        header.classList.remove('collapsed');
+        content.classList.remove('collapsed');
+        content.classList.add('expanded');
+      } else {
+        header.classList.add('collapsed');
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+      }
+    }
+
+    // Function to expand specific formula container
+    function expandFormulaContainer(formulaName) {
+      const containers = document.querySelectorAll('.collapsible-container');
+      
+      containers.forEach(container => {
+        const header = container.querySelector('.collapsible-header');
+        const content = container.querySelector('.collapsible-content');
+        const title = header.querySelector('h3').textContent.toLowerCase();
+        
+        if (title.includes(formulaName.toLowerCase())) {
+          // Expand this container
+          header.classList.remove('collapsed');
+          content.classList.remove('collapsed');
+          content.classList.add('expanded');
+        } else {
+          // Collapse other containers
+          header.classList.add('collapsed');
+          content.classList.remove('expanded');
+          content.classList.add('collapsed');
+        }
+      });
+    }
+
+    // --- Persistence logic for user inputs ---
+    const STORAGE_KEY = 'gasFlowUserInputs';
+    const defaultValues = {
+      Tb: 20,
+      Pb: 101.325,
+      E: 0.95,
+      G: 0.6,
+      Z: 0.9,
+      Tf: 15,
+      H1: 0,
+      H2: 0,
+      L: 100,
+      D: 100,
+      P1: 5000,
+      P2: 4000
+    };
+
+    // Track selected formula
+    let selectedFormula = 'weymouth'; // default
+
+    function saveUserInputs() {
+      const data = {};
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) data[id] = input.value;
+      });
+      data.selectedFormula = selectedFormula; // Save selected formula
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadUserInputs() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return;
+      try {
+        const vals = JSON.parse(data);
+        Object.keys(defaultValues).forEach(id => {
+          if (vals[id] !== undefined) {
+            const input = document.getElementById(id);
+            if (input) input.value = vals[id];
+          }
+        });
+        
+        // Load selected formula
+        if (vals.selectedFormula) {
+          selectedFormula = vals.selectedFormula;
+          // Set the appropriate button as active
+          const buttonMap = {
+            'weymouth': 'weymouthButton',
+            'panhandleA': 'panhandleAButton',
+            'panhandleB': 'panhandleBButton'
+          };
+          if (buttonMap[selectedFormula]) {
+            setActiveButton(buttonMap[selectedFormula]);
+          }
+          
+          // Expand the appropriate formula container
+          const formulaNameMap = {
+            'weymouth': 'weymouth',
+            'panhandleA': 'panhandle a',
+            'panhandleB': 'panhandle b'
+          };
+          if (formulaNameMap[selectedFormula]) {
+            expandFormulaContainer(formulaNameMap[selectedFormula]);
+          }
+        }
+      } catch {}
+    }
+
+    function clearUserInputs() {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // Set active button state
+    function setActiveButton(activeButtonId) {
+      const buttons = ['weymouthButton', 'panhandleAButton', 'panhandleBButton'];
+      buttons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+          if (buttonId === activeButtonId) {
+            button.classList.add('active');
+          } else {
+            button.classList.remove('active');
+          }
+        }
+      });
+    }
+
+    // Attach listeners for persistence
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserInputs();
+      
+      // Set defaults if no saved data exists
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (!savedData) {
+        setActiveButton('weymouthButton'); // Set default active button
+        expandFormulaContainer('weymouth'); // Expand default formula
+      }
+      
+      updateResults();
+      
+      const inputs = document.querySelectorAll('#inputs input');
+      inputs.forEach(input => {
+        input.addEventListener('input', function() {
+          updateResults();
+          saveUserInputs();
+        });
+      });
+
+      // Formula button event listeners
+      document.getElementById('weymouthButton').addEventListener('click', function() {
+        selectedFormula = 'weymouth';
+        setActiveButton('weymouthButton');
+        expandFormulaContainer('weymouth');
+        updateResults();
+        saveUserInputs();
+      });
+
+      document.getElementById('panhandleAButton').addEventListener('click', function() {
+        selectedFormula = 'panhandleA';
+        setActiveButton('panhandleAButton');
+        expandFormulaContainer('panhandle a');
+        updateResults();
+        saveUserInputs();
+      });
+
+      document.getElementById('panhandleBButton').addEventListener('click', function() {
+        selectedFormula = 'panhandleB';
+        setActiveButton('panhandleBButton');
+        expandFormulaContainer('panhandle b');
+        updateResults();
+        saveUserInputs();
+      });
+    });
+
+    // --- Reset button logic ---
+    document.getElementById('resetButton').addEventListener('click', function() {
+      clearUserInputs();
+      Object.keys(defaultValues).forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = defaultValues[id];
+      });
+      updateResults();
+      saveUserInputs();
+    });
+
+    const inputs = document.querySelectorAll('#inputs input');
+    inputs.forEach(input => input.addEventListener('input', updateResults));
+    document.addEventListener('DOMContentLoaded', updateResults);
+
+function updateResults() {
+  // Read inputs
+  const E = parseFloat(document.getElementById('E').value);
+  const Tb = parseFloat(document.getElementById('Tb').value);   // Base temp [°C]
+  const Pb = parseFloat(document.getElementById('Pb').value);   // Base pressure [kPa]
+  const P1_kPa = parseFloat(document.getElementById('P1').value); // Inlet pressure [kPa]
+  const P2_kPa = parseFloat(document.getElementById('P2').value); // Outlet pressure [kPa]
+  const G = parseFloat(document.getElementById('G').value);     // Specific gravity
+  const Tf = parseFloat(document.getElementById('Tf').value);   // Flowing temp [°C]
+  const L = parseFloat(document.getElementById('L').value);     // Length [km]
+  const D_mm = parseFloat(document.getElementById('D').value);  // Diameter [mm]
+  const Z = parseFloat(document.getElementById('Z').value);     // Compressibility factor
+  const H1 = parseFloat(document.getElementById('H1').value);   // Elevation inlet [m]
+  const H2 = parseFloat(document.getElementById('H2').value);   // Elevation outlet [m]
+
+  // Constants
+  const P_base = 101.325;  // [kPa]
+  const T_base = 293.15;   // [K]
+  const T_K = Tf + 273.15; // [K]
+  const R = 8.314;         // [J/(mol·K)]
+  const M = 0.01604;       // [kg/mol] (natural gas)
+
+  // Use selected formula
+  let Q_std_m3s;
+  const formulaParams = { E, Tb, Pb, P1: P1_kPa, P2: P2_kPa, G, Tf, L, D: D_mm, Z, H1, H2 };
+  
+  switch (selectedFormula) {
+    case 'panhandleA':
+      Q_std_m3s = panhandleA(formulaParams);
+      break;
+    case 'panhandleB':
+      Q_std_m3s = panhandleB(formulaParams);
+      break;
+    case 'weymouth':
+    default:
+      Q_std_m3s = weymouth(formulaParams);
+      break;
+  }
+
+  // Derived flows
+  const Q_th_m3h = Q_std_m3s * 3600 / 1000;
+  const Q_mil_m3d = Q_std_m3s * 86400 / 1e6;
+
+  document.getElementById('Q_m3s').value = Q_std_m3s.toFixed(3);
+  document.getElementById('Q_th_m3h').value = Q_th_m3h.toFixed(3);
+  document.getElementById('Q_mil_m3d').value = Q_mil_m3d.toFixed(3);
+
+  // Pipe cross-section area
+  const D_m = D_mm / 1000;
+  const area = Math.PI * Math.pow(D_m, 2) / 4;
+
+  // Standard density (kg/m³) at base conditions
+  const rho_std = (P_base * M) / (R * T_base);
+
+  // Mass flow (kg/s) based on standard flow
+  const mass_flow = Q_std_m3s * rho_std;
+
+  // Actual densities at inlet and outlet
+  const rho1_actual = (P1_kPa * M) / (Z * R * T_K); // density at P1
+  const rho2_actual = (P2_kPa * M) / (Z * R * T_K); // density at P2
+
+  // Actual volumetric flows at inlet and outlet
+  const Q1_actual_m3s = mass_flow / rho1_actual;
+  const Q2_actual_m3s = mass_flow / rho2_actual;
+
+  // Velocities
+  const V1 = Q1_actual_m3s / area; // at pipeline start
+  const V2 = Q2_actual_m3s / area; // at pipeline end
+
+  document.getElementById('V1').value = V1.toFixed(2);
+  document.getElementById('V2').value = V2.toFixed(2);
+
+  // Pavg calculation (for volume only)
+  let Pavg;
+  if (P1_kPa !== P2_kPa) {
+    Pavg = (2 / 3) * ((Math.pow(P1_kPa, 3) - Math.pow(P2_kPa, 3)) / (Math.pow(P1_kPa, 2) - Math.pow(P2_kPa, 2)));
+  } else {
+    Pavg = P1_kPa;
+  }
+
+
+	// Volume inside pipeline [thousand m³]
+	const Volume = Math.PI * Math.pow(D_m, 2) / 4 * (L * 1000) * (Pavg / P_base) * (T_base / (Z * T_K)) / 1000;
+
+	document.getElementById('Pavg').value = Pavg.toFixed(0);
+	document.getElementById('Volume').value = Volume.toFixed(3);
+
+}
+
+
+
+
+
+
+
+
+  </script>
+</body>
+</html>

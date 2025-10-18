@@ -18,7 +18,7 @@
   <meta charset="utf-8">
   <title>Feedback</title>
 <link rel="canonical" href="https://gas-flows.com/contacts.html">
-  <meta name="description" content="Leave your feedback about Gas flows online simulator.">
+  <meta name="description" content="Hinterlassen Sie Ihr Feedback zum Gasfluss-Online-Simulator.">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
@@ -26,32 +26,33 @@
 <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
 <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
 <link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="../common.css">
+ 
 
 </head>
 <body>
+<div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="index.html" selected>DE</option><option value="../ru/index.html">RU</option></select></div>
 <!-- Menu -->
-  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="index.html">EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select></div>
   <nav>
     <ul>
-      <li><a href="index.html">Flow Calculator</a></li>
-      <li><a href="pressures.html">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html">Gas Simulator</a></li>
-      <li><a href="contacts.html" class="active">Contacts</a></li>
+      <li><a href="index.html">Flussrechner</a></li>
+      <li><a href="pressures.html">Einheiten-Umrechner</a></li>
+      <li><a href="aga8.html">AGA8 Z-Faktor</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Fluss</a></li>
+      <li><a href="simulator.html">Gas-Simulator</a></li>
+      <li><a href="contacts.html" class="active">Kontakt</a></li>
     </ul>
   </nav>
   
 <!-- Feedback Form -->
 <section class="container" style="margin-top: 40px; border-top: 1px solid #ccc;">
-  <h3>Send Us Feedback / Join the team / Request the feature</h3>
+  <h3>Senden Sie uns Feedback / Treten Sie dem Team bei / Fordern Sie eine Funktion an</h3>
   <form action="https://formspree.io/f/xeoapazr" method="POST" id="feedbackForm">
     <label style="display: block; margin-bottom: 10px;">
-      Your message:
-      <textarea name="message" id="messageInput" rows="5" style="display: block; width: 90%;" placeholder="Type your message here..."></textarea>
+      Ihre Nachricht:
+      <textarea name="message" id="messageInput" rows="5" style="display: block; width: 90%;" placeholder="Geben Sie hier Ihre Nachricht ein..."></textarea>
     </label>
-    <button type="submit" id="sendButton" class="controlButton" disabled>Send</button>
+    <button type="submit" id="sendButton" class="controlButton" disabled>Senden</button>
   </form>
 </section>
 
@@ -59,16 +60,16 @@
 <div class="container">
 	<p><strong>Backlog:</strong></p>
 	<ul>
-	  <li>Joule-Thomson effect for gas temperature calculation.</li>
-	  <li>Darcy-Weisbach formula in simulator.</li>
-	  <li>Different gas compositions in simulator.</li>
-	  <li>GERG-2008 gas parameters calculation.</li>
-	  <li>Support multiple unit systems.</li>
-	  <li>Add elevation difference for nodes.</li>
-	  <li>Add localization support for different languages.</li>
-	  <li>Redesign UI for mobile-friendly interface.</li>
-	  <li>Fix connection lines shorter than 100m.</li>
-	  <li>Add compression stations in simulator.</li>
+	  <li>Joule-Thomson-Effekt für Gastemperatur-Berechnung.</li>
+	  <li>Darcy-Weisbach-Formel im Simulator.</li>
+	  <li>Unterschiedliche Gaszusammensetzungen im Simulator.</li>
+	  <li>GERG-2008-Gasparameter-Berechnung.</li>
+	  <li>Unterstützung mehrerer Einheitensysteme.</li>
+	  <li>Höhendifferenz für Knoten hinzufügen.</li>
+	  <li>Lokalisierungsunterstützung für verschiedene Sprachen hinzufügen.</li>
+	  <li>UI für mobile Benutzeroberfläche neu gestalten.</li>
+	  <li>Verbindungsleitungen kürzer als 100m reparieren.</li>
+	  <li>Kompressorstationen im Simulator hinzufügen.</li>
 	</ul>
   </div>
 
@@ -216,44 +217,44 @@
 
 <!-- Cookie Settings Section -->
 <section class="container" style="margin-top: 20px; border-top: 1px solid #ccc;">
-	<h3>Cookie Settings</h3>
-	<p>Manage your cookie preferences for this website. We use cookies to improve your experience and analyze website traffic.</p>
-	
+	<h3>Cookie-Einstellungen</h3>
+	<p>Verwalten Sie Ihre Cookie-Präferenzen für diese Website. Wir verwenden Cookies, um Ihre Erfahrung zu verbessern und den Website-Verkehr zu analysieren.</p>
+
 	<div style="margin: 15px 0;">
-	  <p><strong>Current Status:</strong> <span id="cookie-status">Loading...</span></p>
+	  <p><strong>Aktueller Status:</strong> <span id="cookie-status">Lädt...</span></p>
 	</div>
-	
+
 	<div style="margin: 15px 0;">
 	  <button onclick="cookieConsent.resetCookieSettings()" class="controlButton" style="margin-right: 10px;">
-		Reset Cookie Settings
+		Cookie-Einstellungen zurücksetzen
 	  </button>
 	  <button onclick="showCookieInfo()" class="controlButton">
-		Cookie Information
+		Cookie-Informationen
 	  </button>
 	</div>
-	
+
 	<div style="font-size: 0.9em; color: #666; margin-top: 10px;">
-	  <p><strong>Cookie Types:</strong></p>
+	  <p><strong>Cookie-Typen:</strong></p>
 	  <ul style="margin-left: 20px;">
-		<li><strong>Essential:</strong> Required for website functionality (always enabled)</li>
-		<li><strong>Analytics:</strong> Google Analytics for website improvement (optional)</li>
+		<li><strong>Essentiell:</strong> Für die Website-Funktionalität erforderlich (immer aktiviert)</li>
+		<li><strong>Analytics:</strong> Google Analytics für Website-Verbesserungen (optional)</li>
 	  </ul>
 	</div>
   </section>
   
   <script>
   document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-	// Wait for form submission to complete
+	// Warten Sie, bis die Formulareinreichung abgeschlossen ist
 	setTimeout(function() {
 	  document.getElementById('messageInput').value = '';
-	  // Re-evaluate send button state after clearing
+	  // Bewerten Sie den Senden-Button-Status nach dem Löschen neu
 	  if (typeof updateSendVisibility === 'function') {
 		updateSendVisibility();
 	  }
 	}, 100);
   });
   
-  // Enable Send button only when message has at least 10 non-space chars
+  // Senden-Button nur aktivieren, wenn die Nachricht mindestens 10 Nicht-Leerzeichen-Zeichen hat
   function updateSendVisibility() {
     const sendButton = document.getElementById('sendButton');
     const messageInput = document.getElementById('messageInput');
@@ -262,29 +263,29 @@
     sendButton.disabled = len < 10;
   }
 
-  // Update cookie status display
+  // Cookie-Status-Anzeige aktualisieren
   function updateCookieStatus() {
 	const statusElement = document.getElementById('cookie-status');
 	if (statusElement && typeof cookieConsent !== 'undefined') {
 	  const consent = localStorage.getItem('gas-flows-cookie-consent');
 	  const analyticsEnabled = localStorage.getItem('gas-flows-analytics-consent') === 'true';
-	  
+
 	  if (consent === 'accepted') {
-		statusElement.innerHTML = '<span style="color: #27ae60;">Cookies Accepted</span> - Analytics enabled';
+		statusElement.innerHTML = '<span style="color: #27ae60;">Cookies akzeptiert</span> - Analytics aktiviert';
 	  } else if (consent === 'declined') {
-		statusElement.innerHTML = '<span style="color: #e74c3c;">Analytics Declined</span> - Only essential cookies';
+		statusElement.innerHTML = '<span style="color: #e74c3c;">Analytics abgelehnt</span> - Nur essentielle Cookies';
 	  } else {
-		statusElement.innerHTML = '<span style="color: #f39c12;">Not Set</span> - Please choose your preference';
+		statusElement.innerHTML = '<span style="color: #f39c12;">Nicht festgelegt</span> - Bitte wählen Sie Ihre Präferenz';
 	  }
 	}
   }
-  
-  // Show detailed cookie information
+
+  // Detaillierte Cookie-Informationen anzeigen
   function showCookieInfo() {
 	if (typeof cookieConsent !== 'undefined') {
 	  cookieConsent.showDetails();
 	} else {
-	  alert('Cookie management system is loading. Please try again in a moment.');
+	  alert('Cookie-Management-System lädt. Bitte versuchen Sie es in einem Moment erneut.');
 	}
   }
   

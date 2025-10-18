@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <!-- Google tag (gtag.js) with consent -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    // Set default consent state
+    gtag('consent', 'default', {
+      'analytics_storage': 'denied'
+    });
+    gtag('js', new Date());
+    gtag('config', 'G-MYJRPRS3TW');
+  </script>
+  <meta charset="utf-8">
+  <title>Калькулятор расхода газа AGA8</title>
+  <link rel="canonical" href="https://gas-flows.com/AGA8Flow.html">
+  <meta name="description" content="Калькулятор расхода газа на основе AGA8-92DC для трубопроводов. Рассчитывает расход, плотность, Z-фактор и многое другое для смесей природного газа.">
+  <meta name="keywords" content="AGA8, AGA8-92DC, калькулятор расхода газа, природный газ, трубопровод, Z-фактор, сжимаемость, плотность газа, расход, онлайн калькулятор, AGA8 расход, свойства газа">
+  <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="../common.css">
+  
+  <style>
+    .main-layout {
+      display: flex;
+      gap: 20px;
+      max-width: 1800px;
+      min-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .column {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Custom styling for component names to give them more space */
+    .column .field-group label {
+      flex: 0.6;
+      min-width: 100px;
+      white-space: nowrap;
+    }
+    .column .field-group input {
+      flex: 0.3;
+      min-width: 80px;
+      padding: 5px;
+    }
+    .column .field-group span {
+      flex: 1.3;
+      font-size: 0.9em;
+      color: #555;
+    }
+    
+    /* Styling for readonly/calculated fields */
+    input[readonly] {
+      background-color: #f5f5f5;
+      color: #666;
+      cursor: not-allowed;
+      border: 1px solid #ddd;
+    }
+    
+    input[readonly]:focus {
+      outline: none;
+      box-shadow: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html" selected>RU</option></select></div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Калькулятор расхода</a></li>
+      <li><a href="pressures.html">Конвертер единиц</a></li>
+      <li><a href="aga8.html">AGA8 Z-Фактор</a></li>
+      <li><a href="AGA8Flow.html" class="active">AGA8 Расход</a></li>
+      <li><a href="simulator.html">Газовый симулятор</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
+    </ul>
+  </nav>
+
+  <div id="controls" style="margin-bottom: 16px;">
+    <button id="groupedOrder" class="controlButton">Групповой порядок</button>
+    <button id="AGAOrder" class="controlButton">Порядок AGA8</button>
+    <button id="resetButton" class="controlButton">Сброс</button>
+  </div>
+
+  <div class="main-layout">
+    <!-- Left Column: Gas Composition -->
+    <div class="column">
+      <h3>Состав газа</h3>
+
+      <!-- Мольные доли: индексы 0..20, групповой порядок точно соответствующий aga8.html -->
+      <div class="field-group">
+        <label for="mol_methane">Метан</label>
+        <input id="mol_methane" type="number" step="1e-5" value="0.9659">
+        <span>Метан (CH₄)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_ethane">Этан</label>
+        <input id="mol_ethane" type="number" step="1e-5" value="0.02751">
+        <span>Этан (C₂H₆)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_propane">Пропан</label>
+        <input id="mol_propane" type="number" step="1e-5" value="0.00046">
+        <span>Пропан (C₃H₈)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_isobutane">Изобутан</label>
+        <input id="mol_isobutane" type="number" step="1e-5" value="0.00046">
+        <span>Изобутан (i-C₄H₁₀)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-butane">н-Бутан</label>
+        <input id="mol_n-butane" type="number" step="1e-5" value="0.00010">
+        <span>н-Бутан (n-C₄H₁₀)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_isopentane">Изопентан</label>
+        <input id="mol_isopentane" type="number" step="1e-5" value="0.00004">
+        <span>Изопентан (i-C₅H₁₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-pentane">н-Пентан</label>
+        <input id="mol_n-pentane" type="number" step="1e-5" value="0.00002">
+        <span>н-Пентан (n-C₅H₁₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-hexane">н-Гексан</label>
+        <input id="mol_n-hexane" type="number" step="1e-5" value="0.00002">
+        <span>н-Гексан (n-C₆H₁₄)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-heptane">н-Гептан</label>
+        <input id="mol_n-heptane" type="number" step="1e-5" value="0.0">
+        <span>н-Гептан (n-C₇H₁₆)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-octane">н-Октан</label>
+        <input id="mol_n-octane" type="number" step="1e-5" value="0.0">
+        <span>н-Октан (n-C₈H₁₈)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-nonane">н-Нонан</label>
+        <input id="mol_n-nonane" type="number" step="1e-5" value="0.0">
+        <span>н-Нонан (n-C₉H₂₀)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_n-decane">н-Декан</label>
+        <input id="mol_n-decane" type="number" step="1e-5" value="0.0">
+        <span>н-Декан (n-C₁₀H₂₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_helium">Гелий</label>
+        <input id="mol_helium" type="number" step="1e-5" value="0.0">
+        <span>Гелий (He)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_argon">Аргон</label>
+        <input id="mol_argon" type="number" step="1e-5" value="0.0">
+        <span>Аргон (Ar)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_nitrogen">Азот</label>
+        <input id="mol_nitrogen" type="number" step="1e-5" value="0.002">
+        <span>Азот (N₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_oxygen">Кислород</label>
+        <input id="mol_oxygen" type="number" step="1e-5" value="0.0">
+        <span>Кислород (O₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_carbon-monoxide">Монооксид углерода</label>
+        <input id="mol_carbon-monoxide" type="number" step="1e-5" value="0.0">
+        <span>Монооксид углерода (CO)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_carbon-dioxide">Диоксид углерода</label>
+        <input id="mol_carbon-dioxide" type="number" step="1e-5" value="0.00349">
+        <span>Диоксид углерода (CO₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_hydrogen">Водород</label>
+        <input id="mol_hydrogen" type="number" step="1e-5" value="0.0">
+        <span>Водород (H₂)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_water">Вода</label>
+        <input id="mol_water" type="number" step="1e-5" value="0.0">
+        <span>Вода (H₂O)</span>
+      </div>
+      <div class="field-group">
+        <label for="mol_hydrogen-sulfide">Сероводород</label>
+        <input id="mol_hydrogen-sulfide" type="number" step="1e-5" value="0.0">
+        <span>Сероводород (H₂S)</span>
+      </div>
+      <h3>Сумма компонентов</h3>
+      <!-- Sum Components -->
+      <div class="field-group">
+        <label for="sumResult">Сумма компонентов:</label>
+        <input type="text" id="sumResult" readonly>
+        <span>Сумма всех мольных долей компонентов</span>
+      </div>
+    </div>
+
+    <!-- Right Column: Pipeline Parameters and Results -->
+    <div class="column">
+
+      <!-- Pipeline Parameters -->
+      <h3>Параметры трубопровода</h3>
+      <div class="field-group"><label for="Tb">Tb (°C)</label><input id="Tb" type="number" step="1" value="20"><span>Базовая температура</span></div>
+      <div class="field-group"><label for="Pb">Pb (барА)</label><input id="Pb" type="number" step="0.01" value="1.01325"><span>Базовое давление</span></div>
+      <div class="field-group"><label for="E">E</label><input id="E" type="number" step="0.01" value="0.95"><span>Эффективность трубопровода, менее 1</span></div>
+      <div class="field-group"><label for="temperature">T (°C)</label><input id="temperature" type="number" step="0.1" value="15"><span>Температура газа</span></div>
+      <div class="field-group"><label for="H1">H1 (м)</label><input id="H1" type="number" step="10" value="0"><span>Высотная отметка входа</span></div>
+      <div class="field-group"><label for="H2">H2 (м)</label><input id="H2" type="number" step="10" value="0"><span>Высотная отметка выхода</span></div>
+      <div class="field-group"><label for="L">L (км)</label><input id="L" type="number" step="1" value="100"><span>Длина участка трубопровода</span></div>
+      <div class="field-group"><label for="D">D (мм)</label><input id="D" type="number" step="1" value="500"><span>Диаметр трубы</span></div>
+      <div class="field-group"><label for="P1">P1 (бар изб)</label><input id="P1" type="number" step="0.1" value="50"><span>Давление на входе</span></div>
+      <div class="field-group"><label for="P2">P2 (бар изб)</label><input id="P2" type="number" step="0.1" value="20"><span>Давление на выходе</span></div>
+
+      <!-- Gas Properties Results -->
+      <h3>Свойства газа</h3>
+      <div class="field-group">
+        <label for="densityResult">Молярная плотность:</label>
+        <input type="text" id="densityResult" readonly>
+        <span>Молярная плотность (моль/м³)</span>
+      </div>
+      <div class="field-group">
+        <label for="relativeResult">Относительная плотность:</label>
+        <input type="text" id="relativeResult" readonly>
+        <span>Относительная молекулярная масса по воздуху (воздух ≈ 28.9647 г/моль)</span>
+      </div>
+      <div class="field-group">
+        <label for="massDensityResult">Массовая плотность:</label>
+        <input type="text" id="massDensityResult" readonly>
+        <span>Массовая плотность (кг/м³)</span>
+      </div>
+      <div class="field-group">
+        <label for="massDensityBaseResult">Базовая плотность:</label>
+        <input type="text" id="massDensityBaseResult" readonly>
+        <span>Плотность в стандартных условиях (кг·м⁻³) (@ 20 °C, 101.325 кПа)</span>
+      </div>
+      <div class="field-group">
+        <label for="zResult">Z-Фактор:</label>
+        <input type="text" id="zResult" readonly>
+        <span>Расчетный коэффициент сжимаемости</span>
+      </div>
+
+      <!-- Flow Results -->
+      <h3>Результаты расхода (Panhandle B)</h3>
+      <div class="field-group">
+        <label for="Q_m3s">Q (м³/с)</label>
+        <input id="Q_m3s" type="text" readonly>
+        <span>Стандартные кубические метры в секунду</span>
+      </div>
+      <div class="field-group">
+        <label for="Q_th_m3h">Q (10³ м³/ч)</label>
+        <input id="Q_th_m3h" type="text" readonly>
+        <span>Тысячи кубических метров в час</span>
+      </div>
+      <div class="field-group">
+        <label for="Q_mil_m3d">Q (10⁶ м³/сут)</label>
+        <input id="Q_mil_m3d" type="text" readonly>
+        <span>Миллионы кубических метров в сутки</span>
+      </div>
+      <div class="field-group">
+        <label for="V1">v₁ (м/с)</label>
+        <input id="V1" type="text" readonly>
+        <span>Скорость газа в начале трубопровода</span>
+      </div>
+      <div class="field-group">
+        <label for="V2">v₂ (м/с)</label>
+        <input id="V2" type="text" readonly>
+        <span>Скорость газа в конце трубопровода</span>
+      </div>
+      <div class="field-group">
+        <label for="Pavg">Pavg (бар изб)</label>
+        <input id="Pavg" type="text" readonly>
+        <span>Среднее давление в трубопроводе</span>
+      </div>
+      <div class="field-group">
+        <label for="Volume">Объем (10³ м³)</label>
+        <input id="Volume" type="text" readonly>
+        <span>Объем газа Тысячи кубических метров</span>
+      </div>
+    </div>
+
+    <!-- Third Column: Pressure Range Tables -->
+    <div class="column">
+      <h3>Анализ диапазона давления</h3>
+
+      <!-- Pressure Range Inputs -->
+      <div class="field-group">
+        <label for="P1_min">P1 мин (бар изб)</label>
+        <input id="P1_min" type="number" step="0.1" value="50">
+        <span>Минимальное давление на входе</span>
+      </div>
+      <div class="field-group">
+        <label for="P1_max">P1 макс (бар изб)</label>
+        <input id="P1_max" type="number" step="0.1" value="60">
+        <span>Максимальное давление на входе</span>
+      </div>
+      <div class="field-group">
+        <label for="P2_min">P2 мин (бар изб)</label>
+        <input id="P2_min" type="number" step="0.1" value="20">
+        <span>Минимальное давление на выходе</span>
+      </div>
+      <div class="field-group">
+        <label for="P2_max">P2 макс (бар изб)</label>
+        <input id="P2_max" type="number" step="0.1" value="30">
+        <span>Максимальное давление на выходе</span>
+      </div>
+      <div class="field-group">
+        <label for="pressureStep">Шаг (бар)</label>
+        <input id="pressureStep" type="number" step="0.1" value="5" min="0.1">
+        <span>Размер шага для таблиц давления</span>
+      </div>
+
+      <!-- Flow Table -->
+      <h4>Расходы (млн м³/сут)</h4>
+      <div id="flowTableContainer" style="overflow-x: auto; margin-bottom: 20px;">
+        <table id="flowTable" style="border-collapse: collapse; font-size: 16px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ccc; padding: 4px; background-color: #f5f5f5;">P1\P2</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Volume Table -->
+      <h4>Объемы газа (млн м³)</h4>
+      <div id="volumeTableContainer" style="overflow-x: auto;">
+        <table id="volumeTable" style="border-collapse: collapse; font-size: 16px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ccc; padding: 4px; background-color: #f5f5f5;">P1\P2</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Logic -->
+  <script src="js/constants.js"></script>
+  <script src="js/formulas.js"></script>
+  <script src="js/aga8.js"></script>
+  <script src="js/AGA8Flow.js"></script>
+  <!-- Cookie Consent -->
+  <script src="js/cookies.js"></script>
+
+  <script>
+    // --- Collapsible functionality ---
+    function toggleCollapsible(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector('.collapsible-toggle');
+      
+      if (header.classList.contains('collapsed')) {
+        header.classList.remove('collapsed');
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+      } else {
+        header.classList.add('collapsed');
+        content.classList.remove('expanded');
+        content.classList.add('collapsed');
+      }
+    }
+  </script>
+  
+  <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
+    <h2>Как рассчитать расход в трубопроводе со свойствами газа AGA8?</h2>
+    <p>Задайте состав газа для расчета Z и плотностей с использованием AGA8, затем рассчитайте расход в трубопроводе методом Panhandle B. Эта страница объединяет свойства газа AGA8 со стандартной формулой расхода из калькулятора расхода. Создайте таблицы давления по диапазонам входа и выхода для просмотра расходов и объемов газа. Вы можете переключиться на порядок AGA8 при вводе состава.</p>
+    <p><strong>Отказ от ответственности:</strong> Этот калькулятор расхода газа предоставляется исключительно для оценки и информационных целей.
+	Расчеты, выполненные этим инструментом, основаны на общих предположениях и могут не отражать реальные условия эксплуатации.
+	Несмотря на усилия по обеспечению точности, мы не даем никаких гарантий и не принимаем ответственности за ошибки или решения, принятые на основе результатов.
+	Всегда консультируйтесь с квалифицированным инженером или техническим экспертом перед принятием эксплуатационных решений.</p>
+  </footer>
+</body>
+</html> 

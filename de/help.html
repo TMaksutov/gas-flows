@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Hilfe - Gasfluss-Simulator</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body style="margin:0;">
+<div class="lang-switcher" style="position:fixed;top:10px;right:10px;z-index:2000;background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 8px;">
+  <select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="index.html">DE</option><option value="../ru/index.html">RU</option></select>
+</div>
+<!-- Help Modal Content -->
+<div id="helpModal" class="modal" style="display:block;">
+  <div class="modal-content" style="margin:4vh auto 2vh auto; max-width:600px; width:90vw; height:80vh;">
+    <span class="close" id="closeHelpModal">&times;</span>
+    <div class="help-carousel">
+      <button class="carousel-btn" id="carouselPrev">&#8592;</button>
+      <img id="helpGif" src="../help/Animation1.gif" alt="Hilfe Aktion" />
+      <button class="carousel-btn" id="carouselNext">&#8594;</button>
+    </div>
+    <h3 id="helpGifTitle">Schritt 1: Netzwerk erstellen</h3>
+    <ul id="helpGifSteps">
+      <li>Linksklick zum Hinzufügen neuer oder Verbinden bestehender Punkte</li>
+      <li>Ziehen mit linker Maustaste zum Bewegen von Knoten oder Zeichenfläche</li>
+      <li>Doppelklick auf Objekt zum Löschen</li>
+      <li>Löschen-Button zum Löschen des Netzwerks</li>
+    </ul>
+  </div>
+</div>
+<script>
+// Hilfe GIFs, Titel und Schritte
+const helpData = [
+  {
+    src: '../help/Animation1.gif',
+    title: 'Schritt 1: Netzwerk erstellen',
+    steps: [
+      'Linksklick zum Hinzufügen neuer oder Verbinden bestehender Punkte',
+      'Ziehen mit linker Maustaste zum Bewegen von Knoten oder Zeichenfläche',
+      'Doppelklick auf Objekt zum Löschen',
+      'Löschen-Button zum Löschen des Netzwerks'
+    ]
+  },
+  {
+    src: '../help/Animation2.gif',
+    title: 'Schritt 2: Parameter festlegen',
+    steps: [
+      'Rechtsklick auf Linie oder Punkt zum Festlegen von Parametern',
+      'Mehrere Linien durch Halten der Strg-Taste auswählen und modifizieren',
+      'Kontrollkästchen setzen zum Einfrieren des Drucks',
+      'Kontrollkästchen deaktivieren deaktiviert die Leitung'
+    ]
+  },
+  {
+    src: '../help/Animation3.gif',
+    title: 'Schritt 3: Drücke und Injektionen festlegen',
+    steps: [
+      'An jedem Punkt Druck oder Injektion festlegen',
+      'Negative Injektion ist Verbrauch',
+      'Druck einfrieren um ihn konstant zu halten',
+      'Einstellungen kombinieren für komplexe Szenarien'
+    ]
+  },
+  {
+    src: '../help/Animation4.gif',
+    title: 'Schritt 4: Simulation ausführen',
+    steps: [
+      'Play-Button für Echtzeit-Simulation',
+      'Play (Min) für 1-Minute-Simulation jede Sekunde',
+      'Wenn Parameter sich stabilisiert haben, wird Simulation gestoppt',
+      'Farben repräsentieren die Flussgeschwindigkeit'
+    ]
+  },
+  {
+    src: '../help/Animation5.gif',
+    title: 'Schritt 5: Simulation steuern',
+    steps: [
+      'Pause-Button zum Stoppen der Simulation',
+      'Play-Buttons zum erneuten Starten der Simulation',
+      'Reset-Button zum Zurücksetzen der Simulation',
+      'Löschen-Button zum Löschen des Netzwerks'
+    ]
+  }
+];
+let currentGif = 0;
+
+const helpModal = document.getElementById('helpModal');
+const closeHelpModal = document.getElementById('closeHelpModal');
+const helpGif = document.getElementById('helpGif');
+const prevBtn = document.getElementById('carouselPrev');
+const nextBtn = document.getElementById('carouselNext');
+
+// Titel und Schritte Elemente
+let helpTitle = document.getElementById('helpGifTitle');
+let helpSteps = document.getElementById('helpGifSteps');
+
+function showGif(index) {
+  const data = helpData[index];
+  helpGif.src = data.src;
+  helpTitle.textContent = data.title;
+  helpSteps.innerHTML = '';
+  data.steps.forEach(step => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    helpSteps.appendChild(li);
+  });
+  prevBtn.disabled = (index === 0);
+  nextBtn.disabled = (index === helpData.length - 1);
+}
+
+closeHelpModal.onclick = function() {
+  window.parent.postMessage({ type: 'closeHelpModal' }, '*');
+};
+window.onclick = function(event) {
+  if (event.target == helpModal) {
+    window.parent.postMessage({ type: 'closeHelpModal' }, '*');
+  }
+};
+prevBtn.onclick = function() {
+  if (currentGif > 0) {
+    currentGif--;
+    showGif(currentGif);
+  }
+};
+nextBtn.onclick = function() {
+  if (currentGif < helpData.length - 1) {
+    currentGif++;
+    showGif(currentGif);
+  }
+};
+// Erstes GIF beim Laden anzeigen
+showGif(currentGif);
+</script>
+</body>
+</html> 

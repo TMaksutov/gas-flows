@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <title>Help - Gas Flows Simulator</title>
-  <link rel="stylesheet" href="common.css">
+<link rel="stylesheet" href="../common.css">
 </head>
 <body style="margin:0;">
 <div class="lang-switcher" style="position:fixed;top:10px;right:10px;z-index:2000;background:#fff;border:1px solid #ddd;border-radius:6px;padding:6px 8px;">
-  <select onchange="window.location.href=this.value"><option value="index.html" selected>EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select>
+  <select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html">RU</option></select>
 </div>
 <!-- Help Modal Content (moved from simulator.html) -->
 <div id="helpModal" class="modal" style="display:block;">
@@ -25,52 +25,52 @@
 const helpData = [
   {
     src: 'help/Animation1.gif',
-    title: 'Step 1: Build Network',
+    title: 'Шаг 1: Построение сети',
     steps: [
-      'Left Click to add new or connect existing points',
-      'Drag with left button to move nodes or canvas',
-      'Double click on object to delete',
-      'Clear button to clear the network'
+      'Левый клик для добавления новых или соединения существующих точек',
+      'Перетаскивание левой кнопкой для перемещения узлов или холста',
+      'Двойной клик по объекту для удаления',
+      'Кнопка очистки для очистки сети'
     ]
   },
   {
     src: 'help/Animation2.gif',
-    title: 'Step 2: Set Parameters',
+    title: 'Шаг 2: Установка параметров',
     steps: [
-      'Right click on line or point to set lparameters',
-      'Select and modifymultiple lines by holding Ctrl key',
-      'Set checkbox to freeze the pressure',
-      'Disable checkbox deactivates the line'
+      'Правый клик по линии или точке для установки параметров',
+      'Выбор и изменение нескольких линий удержанием клавиши Ctrl',
+      'Установка флажка для фиксации давления',
+      'Отключение флажка деактивирует линию'
     ]
   },
   {
     src: 'help/Animation3.gif',
-    title: 'Step 3: Set Pressures and Injections',
+    title: 'Шаг 3: Установка давлений и инъекций',
     steps: [
-      'At any point set pressure or injection',
-      'Negative injection is consumption',
-      'Freeze the pressure to keep it constant',
-      'Combine settings for complex scenarios'
+      'В любой точке установите давление или инъекцию',
+      'Отрицательная инъекция - это потребление',
+      'Зафиксируйте давление, чтобы сохранить его постоянным',
+      'Комбинируйте настройки для сложных сценариев'
     ]
   },
   {
     src: 'help/Animation4.gif',
-    title: 'Step 4: Run simulation',
+    title: 'Шаг 4: Запуск симуляции',
     steps: [
-      'Play button to run real-time simulation',
-      'Play (min) to run 1 minute simulation every 1 second',
-      'When parameters are settled down, simulation will be stopped',
-      'Colors represent the flow speed'
+      'Кнопка воспроизведения для запуска симуляции в реальном времени',
+      'Воспроизведение (мин) для запуска 1 минуты симуляции каждую секунду',
+      'Когда параметры стабилизируются, симуляция будет остановлена',
+      'Цвета представляют скорость потока'
     ]
   },
   {
     src: 'help/Animation5.gif',
-    title: 'Step 5: Run simulation',
+    title: 'Шаг 5: Управление симуляцией',
     steps: [
-      'Pause button to stop the simulation',
-      'Play buttns to run simulation again',
-      'Reset button to reset the simulation',
-      'Clear button to clear the network'
+      'Кнопка паузы для остановки симуляции',
+      'Кнопки воспроизведения для повторного запуска симуляции',
+      'Кнопка сброса для сброса симуляции',
+      'Кнопка очистки для очистки сети'
     ]
   }
 ];

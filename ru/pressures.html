@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <!-- Google tag (gtag.js) with consent -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MYJRPRS3TW"></script>
@@ -16,13 +16,13 @@
     gtag('config', 'G-MYJRPRS3TW');
   </script>
   <meta charset="utf-8">
-  <title>Pressure Converter</title>
+  <title>Конвертер давления</title>
   <link rel="canonical" href="https://gas-flows.com/pressures.html">
-  <meta name="description" content="Pressure converter for multiple units: bar, kPa, MPa, psi, technical atmosphere, standard atmosphere, kgf/cm², mm Hg, and N/cm².">
+  <meta name="description" content="Конвертер давления для различных единиц: бар, кПа, МПа, psi, техническая атмосфера, стандартная атмосфера, кгс/см², мм рт.ст. и Н/см².">
   <meta name="keywords" content="
-	pressure converter, pressure units converter, convert bars to Mpa, convert bars to PSI, 
-	bar, kPa, MPa, psi, technical atmosphere, standard atmosphere, kgf/cm2, mm Hg, N/cm2,
-    gas pressure online, Gas pressure calculator free, gas pressure calculator free online
+	конвертер давления, конвертер единиц давления, конвертировать бар в МПа, конвертировать бар в PSI,
+	бар, кПа, МПа, psi, техническая атмосфера, стандартная атмосфера, кгс/см2, мм рт.ст., Н/см2,
+    давление газа онлайн, Бесплатный калькулятор давления газа, бесплатный онлайн калькулятор давления газа
 	">
 <link rel="apple-touch-icon" sizes="57x57" href="icons/apple-icon-57x57.png">
 <link rel="apple-touch-icon" sizes="60x60" href="icons/apple-icon-60x60.png">
@@ -31,143 +31,74 @@
 <link rel="icon" type="image/png" sizes="36x36" href="icons/android-icon-36x36.png">
 <link rel="icon" type="image/png" sizes="48x48" href="icons/android-icon-48x48.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="common.css">
-  <style>
-    .lang-switcher a { text-decoration: none; margin: 0 4px; }
-  </style>
-</head>
-<body>
-  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="index.html">EN</option><option value="de/index.html">DE</option><option value="ru/index.html">RU</option></select></div>
-  <nav>
-    <ul>
-      <li><a href="index.html">Flow Calculator</a></li>
-      <li><a href="pressures.html" class="active">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html">Gas Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
-    </ul>
-  </nav>
-  <div id="controls" style="margin-bottom: 16px;">
-    <button id="resetButton" class="controlButton">Reset</button>
-  </div>
-    
-  <div class="container">
-    <h2>Pressure Converter</h2>
-    <div id="pressure-inputs">
-      <div class="field-group">
-        <label for="bar">Bar</label>
-        <input id="bar" type="number" step="any" value="1">
-        <span>Bar</span>
-      </div>
-      <div class="field-group">
-        <label for="kPa">kPa</label>
-        <input id="kPa" type="number" step="any" value="100">
-        <span>Kilopascal</span>
-      </div>
-      <div class="field-group">
-        <label for="MPa">MPa</label>
-        <input id="MPa" type="number" step="any" value="0.1">
-        <span>Megapascal</span>
-      </div>
-      <div class="field-group">
-        <label for="psi">psi</label>
-        <input id="psi" type="number" step="any" value="14.504">
-        <span>Pounds per Square Inch</span>
-      </div>
-      <div class="field-group">
-        <label for="tech_atm">Technical atm</label>
-        <input id="tech_atm" type="number" step="any" value="1.020">
-        <span>Technical Atmosphere (kgf/cm²)</span>
-      </div>
-      <div class="field-group">
-        <label for="atm">Standard atm</label>
-        <input id="atm" type="number" step="any" value="0.987">
-        <span>Standard Atmosphere</span>
-      </div>
-      <div class="field-group">
-        <label for="kgcm2">kgf/cm²</label>
-        <input id="kgcm2" type="number" step="any" value="1.020">
-        <span>Kilogram-force per Square Centimeter</span>
-      </div>
-      <div class="field-group">
-        <label for="mmHg">mm Hg</label>
-        <input id="mmHg" type="number" step="any" value="750.062">
-        <span>Millimeters of Mercury</span>
-      </div>
-      <div class="field-group">
-        <label for="Ncm2">N/cm²</label>
-        <input id="Ncm2" type="number" step="any" value="10">
-        <span>Newtons per Square Centimeter</span>
-      </div>
-    </div>
-  </div>
-  <script>
+  <link rel="stylesheet" href="../common.css">
+  
 </head>
 
 <body>
+  <div class="lang-switcher"><select onchange="window.location.href=this.value"><option value="../index.html">EN</option><option value="../de/index.html">DE</option><option value="index.html" selected>RU</option></select></div>
   <nav>
     <ul>
-      <li><a href="index.html">Flow Calculator</a></li>
-      <li><a href="pressures.html" class="active">Units Converter</a></li>
-      <li><a href="aga8.html">AGA8 Z-Factor</a></li>
-      <li><a href="AGA8Flow.html">AGA8 Flow</a></li>
-      <li><a href="simulator.html">Gas Simulator</a></li>
-      <li><a href="contacts.html">Contacts</a></li>
+      <li><a href="index.html">Калькулятор расхода</a></li>
+      <li><a href="pressures.html" class="active">Конвертер единиц</a></li>
+      <li><a href="aga8.html">AGA8 Z-Фактор</a></li>
+      <li><a href="AGA8Flow.html">AGA8 Расход</a></li>
+      <li><a href="simulator.html">Газовый симулятор</a></li>
+      <li><a href="contacts.html">Контакты</a></li>
     </ul>
   </nav>
-  
+
   <div id="controls" style="margin-bottom: 16px;">
-    <button id="resetButton" class="controlButton">Reset</button>
+    <button id="resetButton" class="controlButton">Сброс</button>
   </div>
     
   <div class="container">
-    <h2>Pressure Converter</h2>
+    <h2>Конвертер давления</h2>
     <div id="pressure-inputs">
       <div class="field-group">
-        <label for="bar">Bar</label>
+        <label for="bar">Бар</label>
         <input id="bar" type="number" step="any" value="1">
-        <span>Bar</span>
+        <span>Бар</span>
       </div>
       <div class="field-group">
-        <label for="kPa">kPa</label>
+        <label for="kPa">кПа</label>
         <input id="kPa" type="number" step="any" value="100">
-        <span>Kilopascal</span>
+        <span>Килопаскаль</span>
       </div>
       <div class="field-group">
-        <label for="MPa">MPa</label>
+        <label for="MPa">МПа</label>
         <input id="MPa" type="number" step="any" value="0.1">
-        <span>Megapascal</span>
+        <span>Мегапаскаль</span>
       </div>
       <div class="field-group">
         <label for="psi">psi</label>
         <input id="psi" type="number" step="any" value="14.504">
-        <span>Pounds per Square Inch</span>
+        <span>Фунт на квадратный дюйм</span>
       </div>
       <div class="field-group">
-        <label for="tech_atm">Technical atm</label>
+        <label for="tech_atm">Техническая атм</label>
         <input id="tech_atm" type="number" step="any" value="1.020">
-        <span>Technical Atmosphere (kgf/cm²)</span>
+        <span>Техническая атмосфера (кгс/см²)</span>
       </div>
       <div class="field-group">
-        <label for="atm">Standard atm</label>
+        <label for="atm">Стандартная атм</label>
         <input id="atm" type="number" step="any" value="0.987">
-        <span>Standard Atmosphere</span>
+        <span>Стандартная атмосфера</span>
       </div>
       <div class="field-group">
-        <label for="kgcm2">kgf/cm²</label>
+        <label for="kgcm2">кгс/см²</label>
         <input id="kgcm2" type="number" step="any" value="1.020">
-        <span>Kilogram-force per Square Centimeter</span>
+        <span>Килограмм-сила на квадратный сантиметр</span>
       </div>
       <div class="field-group">
-        <label for="mmHg">mm Hg</label>
+        <label for="mmHg">мм рт.ст.</label>
         <input id="mmHg" type="number" step="any" value="750.062">
-        <span>Millimeters of Mercury</span>
+        <span>Миллиметры ртутного столба</span>
       </div>
       <div class="field-group">
-        <label for="Ncm2">N/cm²</label>
+        <label for="Ncm2">Н/см²</label>
         <input id="Ncm2" type="number" step="any" value="10">
-        <span>Newtons per Square Centimeter</span>
+        <span>Ньютоны на квадратный сантиметр</span>
       </div>
     </div>
   </div>
@@ -265,12 +196,11 @@
   </script>
   <!-- Footer -->
   <footer  class="container" style="margin-top: 5px; font-size: 0.9em;">
-    <h2>How to convert gas pressures across units?</h2>
-    <p>Enter a value in any field to convert instantly between bar kPa MPa psi technical atmosphere standard atmosphere kgf per cm2 mmHg and N per cm2.</p>
-    <p><strong>Disclaimer:</strong> This Gas Flow Calculator is provided for estimation and informational purposes only.
-	The calculations made by this tool are based on general assumptions and may not reflect real-world operating conditions.
-	While efforts have been made to ensure accuracy, we make no guarantees and accept no liability for errors or decisions made based on the results.
-	Always consult a qualified engineer or technical expert before making operational decisions.</p>
+    <h2>Как конвертировать давление между единицами?</h2>
+    <p>Введите значение в любое поле, чтобы мгновенно перевести его между бар, кПа, МПа, psi, технической атмосферой, стандартной атмосферой, кгс/см², мм рт.ст. и Н/см².</p>
+    <p><strong>Отказ от ответственности:</strong> Этот калькулятор давления предоставляется исключительно для оценки и информационных целей.
+	Расчеты основаны на общих предположениях и могут не отражать реальные условия эксплуатации. Несмотря на усилия по обеспечению точности, мы не даем гарантий и не принимаем ответственности за ошибки или решения, принятые на основе результатов.
+	Всегда консультируйтесь с квалифицированным инженером или техническим экспертом перед принятием эксплуатационных решений.</p>
   </footer>
   <!-- Cookie Consent -->
   <script src="js/cookies.js"></script>
