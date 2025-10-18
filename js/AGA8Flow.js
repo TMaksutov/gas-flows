@@ -98,17 +98,26 @@ function reorderComponents(order) {
   // Remove all component divs
   components.forEach(div => div.remove());
 
-  // Find the "Gas Composition" heading and insert components after it
-  const gasCompositionHeading = Array.from(container.querySelectorAll('h3')).find(h => h.textContent === 'Gas Composition');
-  let insertAfter = gasCompositionHeading;
+  // Find the first section heading within the composition column (language-agnostic)
+  const gasCompositionHeading = container.querySelector('h3');
   
   // Add them back in the specified order
-  order.forEach(id => {
-    if (componentMap[id]) {
-      insertAfter.insertAdjacentElement('afterend', componentMap[id]);
-      insertAfter = componentMap[id];
-    }
-  });
+  if (gasCompositionHeading) {
+    let insertAfter = gasCompositionHeading;
+    order.forEach(id => {
+      if (componentMap[id]) {
+        insertAfter.insertAdjacentElement('afterend', componentMap[id]);
+        insertAfter = componentMap[id];
+      }
+    });
+  } else {
+    // Fallback: append to the end of the column
+    order.forEach(id => {
+      if (componentMap[id]) {
+        container.appendChild(componentMap[id]);
+      }
+    });
+  }
 }
 
 // Function to update button active states
