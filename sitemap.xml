@@ -55,13 +55,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/contacts.html"/>
   </url>
 
-  <!-- Help -->
-  <url>
-    <loc>https://gas-flows.com/help.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://gas-flows.com/help.html"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://gas-flows.com/de/help.html"/>
-    <xhtml:link rel="alternate" hreflang="ru" href="https://gas-flows.com/ru/help.html"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://gas-flows.com/help.html"/>
-  </url>
+  <!-- Help intentionally excluded from indexing -->
 
 </urlset>
