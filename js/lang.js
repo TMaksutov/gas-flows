@@ -135,6 +135,11 @@
     function injectCornerDropdown(currentLang) {
         // Avoid duplicates
         if (document.getElementById('lang-switcher')) return;
+        // Do not show selector on help pages
+        var p = (window.location.pathname || '').toLowerCase();
+        if (p.endsWith('/help.html') || p === '/help.html' || p.endsWith('/de/help.html') || p.endsWith('/ru/help.html')) {
+            return;
+        }
         var wrap = document.createElement('div');
         wrap.id = 'lang-switcher';
         wrap.className = 'lang-switcher';
